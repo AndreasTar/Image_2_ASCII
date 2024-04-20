@@ -40,7 +40,16 @@ def calculateAverage(tile: Image):
     return np.average(npImg.reshape(tw*th))
 
 def initParser() -> argparse.ArgumentParser:
-    return argparse.ArgumentParser()
+    return argparse.ArgumentParser(
+        usage = 'Usage: converter.py inputFile [-h] [-a] \
+            [-wi int] [-wc int] [-he int] [-hc int] \
+            [-gsc {10,70}] \
+            [-op string] [-on string] \
+            [-t {png, jpg, txt}]',
+        
+        description = 'Program that converts an input image into an ASCII representation.'
+
+    )
 
 def initParserArguments(parser: argparse.ArgumentParser):
     parser.add_argument(
@@ -50,10 +59,17 @@ def initParserArguments(parser: argparse.ArgumentParser):
     )
     parser.add_argument(
             '-a', '--auto',
-            dest        =   'inputWidth',
+            dest        =   'inputAuto',
             required    =   False,
             action      =   'store_true',
-            help        =   'Should the program decide the values on its own.'
+            help        =   'Should the program decide the values on its own? NOT IMPLEMENTED'
+    )
+    parser.add_argument(
+            '-c', '--colored',
+            dest        =   'inputColored',
+            required    =   False,
+            action      =   'store_true',
+            help        =   'Should the output image be colored instead of greyscale? NOT IMPLEMENTED'
     )
     parser.add_argument(
             '-wi', '--width',
@@ -63,11 +79,25 @@ def initParserArguments(parser: argparse.ArgumentParser):
             help        =   'Tile width in pixels.'
     )
     parser.add_argument(
+            '-wc', '--widthcount',
+            dest        =   'inputWidthcount',
+            required    =   False,
+            type        =   int,
+            help        = 'How many tiles to create on the X axis. NOT IMPLEMENTED'
+    )
+    parser.add_argument(
             '-he', '--height',
             dest        =   'inputHeight',
             required    =   False,
             type        =   int,
             help        = 'Tile height in pixels.'
+    )
+    parser.add_argument(
+            '-hc', '--heightcount',
+            dest        =   'inputHeightcount',
+            required    =   False,
+            type        =   int,
+            help        = 'How many tiles to create on the Y axis. NOT IMPLEMENTED'
     )
     parser.add_argument(
             '-gsc', '--grayscalecount',
@@ -84,7 +114,7 @@ def initParserArguments(parser: argparse.ArgumentParser):
             required    =   False,
             type        =   pathlib.Path,
             default     =   'out.txt',
-            help        =   'The full path of the output file.'
+            help        =   'The full path of the output file. NOT IMPLEMENTED'
     )
     parser.add_argument(
             '-on', '--outputfilename',
@@ -92,15 +122,15 @@ def initParserArguments(parser: argparse.ArgumentParser):
             required    =   False,
             type        =   str,
             default     =   'out.txt',
-            help        =   'The name of the output file. Will be stored in the same folder.'
+            help        =   'The name of the output file. Will be stored in the same folder. NOT IMPLEMENTED'
     )
     parser.add_argument(
             '-t', '--outputfiletype',
-            dest        =   'inputFileOut',
+            dest        =   'inputFileTypeOut',
             required    =   False,
             choices     =   ['png', 'jpg', 'txt'],
             default     =   'txt',
-            help        =   'What type should the output be.'
+            help        =   'The format of the output file. NOT IMPLEMENTED'
     )
       
 def configureArgs(args: argparse.Namespace):
