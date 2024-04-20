@@ -3,11 +3,14 @@
 
 # TODO learn how argparse and improve this
 # TODO think about making em into classes?
+# TODO since characters dont have a square aspect ratio
+#   figure out some math or something to fix it?
 
 # Project inspired by this tutorial:
 # https://www.geeksforgeeks.org/converting-image-ascii-image-python/
 
 import argparse, pathlib
+import numpy as np
 from PIL import Image
 
 # gray scale level values from: 
@@ -23,49 +26,73 @@ gscale2 = '@%#*+=-:. '
 # also generator function with yield is better since we care more about
 # memory (in the case of huge images) rather than speed
 def divisorGenerator(n: int):
-    for i in range(1, n/2+1):
+    for i in range(1, int(n/2+1)):
         if n%i == 0: yield i
     yield n
 
 def getDivisors(n: int):
     return list(divisorGenerator(n))
 
+def calculateAverage(tile: Image):
+    npImg = np.array(tile)
+    tw, th = npImg.shape
+
+    return np.average(npImg.reshape(tw*th))
+
 def initParser() -> argparse.ArgumentParser:
     return argparse.ArgumentParser()
 
 def initParserArguments(parser: argparse.ArgumentParser):
     parser.add_argument(
-            'file',
-            dest        =   'inputFile',
-            required    =   True,
-            type        =   pathlib.Path
+            'inputFile',
+            type        =   pathlib.Path,
+            help        =   'The path to the file to be converted'
     )
     parser.add_argument(
-            '-w', '--width',
+            '-a', '--auto',
+            dest        =   'inputWidth',
+            required    =   False,
+            action      =   'store_true',
+            help        =   'Should the program decide the values on its own.'
+    )
+    parser.add_argument(
+            '-wi', '--width',
             dest        =   'inputWidth',
             required    =   False,
             type        =   int,
+            help        =   'Tile width in pixels.'
     )
     parser.add_argument(
-            '-h', '--height',
+            '-he', '--height',
             dest        =   'inputHeight',
             required    =   False,
             type        =   int,
+            help        = 'Tile height in pixels.'
     )
     parser.add_argument(
             '-gsc', '--grayscalecount',
             dest        =   'inputGrayScaleCount',
             required    =   False,
             type        =   int,
-            choices     =   range(2,71),
+            choices     =   [10,70],
             default     =   70,
+            help        =   'How many characters to use for the ASCII representation.'
     )
     parser.add_argument(
-            '-o', '--outputfilepath',
+            '-op', '--outputfilepath',
             dest        =   'inputFileOut',
             required    =   False,
             type        =   pathlib.Path,
-            default     =   'out',
+            default     =   'out.txt',
+            help        =   'The full path of the output file.'
+    )
+    parser.add_argument(
+            '-on', '--outputfilename',
+            dest        =   'inputFileNameOut',
+            required    =   False,
+            type        =   str,
+            default     =   'out.txt',
+            help        =   'The name of the output file. Will be stored in the same folder.'
     )
     parser.add_argument(
             '-t', '--outputfiletype',
@@ -73,14 +100,10 @@ def initParserArguments(parser: argparse.ArgumentParser):
             required    =   False,
             choices     =   ['png', 'jpg', 'txt'],
             default     =   'txt',
+            help        =   'What type should the output be.'
     )
       
 def configureArgs(args: argparse.Namespace):
-    pass
-
-def convert2Ascii(args: argparse.Namespace):
-
-    global gscale1, gscale2
 
     grayscaleImage = Image.open(args.inputFile).convert('L')
 
@@ -93,7 +116,7 @@ def convert2Ascii(args: argparse.Namespace):
         print("Input the desired width scale from the list:")
         print(divs)
         while True:
-            inputWidth = input()
+            inputWidth = int(input())
             if not divs.__contains__(inputWidth):
                 print("Input a valid option from the list!")
             else: break
@@ -105,7 +128,7 @@ def convert2Ascii(args: argparse.Namespace):
         print("Input the desired height scale from the list:")
         print(divs)
         while True:
-            inputHeight = input()
+            inputHeight = int(input())
             if not divs.__contains__(inputHeight):
                 print("Input a valid option from the list!")
             else: break
@@ -114,7 +137,44 @@ def convert2Ascii(args: argparse.Namespace):
     inputGSCount = args.inputGrayScaleCount
     print(f"Using grayscale ascii detail: {inputGSCount}")
 
+    outFile = args.inputFileOut
+    #outFile = outFile.absolute().as_uri() + '.txt'
 
+    return grayscaleImage, \
+        imageWidth, imageHeight, \
+        inputWidth, inputHeight, \
+        inputGSCount, outFile
+
+def convert2Ascii(image: Image, imageHeight, tileHeight, imageWidth, tileWidth):
+
+    global gscale1, gscale2
+
+    asciiImage = []
+
+    rowNum = int(imageHeight / tileHeight)
+    colNum = int(imageWidth / tileWidth)
+
+    for r in range(rowNum):
+        ytop = r * tileHeight
+        ybot = (r+1) * tileHeight
+        if r == rowNum-1:
+            ybot = imageHeight
+        asciiImage.append('')
+
+        for c in range(colNum):
+            xleft = c * tileWidth
+            xright = (c+1) * tileWidth
+            if c == colNum-1:
+                xright = imageWidth
+            
+            tile = image.crop((xleft, ytop, xright, ybot))
+
+            avg = int(calculateAverage(tile))
+
+            val = gscale1[int((avg*69)/255)]
+            asciiImage[r] += val
+
+    return asciiImage
 
 
 def main():
@@ -124,9 +184,15 @@ def main():
 
     args = argParser.parse_args()
 
-    configureArgs(args)
+    gsimg, imgwidth, imgheight, inwidth, inheight, gsc, outfile = configureArgs(args)
 
-    asciiImg = convert2Ascii()
+    asciiImg = convert2Ascii(gsimg, imgheight, inheight, imgwidth, inwidth)
+
+    f = open(outfile, 'w')
+    for r in asciiImg:
+        f.write(r + '\n')
+    f.close()
+    print("DONEEEEEE\n")
 	
 
 if __name__ == '__main__':
