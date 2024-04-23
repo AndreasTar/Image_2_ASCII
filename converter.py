@@ -5,6 +5,7 @@
 # TODO think about making em into classes?
 # TODO since characters dont have a square aspect ratio
 #   figure out some math or something to fix it?
+#   maybe also implement a recommended input (like auto)
 
 # Project inspired by this tutorial:
 # https://www.geeksforgeeks.org/converting-image-ascii-image-python/
@@ -12,6 +13,7 @@
 import argparse, pathlib
 import numpy as np
 from PIL import Image
+from textwrap import dedent
 
 # gray scale level values from: 
 # http://paulbourke.net/dataformats/asciiart/
@@ -41,65 +43,78 @@ def calculateAverage(tile: Image):
 
 def initParser() -> argparse.ArgumentParser:
     return argparse.ArgumentParser(
-        usage = 'Usage: converter.py inputFile [-h] [-a] \
-            [-wi int] [-wc int] [-he int] [-hc int] \
-            [-gsc {10,70}] \
-            [-op string] [-on string] \
-            [-t {png, jpg, txt}]',
+        usage = dedent('Usage: converter.py inputFile [-h] [-a] \
+[-wi int] [-wc int] [-he int] [-hc int] \
+[-gsc {10,70}] \
+[-op string] [-on string] \
+[-t {png, jpg, xml, txt}]'
+        ),
         
         description = 'Program that converts an input image into an ASCII representation.'
 
     )
 
+
 def initParserArguments(parser: argparse.ArgumentParser):
-    parser.add_argument(
+
+    global validTypes
+
+    wgroup = parser.add_mutually_exclusive_group()
+    hgroup = parser.add_mutually_exclusive_group()
+    outgroup = parser.add_mutually_exclusive_group()
+
+    parser.add_argument(    #input file
             'inputFile',
             type        =   pathlib.Path,
             help        =   'The path to the file to be converted'
     )
-    parser.add_argument(
+    parser.add_argument(    # automatic NI
             '-a', '--auto',
             dest        =   'inputAuto',
             required    =   False,
             action      =   'store_true',
             help        =   'Should the program decide the values on its own? NOT IMPLEMENTED'
     )
-    parser.add_argument(
+    parser.add_argument(    # colored NI
             '-c', '--colored',
             dest        =   'inputColored',
             required    =   False,
             action      =   'store_true',
             help        =   'Should the output image be colored instead of greyscale? NOT IMPLEMENTED'
     )
-    parser.add_argument(
+    wgroup.add_argument(    # width pixel per tile
             '-wi', '--width',
             dest        =   'inputWidth',
             required    =   False,
             type        =   int,
-            help        =   'Tile width in pixels.'
+            help        =   'Tile width in pixels.',
+            metavar     =   'INTEGER'
     )
-    parser.add_argument(
+    wgroup.add_argument(    # width total tiles
             '-wc', '--widthcount',
             dest        =   'inputWidthcount',
             required    =   False,
             type        =   int,
-            help        = 'How many tiles to create on the X axis. NOT IMPLEMENTED'
+            help        =   'MAX amount of tiles to create on the X axis.',
+            metavar     =   'INTEGER'
     )
-    parser.add_argument(
-            '-he', '--height',
+    hgroup.add_argument(    # height pixel per tile
+            '-hi', '--height',
             dest        =   'inputHeight',
             required    =   False,
             type        =   int,
-            help        = 'Tile height in pixels.'
+            help        =   'Tile height in pixels.',
+            metavar     =   'INTEGER'
     )
-    parser.add_argument(
+    hgroup.add_argument(    # height total tiles
             '-hc', '--heightcount',
             dest        =   'inputHeightcount',
             required    =   False,
             type        =   int,
-            help        = 'How many tiles to create on the Y axis. NOT IMPLEMENTED'
+            help        =   'MAX amount of tiles to create on the Y axis.',
+            metavar     =   'INTEGER'
     )
-    parser.add_argument(
+    parser.add_argument(    # how many grayscale TODO
             '-gsc', '--grayscalecount',
             dest        =   'inputGrayScaleCount',
             required    =   False,
@@ -108,7 +123,7 @@ def initParserArguments(parser: argparse.ArgumentParser):
             default     =   70,
             help        =   'How many characters to use for the ASCII representation.'
     )
-    parser.add_argument(
+    outgroup.add_argument(    # output path NI
             '-op', '--outputfilepath',
             dest        =   'inputFileOut',
             required    =   False,
@@ -116,15 +131,16 @@ def initParserArguments(parser: argparse.ArgumentParser):
             default     =   'out.txt',
             help        =   'The full path of the output file. NOT IMPLEMENTED'
     )
-    parser.add_argument(
+    outgroup.add_argument(    # output name NI
             '-on', '--outputfilename',
             dest        =   'inputFileNameOut',
             required    =   False,
             type        =   str,
-            default     =   'out.txt',
-            help        =   'The name of the output file. Will be stored in the same folder. NOT IMPLEMENTED'
+            default     =   'out',
+            help        =   'The name of the output file. Will be stored in the same folder. NOT IMPLEMENTED',
+            metavar     =   'STRING'
     )
-    parser.add_argument(
+    parser.add_argument(    # output type NI
             '-t', '--outputfiletype',
             dest        =   'inputFileTypeOut',
             required    =   False,
@@ -135,34 +151,75 @@ def initParserArguments(parser: argparse.ArgumentParser):
       
 def configureArgs(args: argparse.Namespace):
 
-    grayscaleImage = Image.open(args.inputFile).convert('L')
+    inImg = Image.open(args.inputFile).convert('L')
 
-    imageWidth, imageHeight = grayscaleImage.size
-    print(f"\tInput image dimensions: {imageWidth} x {imageHeight} pixels")
+    imgWidth, imgHeight = inImg.size
+    print(f"\nInput image dimensions: {imgWidth} x {imgHeight} pixels")
 
-    inputWidth = args.inputWidth
-    if (not inputWidth):
-        divs = getDivisors(imageWidth)
-        print("Input the desired width scale from the list:")
+    inAuto = args.inputAuto
+
+    inColored = args.inputColored
+
+    inWidth = args.inputWidth
+    inWidthCount = args.inputWidthcount
+    tileWidth = 0
+    if (not (inWidth or inWidthCount)): # if we get neither
+        divs = getDivisors(imgWidth)
+        print("Input the desired tile width size per pixel from the list:")
         print(divs)
         while True:
-            inputWidth = int(input())
-            if not divs.__contains__(inputWidth):
-                print("Input a valid option from the list!")
-            else: break
-    print(f"Using tile width size: {inputWidth}")
+            inWidth = int(input())
+            if not divs.__contains__(inWidth):
+                print("Input a valid option from the list!") # TODO add auto option and custom option
+            else:
+                tileWidth = inWidth
+                break
+    elif (inWidth): # if we get tile pixel size
+        if (inWidth < 1 or inWidth > imgWidth):
+            print("Invalid tile size! Exiting...")
+            exit()
+        tileWidth = inWidth
+    else:           # if we get tile count
+        if (inWidthCount < 1 or inWidthCount > imgWidth):
+            print("Invalid tile size! Exiting...")
+            exit()
+        tileWidth = int(np.ceil(imgWidth / inWidthCount))
 
-    inputHeight = args.inputHeight
-    if (not inputHeight):
-        divs = getDivisors(imageHeight)
-        print("Input the desired height scale from the list:")
+
+    inHeight = args.inputHeight
+    inHeightCount = args.inputHeightcount
+    tileHeight = 0
+    if (not (inHeight or inHeightCount)): # if we get neither
+        divs = getDivisors(imgHeight)
+        print("Input the desired tile height size per pixel from the list:")
         print(divs)
         while True:
-            inputHeight = int(input())
-            if not divs.__contains__(inputHeight):
-                print("Input a valid option from the list!")
-            else: break
-    print(f"Using tile height size: {inputHeight}")
+            inHeight = int(input())
+            if not divs.__contains__(inHeight):
+                print("Input a valid option from the list!") # TODO add auto option and custom option
+            else: 
+                tileHeight = inHeight
+                break
+    elif (inHeight): # if we get tile pixel size
+        if (inHeight < 1 or inHeight > imgHeight):
+            print("Invalid tile size! Exiting...")
+            exit()
+        tileHeight = inHeight
+    else:           # if we get tile count
+        if (inHeightCount < 1 or inHeightCount > imgHeight):
+            print("Invalid tile size! Exiting...")
+            exit()
+        tileHeight = int(np.ceil(imgHeight / inHeightCount))
+
+    tilecountw = int(imgWidth/tileWidth)
+    tilecounth = int(imgHeight/tileHeight)
+    print(f"Using tile size in pixels (w x h): {tileWidth} x {tileHeight}")
+    print(f"Total tile count \n\tper axis (w x h): {tilecountw} x {tilecounth}\n\ttotal: {tilecountw*tilecounth}")
+
+    inGSCount = args.inputGrayScaleCount
+    print(f"Using grayscale ascii detail: {inGSCount}")
+
+            
 
     inputGSCount = args.inputGrayScaleCount
     print(f"Using grayscale ascii detail: {inputGSCount}")
@@ -170,12 +227,12 @@ def configureArgs(args: argparse.Namespace):
     outFile = args.inputFileOut
     #outFile = outFile.absolute().as_uri() + '.txt'
 
-    return grayscaleImage, \
-        imageWidth, imageHeight, \
-        inputWidth, inputHeight, \
-        inputGSCount, outFile
+    return inImg, \
+        imgWidth, imgHeight, \
+        tileWidth, tileHeight, \
+        inGSCount, outFile
 
-def convert2Ascii(image: Image, imageHeight, tileHeight, imageWidth, tileWidth):
+def convert2Ascii(image: Image, imageHeight, imageWidth, tileHeight, tileWidth):
 
     global gscale1, gscale2
 
@@ -216,7 +273,7 @@ def main():
 
     gsimg, imgwidth, imgheight, inwidth, inheight, gsc, outfile = configureArgs(args)
 
-    asciiImg = convert2Ascii(gsimg, imgheight, inheight, imgwidth, inwidth)
+    asciiImg = convert2Ascii(gsimg, imgheight, imgwidth, inheight, inwidth)
 
     f = open(outfile, 'w')
     for r in asciiImg:
