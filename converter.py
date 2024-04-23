@@ -24,6 +24,8 @@ gscale1 = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,\"^`'
 # 10 levels of gray
 gscale2 = '@%#*+=-:. '
 
+validTypes = ['png', 'jpg', 'xml', 'txt']
+
 # HACK very dumb and slow way to find all divisors, fix it
 # also generator function with yield is better since we care more about
 # memory (in the case of huge images) rather than speed
@@ -128,8 +130,9 @@ def initParserArguments(parser: argparse.ArgumentParser):
             dest        =   'inputFileOut',
             required    =   False,
             type        =   pathlib.Path,
-            default     =   'out.txt',
-            help        =   'The full path of the output file. NOT IMPLEMENTED'
+            default     =   '\\out',
+            help        =   'The full path of the output file. NOT IMPLEMENTED',
+            metavar     =   'PATH'
     )
     outgroup.add_argument(    # output name NI
             '-on', '--outputfilename',
@@ -144,12 +147,13 @@ def initParserArguments(parser: argparse.ArgumentParser):
             '-t', '--outputfiletype',
             dest        =   'inputFileTypeOut',
             required    =   False,
-            choices     =   ['png', 'jpg', 'txt'],
+            choices     =   validTypes,
             default     =   'txt',
             help        =   'The format of the output file. NOT IMPLEMENTED'
     )
       
 def configureArgs(args: argparse.Namespace):
+    global validTypes
 
     inImg = Image.open(args.inputFile).convert('L')
 
@@ -219,13 +223,24 @@ def configureArgs(args: argparse.Namespace):
     inGSCount = args.inputGrayScaleCount
     print(f"Using grayscale ascii detail: {inGSCount}")
 
+    outFilePath:pathlib.Path = args.inputFileOut
+    outFileName = args.inputFileNameOut
+    outFileType = args.inputFileTypeOut
+
+    # get path input
+    #   if it has file ending, recognise it, if its valid, remove it and update type otherwise error
+    # get name input
+    #   depending on the path, make the full path without type
+    # get path input
+    #   add path to end. if we have both name type and flag type, use flag
+
+    suf = outFilePath.suffix
+    if (suf):
+        if (validTypes.__contains__(suf)):
             
 
-    inputGSCount = args.inputGrayScaleCount
-    print(f"Using grayscale ascii detail: {inputGSCount}")
 
-    outFile = args.inputFileOut
-    #outFile = outFile.absolute().as_uri() + '.txt'
+    outFile = pathlib.Path.
 
     return inImg, \
         imgWidth, imgHeight, \
