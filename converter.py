@@ -14,6 +14,7 @@ import argparse, pathlib
 import numpy as np
 from PIL import Image
 from textwrap import dedent
+from enum import Enum
 
 # gray scale level values from: 
 # http://paulbourke.net/dataformats/asciiart/
@@ -25,6 +26,7 @@ gscale1 = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,\"^`'
 gscale2 = '@%#*+=-:. '
 
 validTypes = ['png', 'jpg', 'xml', 'txt']
+
 
 # HACK very dumb and slow way to find all divisors, fix it
 # also generator function with yield is better since we care more about
@@ -45,12 +47,12 @@ def calculateAverage(tile: Image):
 
 def initParser() -> argparse.ArgumentParser:
     return argparse.ArgumentParser(
-        usage = dedent('Usage: converter.py inputFile [-h] [-a] \
-[-wi int] [-wc int] [-he int] [-hc int] \
-[-gsc {10,70}] \
-[-op string] [-on string] \
-[-t {png, jpg, xml, txt}]'
-        ),
+#         usage = dedent('Usage: converter.py inputFile [-h] [-a] \
+# [-wi int] [-wc int] [-he int] [-hc int] \
+# [-gsc {10,70}] \
+# [-op string] [-on string] \
+# [-t {png, jpg, xml, txt}]'
+#         ),
         
         description = 'Program that converts an input image into an ASCII representation.'
 
@@ -63,7 +65,6 @@ def initParserArguments(parser: argparse.ArgumentParser):
 
     wgroup = parser.add_mutually_exclusive_group()
     hgroup = parser.add_mutually_exclusive_group()
-    outgroup = parser.add_mutually_exclusive_group()
 
     parser.add_argument(    #input file
             'inputFile',
@@ -84,6 +85,7 @@ def initParserArguments(parser: argparse.ArgumentParser):
             action      =   'store_true',
             help        =   'Should the output image be colored instead of greyscale? NOT IMPLEMENTED'
     )
+
     wgroup.add_argument(    # width pixel per tile
             '-wi', '--width',
             dest        =   'inputWidth',
@@ -100,6 +102,7 @@ def initParserArguments(parser: argparse.ArgumentParser):
             help        =   'MAX amount of tiles to create on the X axis.',
             metavar     =   'INTEGER'
     )
+
     hgroup.add_argument(    # height pixel per tile
             '-hi', '--height',
             dest        =   'inputHeight',
@@ -116,6 +119,7 @@ def initParserArguments(parser: argparse.ArgumentParser):
             help        =   'MAX amount of tiles to create on the Y axis.',
             metavar     =   'INTEGER'
     )
+
     parser.add_argument(    # how many grayscale TODO
             '-gsc', '--grayscalecount',
             dest        =   'inputGrayScaleCount',
@@ -125,23 +129,15 @@ def initParserArguments(parser: argparse.ArgumentParser):
             default     =   70,
             help        =   'How many characters to use for the ASCII representation.'
     )
-    outgroup.add_argument(    # output path NI
+
+    parser.add_argument(    # output path NI
             '-op', '--outputfilepath',
             dest        =   'inputFileOut',
             required    =   False,
             type        =   pathlib.Path,
-            default     =   '\\out',
+            #default     =   '\\out',
             help        =   'The full path of the output file. NOT IMPLEMENTED',
             metavar     =   'PATH'
-    )
-    outgroup.add_argument(    # output name NI
-            '-on', '--outputfilename',
-            dest        =   'inputFileNameOut',
-            required    =   False,
-            type        =   str,
-            default     =   'out',
-            help        =   'The name of the output file. Will be stored in the same folder. NOT IMPLEMENTED',
-            metavar     =   'STRING'
     )
     parser.add_argument(    # output type NI
             '-t', '--outputfiletype',
@@ -160,87 +156,23 @@ def configureArgs(args: argparse.Namespace):
     imgWidth, imgHeight = inImg.size
     print(f"\nInput image dimensions: {imgWidth} x {imgHeight} pixels")
 
-    inAuto = args.inputAuto
+    manageAuto(args)
 
-    inColored = args.inputColored
+    manageColored(args)
 
-    inWidth = args.inputWidth
-    inWidthCount = args.inputWidthcount
-    tileWidth = 0
-    if (not (inWidth or inWidthCount)): # if we get neither
-        divs = getDivisors(imgWidth)
-        print("Input the desired tile width size per pixel from the list:")
-        print(divs)
-        while True:
-            inWidth = int(input())
-            if not divs.__contains__(inWidth):
-                print("Input a valid option from the list!") # TODO add auto option and custom option
-            else:
-                tileWidth = inWidth
-                break
-    elif (inWidth): # if we get tile pixel size
-        if (inWidth < 1 or inWidth > imgWidth):
-            print("Invalid tile size! Exiting...")
-            exit()
-        tileWidth = inWidth
-    else:           # if we get tile count
-        if (inWidthCount < 1 or inWidthCount > imgWidth):
-            print("Invalid tile size! Exiting...")
-            exit()
-        tileWidth = int(np.ceil(imgWidth / inWidthCount))
+    tileWidth = manageWidth(args, imgWidth)
 
-
-    inHeight = args.inputHeight
-    inHeightCount = args.inputHeightcount
-    tileHeight = 0
-    if (not (inHeight or inHeightCount)): # if we get neither
-        divs = getDivisors(imgHeight)
-        print("Input the desired tile height size per pixel from the list:")
-        print(divs)
-        while True:
-            inHeight = int(input())
-            if not divs.__contains__(inHeight):
-                print("Input a valid option from the list!") # TODO add auto option and custom option
-            else: 
-                tileHeight = inHeight
-                break
-    elif (inHeight): # if we get tile pixel size
-        if (inHeight < 1 or inHeight > imgHeight):
-            print("Invalid tile size! Exiting...")
-            exit()
-        tileHeight = inHeight
-    else:           # if we get tile count
-        if (inHeightCount < 1 or inHeightCount > imgHeight):
-            print("Invalid tile size! Exiting...")
-            exit()
-        tileHeight = int(np.ceil(imgHeight / inHeightCount))
+    tileHeight = manageHeight(args, imgHeight)
 
     tilecountw = int(imgWidth/tileWidth)
     tilecounth = int(imgHeight/tileHeight)
     print(f"Using tile size in pixels (w x h): {tileWidth} x {tileHeight}")
     print(f"Total tile count \n\tper axis (w x h): {tilecountw} x {tilecounth}\n\ttotal: {tilecountw*tilecounth}")
 
-    inGSCount = args.inputGrayScaleCount
+    inGSCount =  manageGrayscale(args)
     print(f"Using grayscale ascii detail: {inGSCount}")
 
-    outFilePath:pathlib.Path = args.inputFileOut
-    outFileName = args.inputFileNameOut
-    outFileType = args.inputFileTypeOut
-
-    # get path input
-    #   if it has file ending, recognise it, if its valid, remove it and update type otherwise error
-    # get name input
-    #   depending on the path, make the full path without type
-    # get path input
-    #   add path to end. if we have both name type and flag type, use flag
-
-    suf = outFilePath.suffix
-    if (suf):
-        if (validTypes.__contains__(suf)):
-            
-
-
-    outFile = pathlib.Path.
+    outFile = manageOutput(args)
 
     return inImg, \
         imgWidth, imgHeight, \
@@ -278,6 +210,90 @@ def convert2Ascii(image: Image, imageHeight, imageWidth, tileHeight, tileWidth):
 
     return asciiImage
 
+def manageAuto(args: argparse.Namespace):
+    inAuto = args.inputAuto
+
+def manageColored(args: argparse.Namespace):
+    inColored = args.inputColored
+
+def manageWidth(args: argparse.Namespace, imgWidth: int) -> int:
+    inWidth = args.inputWidth
+    inWidthCount = args.inputWidthcount
+    tileWidth = 0
+    if (not (inWidth or inWidthCount)): # if we get neither
+        divs = getDivisors(imgWidth)
+        print("Input the desired tile width size per pixel from the list:")
+        print(divs)
+        while True:
+            inWidth = int(input())
+            if not divs.__contains__(inWidth):
+                print("Input a valid option from the list!") # TODO add auto option and custom option
+            else:
+                tileWidth = inWidth
+                break
+    elif (inWidth): # if we get tile pixel size
+        if (inWidth < 1 or inWidth > imgWidth):
+            print("Invalid tile size! Exiting...")
+            exit()
+        tileWidth = inWidth
+    else:           # if we get tile count
+        if (inWidthCount < 1 or inWidthCount > imgWidth):
+            print("Invalid tile size! Exiting...")
+            exit()
+        tileWidth = int(np.ceil(imgWidth / inWidthCount))
+    
+    return tileWidth
+
+def manageHeight(args: argparse.Namespace, imgHeight: int) -> int:
+    inHeight = args.inputHeight
+    inHeightCount = args.inputHeightcount
+    tileHeight = 0
+    if (not (inHeight or inHeightCount)): # if we get neither
+        divs = getDivisors(imgHeight)
+        print("Input the desired tile height size per pixel from the list:")
+        print(divs)
+        while True:
+            inHeight = int(input())
+            if not divs.__contains__(inHeight):
+                print("Input a valid option from the list!") # TODO add auto option and custom option
+            else: 
+                tileHeight = inHeight
+                break
+    elif (inHeight): # if we get tile pixel size
+        if (inHeight < 1 or inHeight > imgHeight):
+            print("Invalid tile size! Exiting...")
+            exit()
+        tileHeight = inHeight
+    else:           # if we get tile count
+        if (inHeightCount < 1 or inHeightCount > imgHeight):
+            print("Invalid tile size! Exiting...")
+            exit()
+        tileHeight = int(np.ceil(imgHeight / inHeightCount))
+    
+    return tileHeight
+
+def manageGrayscale(args: argparse.Namespace):
+    inGSCount = args.inputGrayScaleCount
+    return inGSCount
+
+def manageOutput(args: argparse.Namespace) -> pathlib.Path:
+    outFilePath:pathlib.Path = args.inputFileOut
+    outFileType = args.inputFileTypeOut
+    
+    # get input path
+    #   if it exists, create the file there with the name given, whatever that is, and append type at the end
+    #   if not, assume current folder and use unique recognisable name and append type at the end
+
+    outFile = ""
+
+    if (not outFilePath):
+        # outFile = getUniqueName()
+        outFile = "temporary_name"
+        outFile += outFileType
+    else:
+        outFile = outFilePath + outFileType
+
+    outFile = pathlib.Path.joinpath("", outFile)
 
 def main():
     argParser = initParser()
