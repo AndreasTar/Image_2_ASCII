@@ -63,17 +63,20 @@ def getUniqueName() -> str:
 
 def initParser() -> argparse.ArgumentParser:
     return argparse.ArgumentParser(
-#         usage = dedent('Usage: converter.py inputFile [-h] [-a] \
-# [-wi int] [-wc int] [-he int] [-hc int] \
-# [-gsc {10,70}] \
-# [-op string] [-on string] \
-# [-t {png, jpg, xml, txt}]'
-#         ),
+        usage = dedent(
+'converter.py inputFile [-h] [-a] [-c] \n\
+                    [-wi INTEGER | -wc INTEGER] \n\
+                    [-hi INTEGER | -hc INTEGER] \n\
+                    [-gsc {10,70}] \n\
+                    [-op PATH] [-t {png, jpg, xml, txt}]'
+        ),
         
-        description = 'Program that converts an input image into an ASCII representation.'
+        description = 'Program that converts an input image into an ASCII representation. Usage message formatted for readability.'
 
     )
-
+# usage: converter.py [-h] [-a] [-c] [-wi INTEGER | -wc INTEGER] [-hi INTEGER | -hc INTEGER] [-gsc {10,70}]
+#                     [-op PATH | -on STRING] [-t {png,jpg,xml,txt}]
+#                     inputFile
 
 def initParserArguments(parser: argparse.ArgumentParser):
 
