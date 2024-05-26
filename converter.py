@@ -130,7 +130,7 @@ def initParserArguments(parser: argparse.ArgumentParser):
             help        =   'How many characters to use for the ASCII representation.'
     )
 
-    parser.add_argument(    # output path NI
+    parser.add_argument(    # output path
             '-op', '--outputfilepath',
             dest        =   'inputFileOut',
             required    =   False,
@@ -139,7 +139,7 @@ def initParserArguments(parser: argparse.ArgumentParser):
             help        =   'The full path of the output file. NOT IMPLEMENTED',
             metavar     =   'PATH'
     )
-    parser.add_argument(    # output type NI
+    parser.add_argument(    # output type
             '-t', '--outputfiletype',
             dest        =   'inputFileTypeOut',
             required    =   False,
@@ -173,6 +173,7 @@ def configureArgs(args: argparse.Namespace):
     print(f"Using grayscale ascii detail: {inGSCount}")
 
     outFile = manageOutput(args)
+    print(f"Output file path: {outFile}")
 
     return inImg, \
         imgWidth, imgHeight, \
@@ -277,6 +278,7 @@ def manageGrayscale(args: argparse.Namespace):
     return inGSCount
 
 def manageOutput(args: argparse.Namespace) -> pathlib.Path:
+
     outFilePath:pathlib.Path = args.inputFileOut
     outFileType = args.inputFileTypeOut
     
@@ -287,13 +289,32 @@ def manageOutput(args: argparse.Namespace) -> pathlib.Path:
     outFile = ""
 
     if (not outFilePath):
-        # outFile = getUniqueName()
-        outFile = "temporary_name"
+        outFile = getUniqueName()
+        #outFile = "temporary_name"
         outFile += outFileType
     else:
         outFile = outFilePath + outFileType
 
     outFile = pathlib.Path.joinpath("", outFile)
+    return outFile
+
+def getUniqueName() -> str:
+
+    part1 = ['Cheap', 'Expensive', 'Nice', 'Ugly', 'Stupid', 'Smart', 'Brilliant', 'Great', 'Pretty', 'Rich']
+    part2 = ['Small', 'Tiny', 'Huge', 'Big', 'Miniscule', 'Tall', 'Little', 'Large', 'Colossal', 'Puny']
+    part3 = ['Old', 'New', 'Ancient', 'Teen', 'Young', 'Antique', 'Elderly', 'Aged', 'Mature', 'Childish']
+    part4 = ['Round', 'Square', 'Angled', 'Convex', 'Oblique', 'Straight', 'Thick', 'Curved', 'Wide', 'Wavy']
+    part5 = ['Red', 'Green', 'Cyan', 'Glossy', 'Vibrant', 'Black', 'Grey', 'White', 'Purple', 'Blue']
+    part6 = ['Greek', 'French', 'Spanish', 'Italian', 'English', 'Swedish', 'German', 'Japanese', 'Korean', 'Indian']
+    part7 = ['Wooden', 'Steel', 'Natural', 'Synthetic', 'Plastic', 'Gold', 'Ceramic', 'Marble', 'Smooth', 'Soft']
+
+    parts = [part1, part2, part3, part4, part5, part6, part7]
+    adj1, adj2, adj3, pos1, pos2, pos3 = np.random.random_integers(0, 6, 6)
+
+    return parts[adj1][pos1] + '_' + parts[adj2][pos2] + '_' + parts[adj3][pos3]
+    
+
+
 
 def main():
     argParser = initParser()
