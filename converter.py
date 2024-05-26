@@ -155,7 +155,7 @@ def initParserArguments(parser: argparse.ArgumentParser):
             required    =   False,
             type        =   pathlib.Path,
             #default     =   '\\out',
-            help        =   'The full path of the output file. NOT IMPLEMENTED',
+            help        =   'The full path of the output file.',
             metavar     =   'PATH'
     )
     parser.add_argument(    # output type
@@ -164,7 +164,7 @@ def initParserArguments(parser: argparse.ArgumentParser):
             required    =   False,
             choices     =   validTypes,
             default     =   'txt',
-            help        =   'The format of the output file. NOT IMPLEMENTED'
+            help        =   'The format of the output file.'
     )
       
 def configureArgs(args: argparse.Namespace):
@@ -193,6 +193,8 @@ def configureArgs(args: argparse.Namespace):
 
     outFile = manageOutput(args)
     print(f"Output file path: {outFile}")
+
+    manageType(args)
 
     return inImg, \
         imgWidth, imgHeight, \
@@ -319,7 +321,8 @@ def manageOutput(args: argparse.Namespace) -> pathlib.Path:
     outFile = pathlib.Path.joinpath("", outFile)
     return outFile
 
-
+def manageType(args: argparse.Namespace):
+    pass
 
 def main():
     argParser = initParser()
