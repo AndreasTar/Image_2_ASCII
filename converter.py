@@ -2,7 +2,6 @@
 # [ ] add colored conversion to colored ascii
 
 # TODO learn how argparse and improve this
-# TODO think about making em into classes?
 # TODO since characters dont have a square aspect ratio
 #   figure out some math or something to fix it?
 #   maybe also implement a recommended input (like auto)
@@ -44,6 +43,23 @@ def calculateAverage(tile: Image):
     tw, th = npImg.shape
 
     return np.average(npImg.reshape(tw*th))
+
+def getUniqueName() -> str:
+
+    part1 = ['Cheap', 'Expensive', 'Nice', 'Ugly', 'Stupid', 'Smart', 'Brilliant', 'Great', 'Pretty', 'Rich']
+    part2 = ['Small', 'Tiny', 'Huge', 'Big', 'Miniscule', 'Tall', 'Little', 'Large', 'Colossal', 'Puny']
+    part3 = ['Old', 'New', 'Ancient', 'Teen', 'Young', 'Antique', 'Elderly', 'Aged', 'Mature', 'Childish']
+    part4 = ['Round', 'Square', 'Angled', 'Convex', 'Oblique', 'Straight', 'Thick', 'Curved', 'Wide', 'Wavy']
+    part5 = ['Red', 'Green', 'Cyan', 'Glossy', 'Vibrant', 'Black', 'Grey', 'White', 'Purple', 'Blue']
+    part6 = ['Greek', 'French', 'Spanish', 'Italian', 'English', 'Swedish', 'German', 'Japanese', 'Korean', 'Indian']
+    part7 = ['Wooden', 'Steel', 'Natural', 'Synthetic', 'Plastic', 'Gold', 'Ceramic', 'Marble', 'Smooth', 'Soft']
+
+    parts = [part1, part2, part3, part4, part5, part6, part7]
+    adj1, adj2, adj3, pos1, pos2, pos3 = np.random.random_integers(0, 6, 6)
+
+    return parts[adj1][pos1] + '_' + parts[adj2][pos2] + '_' + parts[adj3][pos3]
+    
+
 
 def initParser() -> argparse.ArgumentParser:
     return argparse.ArgumentParser(
@@ -213,9 +229,11 @@ def convert2Ascii(image: Image, imageHeight, imageWidth, tileHeight, tileWidth):
 
 def manageAuto(args: argparse.Namespace):
     inAuto = args.inputAuto
+    print("Automatic flag '-a' is not implemented yet. Ignoring it and proceeding normally...")
 
 def manageColored(args: argparse.Namespace):
     inColored = args.inputColored
+    print("Colored flag '-c' is not implemented yet. Ignoring it and proceeding normally...")
 
 def manageWidth(args: argparse.Namespace, imgWidth: int) -> int:
     inWidth = args.inputWidth
@@ -297,22 +315,6 @@ def manageOutput(args: argparse.Namespace) -> pathlib.Path:
 
     outFile = pathlib.Path.joinpath("", outFile)
     return outFile
-
-def getUniqueName() -> str:
-
-    part1 = ['Cheap', 'Expensive', 'Nice', 'Ugly', 'Stupid', 'Smart', 'Brilliant', 'Great', 'Pretty', 'Rich']
-    part2 = ['Small', 'Tiny', 'Huge', 'Big', 'Miniscule', 'Tall', 'Little', 'Large', 'Colossal', 'Puny']
-    part3 = ['Old', 'New', 'Ancient', 'Teen', 'Young', 'Antique', 'Elderly', 'Aged', 'Mature', 'Childish']
-    part4 = ['Round', 'Square', 'Angled', 'Convex', 'Oblique', 'Straight', 'Thick', 'Curved', 'Wide', 'Wavy']
-    part5 = ['Red', 'Green', 'Cyan', 'Glossy', 'Vibrant', 'Black', 'Grey', 'White', 'Purple', 'Blue']
-    part6 = ['Greek', 'French', 'Spanish', 'Italian', 'English', 'Swedish', 'German', 'Japanese', 'Korean', 'Indian']
-    part7 = ['Wooden', 'Steel', 'Natural', 'Synthetic', 'Plastic', 'Gold', 'Ceramic', 'Marble', 'Smooth', 'Soft']
-
-    parts = [part1, part2, part3, part4, part5, part6, part7]
-    adj1, adj2, adj3, pos1, pos2, pos3 = np.random.random_integers(0, 6, 6)
-
-    return parts[adj1][pos1] + '_' + parts[adj2][pos2] + '_' + parts[adj3][pos3]
-    
 
 
 
