@@ -5,6 +5,7 @@
 # TODO since characters dont have a square aspect ratio
 #   figure out some math or something to fix it?
 #   maybe also implement a recommended input (like auto)
+# TODO add maybe a direct output? i guess you can do that by just returning the final array
 
 # Project inspired by this tutorial:
 # https://www.geeksforgeeks.org/converting-image-ascii-image-python/
@@ -13,7 +14,6 @@ import argparse, pathlib
 import numpy as np
 from PIL import Image
 from textwrap import dedent
-from enum import Enum
 
 # gray scale level values from: 
 # http://paulbourke.net/dataformats/asciiart/
@@ -53,11 +53,14 @@ def getUniqueName() -> str:
     part5 = ['Red', 'Green', 'Cyan', 'Glossy', 'Vibrant', 'Black', 'Grey', 'White', 'Purple', 'Blue']
     part6 = ['Greek', 'French', 'Spanish', 'Italian', 'English', 'Swedish', 'German', 'Japanese', 'Korean', 'Indian']
     part7 = ['Wooden', 'Steel', 'Natural', 'Synthetic', 'Plastic', 'Gold', 'Ceramic', 'Marble', 'Smooth', 'Soft']
+    objects = ['Table', 'House', 'Raindrop', 'Car', 'JetEngine', 'Bottle', 'Phone', 'Electron', 'Tree', 'Cat', 'Parrot', 'Candle', 'Coin', 'Bed', 'Printer', 'Tree', 'Leaf', 'Sponge']
 
     parts = [part1, part2, part3, part4, part5, part6, part7]
-    adj1, adj2, adj3, pos1, pos2, pos3 = np.random.random_integers(0, 6, 6)
+    adj1, adj2, adj3 = np.random.randint(0, 6, 3)
+    pos1, pos2, pos3 = np.random.randint(0, 9, 3)
+    obj = np.random.randint(0, 17)
 
-    return parts[adj1][pos1] + '_' + parts[adj2][pos2] + '_' + parts[adj3][pos3]
+    return parts[adj1][pos1] + '_' + parts[adj2][pos2] + '_' + parts[adj3][pos3] + '_' + objects[obj]
     
 
 
@@ -67,8 +70,8 @@ def initParser() -> argparse.ArgumentParser:
 'converter.py inputFile [-h] [-a] [-c] \n\
                     [-wi INTEGER | -wc INTEGER] \n\
                     [-hi INTEGER | -hc INTEGER] \n\
-                    [-gsc {10,70}] \n\
-                    [-op PATH] [-t {png, jpg, xml, txt}]'
+                    [-gsc {10,70} def: 70] \n\
+                    [-op PATH] [-t {png, jpg, xml, txt} def: txt]'
         ),
         
         description = 'Program that converts an input image into an ASCII representation. Usage message formatted for readability.'
@@ -167,7 +170,7 @@ def initParserArguments(parser: argparse.ArgumentParser):
             help        =   'The format of the output file.'
     )
       
-def configureArgs(args: argparse.Namespace):
+def configureArgs(args: argparse.Namespace) -> tuple[Image.Image, int, int, int, int, int, pathlib.Path]:
     global validTypes
 
     inImg = Image.open(args.inputFile).convert('L')
@@ -303,7 +306,7 @@ def manageGrayscale(args: argparse.Namespace):
 def manageOutput(args: argparse.Namespace) -> pathlib.Path:
 
     outFilePath:pathlib.Path = args.inputFileOut
-    outFileType = args.inputFileTypeOut
+    outFileType = "." + args.inputFileTypeOut
     
     # get input path
     #   if it exists, create the file there with the name given, whatever that is, and append type at the end
@@ -316,9 +319,15 @@ def manageOutput(args: argparse.Namespace) -> pathlib.Path:
         #outFile = "temporary_name"
         outFile += outFileType
     else:
-        outFile = outFilePath + outFileType
-
-    outFile = pathlib.Path.joinpath("", outFile)
+        # TODO check if path exists, if it doesnt prompt user to create it or not
+        # also make example, cause it works as so:
+        #       if test             -> makes \test.txt
+        #       if test[/ or \]     -> makes \test.txt
+        #       if test[/ or \]name -> makes \test\name.txt
+        outFile = pathlib.Path.cwd().joinpath(outFilePath).__str__() + outFileType
+        
+    
+    outFile = pathlib.Path("", outFile)
     return outFile
 
 def manageType(args: argparse.Namespace):
