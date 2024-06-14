@@ -33,22 +33,21 @@ converter.py inputFile [-h] [-a] [-c]
 | `-op` / `--outputfilepath`  | The relative path of the output file                                                    | Path                 |   ✔  |
 | `-t` / `--outputfiletype`   | The format of the output file                                                           | [txt, jpg, png, xml] | **~** |
 
-## Examples
-
 ## Roadmap
 - [ ] Implement currently partial (**~**) or unimplemented (✖) features.
 - [ ] Separate and Abstract the conversion logic and input/output controller.
 - [ ] Implement edge detection for better results.
-- [ ] Add slope support for grayscale-value control
+- [ ] Add slope support for grayscale-value control.
+- [ ] Add examples to the readme and improve its visual aspect.
 
 
 ## Contribution
 Found a bug? Or do you want to help improve this tool? Then please feel free to open a new **Issue** or submit a **Pull Request**!
 
 ## Donate ♡
-If you like this tool or the things I'm creating, please consider **Donating** using the Kofi link below! This is NOT mandatory, but it helps out a lot and is greatly appreciated! **:)**\
-You will also be added into my **Donation List** for everyone to see!\
- (In case you choose to not have your username publicly displayed in the list mentioned above, please email me explicitly saying so in the email address linked in my profile.)
+If you like this tool or the things I'm creating, please consider **Donating** using the **Kofi** link below! This is NOT mandatory, but it helps out a lot and is greatly appreciated! **:)**\
+You will also be added into my **Donation List** for everyone to see! (still in the works)\
+ (In case you choose to not have your username publicly displayed in the list mentioned above, please email me explicitly saying so in the email address linked in my profile, or saying so in the donation message.)
 
  [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/R6R7ZBM56)
 
