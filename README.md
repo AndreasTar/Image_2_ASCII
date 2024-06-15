@@ -8,7 +8,7 @@
  This source code is licensed under the BSD-style license found in the **LICENSE** file in the root directory of this Repository.
 
 ## Usage
-This tool has a few features executed via command-line flags. It can analyse an image and split it into a 2-Dimensional grid to then convert each slot into a grayscale format and assign an ASCII character to it from a given range.
+This tool has a few features executed via command-line flags. In its simplest form, it analyses an image and splits it into a 2-Dimensional grid to then convert each slot into a grayscale format and assign an ASCII character to it from a given range.
 You can always run the tool with the flag `-h` for info about each flag.
 
 ``` title="Usage command"
@@ -18,9 +18,10 @@ converter.py inputFile [-h] [-a] [-c]
                        [-gsc {10,70} def: 70]
                        [-op PATH] [-t {png, jpg, xml, txt} def: txt]
 ```
+
 ### Explanation of the flags
 
-| Flag                        | Description                                                                             | Value type           | Implemented   |
+| Flag                        | Description                                                                             | Value type           | Implemented |
 | :-------------------------- | :-------------------------------------------------------------------------------------- | :------------------- | :---: |
 | `-h` / `--help`             | Displays a help message with more info.                                                 | Bool                 |   ✔  |
 | `-a` / `--auto`             | Figures out the usage parameters automatically from the input                           | Bool                 |   ✖  |
@@ -39,6 +40,7 @@ converter.py inputFile [-h] [-a] [-c]
 - [ ] Implement edge detection for better results.
 - [ ] Add slope support for grayscale-value control.
 - [ ] Add examples to the readme and improve its visual aspect.
+- [ ] Add other types of characters, like braille for more blocky looks.
 
 
 ## Contribution
@@ -47,9 +49,9 @@ Found a bug? Or do you want to help improve this tool? Then please feel free to 
 ## Donate ♡
 If you like this tool or the things I'm creating, please consider **Donating** using the **Kofi** link below! This is NOT mandatory, but it helps out a lot and is greatly appreciated! **:)**\
 You will also be added into my **Donation List** for everyone to see! (still in the works)\
- (In case you choose to not have your username publicly displayed in the list mentioned above, please email me explicitly saying so in the email address linked in my profile, or saying so in the donation message.)
+(In case you choose to not have your username publicly displayed in the list mentioned above, please email me explicitly saying so in the email address linked in my profile, or saying so in the donation message.)
 
- [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/R6R7ZBM56)
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/R6R7ZBM56)
 
 
 

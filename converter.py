@@ -1,3 +1,12 @@
+###########################################################################
+# Copyright (c) 2024, Andy Pandy                                          #
+# All rights reserved.                                                    #
+#                                                                         #
+# This source code is licensed under the BSD-style license found in the   #
+# LICENSE file in the root directory of this source tree.                 #
+#                                                                         #
+###########################################################################
+
 # [ ] add convertion from link
 # [ ] add colored conversion to colored ascii
 
@@ -9,6 +18,8 @@
 
 # Project inspired by this tutorial:
 # https://www.geeksforgeeks.org/converting-image-ascii-image-python/
+# More details at:
+# https://en.wikipedia.org/wiki/ASCII_art#:~:text=of%20Unicode.-,Methods%20for%20generating%20ASCII%20art
 
 import argparse, pathlib
 import numpy as np
@@ -24,7 +35,7 @@ gscale1 = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,\"^`'
 # 10 levels of gray
 gscale2 = '@%#*+=-:. '
 
-validTypes = ['png', 'jpg', 'xml', 'txt']
+validTypes = ['txt', 'jpg', 'png', 'xml']
 
 
 # HACK very dumb and slow way to find all divisors, fix it
@@ -71,7 +82,7 @@ def initParser() -> argparse.ArgumentParser:
                     [-wi INTEGER | -wc INTEGER] \n\
                     [-hi INTEGER | -hc INTEGER] \n\
                     [-gsc {10,70} def: 70] \n\
-                    [-op PATH] [-t {png, jpg, xml, txt} def: txt]'
+                    [-op PATH] [-t {txt, jpg, png, xml} def: txt]'
         ),
         
         description = 'Program that converts an input image into an ASCII representation. Usage message formatted for readability.'
@@ -306,7 +317,7 @@ def manageGrayscale(args: argparse.Namespace):
 def manageOutput(args: argparse.Namespace) -> pathlib.Path:
 
     outFilePath:pathlib.Path = args.inputFileOut
-    outFileType = "." + args.inputFileTypeOut
+    outFileType:str = "." + args.inputFileTypeOut
     
     # get input path
     #   if it exists, create the file there with the name given, whatever that is, and append type at the end
@@ -322,8 +333,10 @@ def manageOutput(args: argparse.Namespace) -> pathlib.Path:
         # TODO check if path exists, if it doesnt prompt user to create it or not
         # also make example, cause it works as so:
         #       if test             -> makes \test.txt
-        #       if test[/ or \]     -> makes \test.txt
+        #       if test[/ or \]     -> makes \test.txt -> fixed this with the following if statement
         #       if test[/ or \]name -> makes \test\name.txt
+        if outFilePath[-1] in {"/", "\\"}:
+            outFilePath += getUniqueName()
         outFile = pathlib.Path.cwd().joinpath(outFilePath).__str__() + outFileType
         
     
