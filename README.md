@@ -21,29 +21,29 @@ converter.py inputFile [-h] [-a] [-c]
 
 ### Explanation of the flags
 
-| Flag                        | Description                                                                             | Value type           | Implemented |
-| :-------------------------- | :-------------------------------------------------------------------------------------- | :------------------- | :---: |
-| `-h` / `--help`             | Displays a help message with more info.                                                 | Bool                 |   ✔  |
-| `-a` / `--auto`             | Figures out the usage parameters automatically from the input                           | Bool                 |   ✖  |
-| `-c` / `--colored`          | Output text will be colored instead of grayscale. Used for XML or image output formats. | Bool                 |   ✖  |
-| `-wi` / `--width`           | Custom tile Width in pixels.                                                            | Integer              |   ✔  |
-| `-wc` / `--widthcount`      | Custom tile amount on the Vertical axis (width).                                        | Integer              |   ✔  |
-| `-hi` / `--height`          | Custom tile Height in pixels.                                                           | Integer              |   ✔  |
-| `-hc` / `--heightcount`     | Custom tile amount on the Horizontal axis (height).                                     | Integer              |   ✔  |
-| `-gsc` / `--grayscalecount` | Amount of descrete grayscale values. Currently possible values are 10 and 70.           | [10, 70]             | **~** |
-| `-op` / `--outputfilepath`  | The relative path of the output file                                                    | Path                 |   ✔  |
-| `-t` / `--outputfiletype`   | The format of the output file                                                           | [txt, jpg, png, xml] | **~** |
+| Flag   | Long Flag          | Description                                                                             | Value type           | Implemented |
+| :----- | :----------------- | :-------------------------------------------------------------------------------------- | :------------------- | :---: |
+| `-h`   | `--help`           | Displays a help message with more info.                                                 | Bool                 |   ✔  |
+| `-a`   | `--auto`           | Figures out the usage parameters automatically from the input                           | Bool                 |   ✖  |
+| `-c`   | `--colored`        | Output text will be colored instead of grayscale. Used for XML or image output formats. | Bool                 |   ✖  |
+| `-wi`  | `--width`          | Custom tile Width in pixels.                                                            | Integer              |   ✔  |
+| `-wc`  | `--widthcount`     | Custom tile amount on the Vertical axis (width).                                        | Integer              |   ✔  |
+| `-hi`  | `--height`         | Custom tile Height in pixels.                                                           | Integer              |   ✔  |
+| `-hc`  | `--heightcount`    | Custom tile amount on the Horizontal axis (height).                                     | Integer              |   ✔  |
+| `-gsc` | `--grayscalecount` | Amount of descrete grayscale values. Currently possible values are 10 and 70.           | [10, 70]             | **~** |
+| `-op`  | `--outputfilepath` | The relative path of the output file                                                    | Path                 |   ✔  |
+| `-t`   | `--outputfiletype` | The format of the output file                                                           | [txt, jpg, png, xml] | **~** |
 
 ## Roadmap
 
 Done:
 - [x] Output file is being saved into path with custom name.
+- [x] Separate and Abstract the conversion logic and input/output controller. 
  
 Currently doing:
-- [ ] Separate and Abstract the conversion logic and input/output controller.
+- [ ] Implement currently partial (**~**) or unimplemented (✖) features.
 
 ToDo List:
-- [ ] Implement currently partial (**~**) or unimplemented (✖) features.
 - [ ] Implement edge detection for better results.
 - [ ] Add slope support for grayscale-value control.
 - [ ] Add examples to the readme and improve its visual aspect.
