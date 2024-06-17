@@ -35,8 +35,15 @@ converter.py inputFile [-h] [-a] [-c]
 | `-t` / `--outputfiletype`   | The format of the output file                                                           | [txt, jpg, png, xml] | **~** |
 
 ## Roadmap
-- [ ] Implement currently partial (**~**) or unimplemented (✖) features.
+
+Done:
+- [x] Output file is being saved into path with custom name.
+ 
+Currently doing:
 - [ ] Separate and Abstract the conversion logic and input/output controller.
+
+ToDo List:
+- [ ] Implement currently partial (**~**) or unimplemented (✖) features.
 - [ ] Implement edge detection for better results.
 - [ ] Add slope support for grayscale-value control.
 - [ ] Add examples to the readme and improve its visual aspect.

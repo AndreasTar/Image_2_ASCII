@@ -49,7 +49,7 @@ def divisorGenerator(n: int):
 def getDivisors(n: int):
     return list(divisorGenerator(n))
 
-def calculateAverage(tile: Image):
+def calculateAverage(tile: Image.Image):
     npImg = np.array(tile)
     tw, th = npImg.shape
 
@@ -184,7 +184,7 @@ def initParserArguments(parser: argparse.ArgumentParser):
 def configureArgs(args: argparse.Namespace) -> tuple[Image.Image, int, int, int, int, int, pathlib.Path]:
     global validTypes
 
-    inImg = Image.open(args.inputFile).convert('L')
+    inImg = Image.open(args.inputFile).convert('L') # NOTE this has a colors parameter, maybe use it for the grayscale count?
 
     imgWidth, imgHeight = inImg.size
     print(f"\nInput image dimensions: {imgWidth} x {imgHeight} pixels")
@@ -215,7 +215,7 @@ def configureArgs(args: argparse.Namespace) -> tuple[Image.Image, int, int, int,
         tileWidth, tileHeight, \
         inGSCount, outFile
 
-def convert2Ascii(image: Image, imageHeight, imageWidth, tileHeight, tileWidth):
+def convert2Ascii(image: Image.Image, imageHeight, imageWidth, tileHeight, tileWidth):
 
     global gscale1, gscale2
 

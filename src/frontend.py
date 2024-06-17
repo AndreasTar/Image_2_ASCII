@@ -38,7 +38,7 @@
 import argparse as ap
 import pathlib
 from textwrap import dedent
-from PIL import Image
+from PIL import Image # type: ignore
 
 import tools
 import midend
@@ -99,6 +99,7 @@ def _setupArguments() -> None:
     )
 
 # ========= Mechanism Flags ======== 
+
     Parser.add_argument(    # colored NI
             '-c', '--colored',
             dest        =   'inputColored',
@@ -183,16 +184,25 @@ def RunTool(shouldSave: bool = False):
     args = Parser.parse_args()
 
     midend.setInputImageFile(args.inputFile)
+    midend.setAutomatic(args.inputAuto)
 
     imageSize = midend.getInputImageSize()
     
-    if not (args.inputWidth or args.inputWidthCount):
-        res = _handleNonexistentTile(imageSize[0], "width")
+    # TODO handle for auto
+    try:
+        midend.HandleWidth(args.inputWidth, args.inputWidthCount) # pass both and let it handle them  
+    except:
+        print("Input arguments for width are Invalid!")
+        res = _handleNonexistentTile(imageSize[0], "width") # if there was an error, ask user for value
         midend.setTileWidth(res) # FIXME catch exception
-
-    if not (args.inputHeight or args.inputHeightCount):
-        res = _handleNonexistentTile(imageSize[1], "height")
+        
+    try:
+        midend.HandleHeight(args.inputHeight,  args.inputHeightCount) # pass both and let it handle them
+    except:
+        print("Input arguments for height are Invalid!")
+        res = _handleNonexistentTile(imageSize[1], "height") # if there was an error, ask user for value
         midend.setTileHeight(res) # FIXME catch exception
+        
 
 
 

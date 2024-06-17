@@ -15,7 +15,11 @@ class ValueNotInitialisedError(Exception):
         super().__init__(message + value_name)
 
 
+class ValueInvalidError(Exception):
+    errorMsg = "Value was invalid: "
 
+    def __init__(self, value_name: str, value, message = errorMsg, *args: object) -> None:
+        super().__init__(message + value_name + f" -> {value}")
 
 
 # HACK very dumb and slow way to find all divisors, fix it
