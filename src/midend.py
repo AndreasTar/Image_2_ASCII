@@ -191,11 +191,14 @@ def Execute():
 def Save(data): 
     # TODO change for other types too like jpg
     # TODO also handle and raise errors etc
+    # TODO also maybe use input file name optionally
 
     f = open(_Output_Path, 'w')
     for r in data:
         f.write(r + '\n')
     f.close()
+
+    print(f"Saved file to {_Output_Path}")
 
 
 
