@@ -29,9 +29,9 @@ from PIL import Image # type: ignore
 import numpy as np # type: ignore
 
 def Convert2Ascii(image: Image.Image,\
-                  imgHeight: int, imgWidth: int,\
-                  tileHeight: int, tileWidth: int,\
-                  charList: list, onlyColor: bool = False):
+                  imgWidth: int, imgHeight: int,\
+                  tileWidth: int, tileHeight: int,\
+                  charList: list, onlyColor: bool = False) -> list:
 
     asciiImage = []                     # each row is a string
 
@@ -63,7 +63,8 @@ def Convert2Ascii(image: Image.Image,\
                 val = charList[int((val *  charSize) / 255)]
             
             asciiImage[row] += val 
-    pass
+
+    return asciiImage
 
 def _getAverage(tile: Image.Image):
     npImg = np.array(tile)

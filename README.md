@@ -48,6 +48,7 @@ ToDo List:
 - [ ] Add slope support for grayscale-value control.
 - [ ] Add examples to the readme and improve its visual aspect.
 - [ ] Add other types of characters, like braille for more blocky looks.
+- [ ] Allow for custom Grayscale array.
 
 
 ## Contribution

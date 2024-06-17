@@ -40,12 +40,9 @@ import pathlib
 from textwrap import dedent
 from PIL import Image # type: ignore
 
-import tools
-import midend
+from src import tools, midend
 
 Parser: ap.ArgumentParser
-
-ValidTypes = ['txt', 'jpg', 'png', 'xml']
 
 def SetupParser() -> None:
     """
@@ -79,7 +76,6 @@ def _setupArguments() -> None:
     Creates the flags of the tool.
     """
 
-    global ValidTypes
     # TODO add flag for all manual, ignoring other flags except inputfile
     # TODO make auto either be all values or only the missing values
 
@@ -110,7 +106,7 @@ def _setupArguments() -> None:
 
     Parser.add_argument(    # how many grayscale TODO
             '-gsc', '--grayscalecount',
-            dest        =   'inputGrayScaleCount',
+            dest        =   'inputGSCount',
             required    =   False,
             type        =   int,
             choices     =   [10,70],
@@ -164,7 +160,7 @@ def _setupArguments() -> None:
 
     Parser.add_argument(    # output path
             '-op', '--outputfilepath',
-            dest        =   'inputFileOut',
+            dest        =   'inputFilePathOut',
             required    =   False,
             type        =   pathlib.Path,
             #default     =   '\\out',
@@ -175,33 +171,60 @@ def _setupArguments() -> None:
             '-t', '--outputfiletype',
             dest        =   'inputFileTypeOut',
             required    =   False,
-            choices     =   ValidTypes,
+            choices     =   tools.ValidTypes,
             default     =   'txt',
             help        =   'The format of the output file.'
     )
 
-def RunTool(shouldSave: bool = False):
+
+def RunTool(shouldSave: bool = False): # TODO implement shouldSave, if false return the list instead of saving it (maybe have it do both?)
     args = Parser.parse_args()
 
     midend.setInputImageFile(args.inputFile)
     midend.setAutomatic(args.inputAuto)
+    midend.setColored(args.inputColored)
+    try:
+        midend.setGrayscale(args.inputGSCount)
+    except tools.ValueInvalidError as e:
+        print(f"Invalid Grayscale size used: {e.value}!")
+        Exit()
 
     imageSize = midend.getInputImageSize()
+    print(f"\nInput image dimensions (w x h): {imageSize[0]} x {imageSize[1]} pixels")
+
     
     # TODO handle for auto
     try:
-        midend.HandleWidth(args.inputWidth, args.inputWidthCount) # pass both and let it handle them  
-    except:
+        midend.HandleWidth(args.inputWidthPixel, args.inputWidthCount) # pass both and let it handle them  
+    except tools.ValueInvalidError:
         print("Input arguments for width are Invalid!")
+        res = _handleNonexistentTile(imageSize[0], "width") # if there was an error, ask user for value
+        midend.setTileWidth(res) # FIXME catch exception
+    except tools.ValueNotInitialisedError:
         res = _handleNonexistentTile(imageSize[0], "width") # if there was an error, ask user for value
         midend.setTileWidth(res) # FIXME catch exception
         
     try:
-        midend.HandleHeight(args.inputHeight,  args.inputHeightCount) # pass both and let it handle them
-    except:
+        midend.HandleHeight(args.inputHeightPixel, args.inputHeightCount) # pass both and let it handle them
+    except tools.ValueInvalidError:
         print("Input arguments for height are Invalid!")
         res = _handleNonexistentTile(imageSize[1], "height") # if there was an error, ask user for value
         midend.setTileHeight(res) # FIXME catch exception
+    except tools.ValueNotInitialisedError:
+        res = _handleNonexistentTile(imageSize[1], "height") # if there was an error, ask user for value
+        midend.setTileHeight(res) # FIXME catch exception
+
+    tilecountw = int(imageSize[0] / midend.getTileWidth())
+    tilecounth = int(imageSize[1] / midend.getTileHeight())
+
+    print(f"Using tile size in pixels (w x h): {midend.getTileWidth()} x {midend.getTileHeight()}")
+    print(f"Total tile count \n\tPer axis (w x h): {tilecountw} x {tilecounth}\n\tTotal tiles: {tilecountw*tilecounth}\n")
+
+
+    midend.HandleOutput(args.inputFilePathOut, args.inputFileTypeOut)
+
+    midend.Execute()
+    
         
 
 
@@ -218,6 +241,10 @@ def _handleNonexistentTile(img: int, type: str) -> int:
             print(f"Input a valid integer within the bounds: [1-{img}]!") # TODO add auto option and custom option
         else:
             return userin
+        
+def Exit(error = None):
+    print("\nTool is exiting...")
+    exit()
 
 
 
