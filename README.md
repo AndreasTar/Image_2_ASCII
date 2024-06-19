@@ -41,6 +41,7 @@ Done:
 - [x] Separate and Abstract the conversion logic and input/output controller. 
  
 Currently doing:
+- [ ] Publish a release and set up the semver and the tags.
 - [ ] Implement currently partial (**~**) or unimplemented (✖) features.
 
 ToDo List:
@@ -55,7 +56,7 @@ ToDo List:
 Found a bug? Or do you want to help improve this tool? Then please feel free to open a new **Issue** or submit a **Pull Request**!
 
 ## Donate ♡
-If you like this tool or the things I'm creating, please consider **Donating** using the **Kofi** link below! This is NOT mandatory, but it helps out a lot and is greatly appreciated! **:)**\
+If you like this tool or the things I'm creating, please consider **Donating** using the **Kofi** link below or the link on the "Sponsor this project" section! This is NOT mandatory, but it helps out a lot and is greatly appreciated! **:)**\
 You will also be added into my **Donation List** for everyone to see! (still in the works)\
 (In case you choose to not have your username publicly displayed in the list mentioned above, please email me explicitly saying so in the email address linked in my profile, or saying so in the donation message.)
 
