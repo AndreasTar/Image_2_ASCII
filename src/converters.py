@@ -28,3 +28,21 @@
 # tools -> will have all custom global functions and exceptions
 
 # converters -> will house the code for converting to all output formats
+
+
+import svg
+
+
+# HACK should i use library for this? idk
+# also need to control size?
+def ConvertToSVG(text: list, red: list | None, green: list | None, blue: list | None):
+    
+    # adapt for backgroung color maybe?
+    elements = [
+        svg.Text()
+    ]
+    
+    pass
+
+def ConvertToXML():
+    pass

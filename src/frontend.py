@@ -38,7 +38,7 @@
 import argparse as ap
 import pathlib
 from textwrap import dedent
-from PIL import Image # type: ignore
+from PIL import Image
 
 from src import tools, midend
 

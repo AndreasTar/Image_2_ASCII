@@ -26,8 +26,8 @@
 #            where the 'actual' work happens, seperated in functions
 
 import pathlib as pl
-from PIL import Image # type: ignore
-import numpy as np # type: ignore
+from PIL import Image
+import numpy as np
 
 
 from src import converters, tools, backend
@@ -88,7 +88,7 @@ def getInputImageSize() -> tuple[int, int]:
 def getInputImageWidth() -> int:
     return getInputImageSize()[0]
 
-def getInputImageHeigth() -> int:
+def getInputImageHeight() -> int:
     return getInputImageSize()[1]
 
 # ================= Width Flags ================ 
@@ -183,15 +183,37 @@ def Execute():
     img = InputImageFile.convert('L')
     
     res = backend.Convert2Ascii(img,\
-                                getInputImageWidth(), getInputImageHeigth(),\
+                                getInputImageWidth(), getInputImageHeight(),\
                                 getTileWidth(), getTileHeight(),\
                                 Grayscale_List)
+    
+    if Input_Colored: # i need to setup xml or png or jpg first, so i can see the result lmao
+        imgR = InputImageFile.getchannel('R')
+        imgG = InputImageFile.getchannel('G')
+        imgB = InputImageFile.getchannel('B')
+
+        resR = backend.Convert2Ascii(imgR,\
+                                getInputImageWidth(), getInputImageHeight(),\
+                                getTileWidth(), getTileHeight(),\
+                                True)
+        
+        resG = backend.Convert2Ascii(imgG,\
+                                getInputImageWidth(), getInputImageHeight(),\
+                                getTileWidth(), getTileHeight(),\
+                                True)
+        
+        resB = backend.Convert2Ascii(imgB,\
+                                getInputImageWidth(), getInputImageHeight(),\
+                                getTileWidth(), getTileHeight(),\
+                                True)
+
+
     Save(res)
 
 def Save(data): 
     # TODO change for other types too like jpg
     # TODO also handle and raise errors etc
-    # TODO also maybe use input file name optionally
+
 
     f = open(_Output_Path, 'w')
     for r in data:

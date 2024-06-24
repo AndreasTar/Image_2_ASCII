@@ -25,14 +25,17 @@
 # backend -> will hold all the math and processing that the tool needs
 #            where the 'actual' work happens, seperated in functions
 
-from PIL import Image # type: ignore
-import numpy as np # type: ignore
+from PIL import Image
+import numpy as np
 
 def Convert2Ascii(image: Image.Image,\
                   imgWidth: int, imgHeight: int,\
                   tileWidth: int, tileHeight: int,\
-                  charList: list, onlyColor: bool = False) -> list:
+                  charList: list | None, onlyColor: bool = False) -> list:
 
+    if (charList is None and not onlyColor):
+        pass # Return exception
+    
     asciiImage = []                     # each row is a string
 
     rowIndex = int(imgHeight / tileHeight)

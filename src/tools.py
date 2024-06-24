@@ -7,7 +7,7 @@
 #                                                                         #
 ###########################################################################
 
-import numpy as np # type: ignore
+import numpy as np
 
 class ValueNotInitialisedError(Exception):
 
@@ -70,3 +70,7 @@ def _getUniqueName() -> str:
     obj = np.random.randint(0, 17)
 
     return parts[adj1][pos1] + '_' + parts[adj2][pos2] + '_' + objects[obj]
+
+def _colorsToHex(r: int = 0, g: int = 0, b: int = 0):
+    if 
+    return str.lower(f"#{hex(r)[2:]}{hex(g)[2:]}{hex(b)[2:]}")
