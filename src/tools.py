@@ -16,6 +16,7 @@ class ValueNotInitialisedError(Exception):
 
     def __init__(self, value_name: str, message = errorMsg, *args: object) -> None:
         super().__init__(message + value_name)
+        self.errorMsg = message
         self.value_name = value_name
 
 
@@ -26,6 +27,7 @@ class ValueInvalidError(Exception):
 
     def __init__(self, value_name: str, value, message = errorMsg, *args: object) -> None:
         super().__init__(message + value_name + f" -> {value}")
+        self.errorMsg = message
         self.value_name = value_name
         self.value = value
 
@@ -35,10 +37,19 @@ ValidTypes = ['txt', 'jpg', 'png', 'xml']
 
 # gray scale level values from: 
 # http://paulbourke.net/dataformats/asciiart/
+# for Courier font, aspect ratio is about 0.43
 
 Grayscales = {
     10: '@%#*+=-:. ', # TODO change these
-    70: "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,\"^`'. " # TODO change these
+    70: "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. " # TODO change these
+}
+
+# Map taken from https://rabbit.eng.miami.edu/info/htmlchars.html
+SVGMaps = {
+    '&' : '&amp;',
+    '<' : '&lt;',
+    '>' : '&gt;',
+
 }
 
 
@@ -72,5 +83,16 @@ def _getUniqueName() -> str:
     return parts[adj1][pos1] + '_' + parts[adj2][pos2] + '_' + objects[obj]
 
 def _colorsToHex(r: int = 0, g: int = 0, b: int = 0):
-    if 
-    return str.lower(f"#{hex(r)[2:]}{hex(g)[2:]}{hex(b)[2:]}")
+    if not (0 <= r <= 255):
+        print("ZERO VALUE")
+    if not (0 <= g <= 255):
+        print("ZERO VALUE")
+    if not (0 <= b <= 255):
+        print("ZERO VALUE")
+    
+    return str.lower(f"#{format(r, '02X')}{format(g, '02X')}{format(b, '02X')}")
+
+def _formatForSVG(char: str):
+    if char in SVGMaps:
+        char = SVGMaps.get(char)
+    return char

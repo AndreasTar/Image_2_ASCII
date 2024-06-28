@@ -31,7 +31,7 @@ import numpy as np
 def Convert2Ascii(image: Image.Image,\
                   imgWidth: int, imgHeight: int,\
                   tileWidth: int, tileHeight: int,\
-                  charList: list | None, onlyColor: bool = False) -> list:
+                  charList: list = None, onlyColor: bool = False) -> list:
 
     if (charList is None and not onlyColor):
         pass # Return exception
@@ -40,8 +40,8 @@ def Convert2Ascii(image: Image.Image,\
 
     rowIndex = int(imgHeight / tileHeight)
     colIndex = int(imgWidth / tileWidth)
-
-    charSize = len(charList) -1
+    if charList:
+        charSize = len(charList) -1
 
     for row in range(rowIndex):
         ytop = row * tileHeight             # top bounds of tile
@@ -49,7 +49,8 @@ def Convert2Ascii(image: Image.Image,\
 
         if row == rowIndex-1:               # if its the last row, fill to end
             ybot = imgHeight
-        asciiImage.append('')
+        if not onlyColor:
+            asciiImage.append('')
 
         for col in range(colIndex):
             xleft = col * tileWidth         # left bounds of tile
@@ -64,8 +65,9 @@ def Convert2Ascii(image: Image.Image,\
 
             if not onlyColor:               # if we want the ascii character instead of just color value
                 val = charList[int((val *  charSize) / 255)]
-            
-            asciiImage[row] += val 
+                asciiImage[row] += val
+            else:
+                asciiImage.append(val)
 
     return asciiImage
 

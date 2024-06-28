@@ -28,6 +28,7 @@
 import pathlib as pl
 from PIL import Image
 import numpy as np
+import svg
 
 
 from src import converters, tools, backend
@@ -107,15 +108,15 @@ def HandleWidth(twp: int, twc: int):
     if not (twp or twc):
         raise tools.ValueNotInitialisedError("twp")
     if twp:
-        if (twp < 1 or twp > getInputImageWidth):
+        if (twp < 1 or twp > getInputImageWidth()):
             print("Invalid input tile width!")
             raise tools.ValueInvalidError("twp", twp)
         setTileWidth(twp)
     else:
-        if (twc < 1 or twc > getInputImageWidth):
+        if (twc < 1 or twc > getInputImageWidth()):
             print("Invalid input tile width!")
             raise tools.ValueInvalidError("twc", twc)
-        temp = int(np.ceil( getInputImageWidth / twc ))
+        temp = int(np.ceil( getInputImageWidth() / twc ))
         setTileWidth(temp)
 
 # ================= Height Flags ================
@@ -134,16 +135,16 @@ def HandleHeight(thp: int, thc: int):
     if not (thp or thc):
         raise tools.ValueNotInitialisedError("thp")
     if thp:
-        if (thp < 1 or thp > getInputImageWidth):
+        if (thp < 1 or thp > getInputImageHeight()):
             print("Invalid input tile height!")
             raise tools.ValueInvalidError("thp", thp)
-        setTileWidth(thp)
+        setTileHeight(thp)
     else:
-        if (thc < 1 or thc > getInputImageWidth):
+        if (thc < 1 or thc > getInputImageHeight()):
             print("Invalid input tile height!")
             raise tools.ValueInvalidError("thc", thc)
-        temp = int(np.ceil( getInputImageWidth / thc ))
-        setTileWidth(temp)
+        temp = int(np.ceil( getInputImageHeight() / thc ))
+        setTileHeight(temp)
 
 # ================= Output Flags ================
 
@@ -187,28 +188,39 @@ def Execute():
                                 getTileWidth(), getTileHeight(),\
                                 Grayscale_List)
     
-    if Input_Colored: # i need to setup xml or png or jpg first, so i can see the result lmao
-        imgR = InputImageFile.getchannel('R')
-        imgG = InputImageFile.getchannel('G')
-        imgB = InputImageFile.getchannel('B')
+    # if Input_Colored: # i need to setup xml or png or jpg first, so i can see the result lmao
+    imgR = InputImageFile.getchannel('R')
+    imgG = InputImageFile.getchannel('G')
+    imgB = InputImageFile.getchannel('B')
 
-        resR = backend.Convert2Ascii(imgR,\
-                                getInputImageWidth(), getInputImageHeight(),\
-                                getTileWidth(), getTileHeight(),\
-                                True)
-        
-        resG = backend.Convert2Ascii(imgG,\
-                                getInputImageWidth(), getInputImageHeight(),\
-                                getTileWidth(), getTileHeight(),\
-                                True)
-        
-        resB = backend.Convert2Ascii(imgB,\
-                                getInputImageWidth(), getInputImageHeight(),\
-                                getTileWidth(), getTileHeight(),\
-                                True)
+    resR = backend.Convert2Ascii(imgR,
+                            getInputImageWidth(), getInputImageHeight(),
+                            getTileWidth(), getTileHeight(),
+                            onlyColor = True)
+    
+    resG = backend.Convert2Ascii(imgG,
+                            getInputImageWidth(), getInputImageHeight(),
+                            getTileWidth(), getTileHeight(),
+                            onlyColor = True)
+    
+    resB = backend.Convert2Ascii(imgB,
+                            getInputImageWidth(), getInputImageHeight(),
+                            getTileWidth(), getTileHeight(),
+                            onlyColor = True)
 
+    temp = converters.ConvertToSVG(res, resR, resG, resB)
 
-    Save(res)
+    file = svg.SVG(
+        width= 3000,
+        height= 3000,
+        elements = temp,
+    )
+
+    f = open("temp.svg", mode='w', encoding='utf-8')
+    f.write(file.as_str())
+    f.close()
+    
+    #Save(res)
 
 def Save(data): 
     # TODO change for other types too like jpg
