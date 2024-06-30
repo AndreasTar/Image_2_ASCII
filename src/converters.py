@@ -7,43 +7,19 @@
 #                                                                         #
 ###########################################################################
 
-
-# main -> tells frontend to make parser and then run
-#         also gets result, error or ascii, and shows it on screen or returns it
-
-# frontend -> will hold parser, and prolly not use it much after initialisation
-#             makes parser, handles return and error
-#             surface checks if flags are ok, and either asks or errors
-#             calls stuff from midend depending on flags
-
-# midend -> will hold the ascii array
-#           communicates with backend to tell it what to process
-#           depending on the function called, it will provide backend with data to process
-#           will also call the converters to make the jpg png etc
-#           it will handle the saving of the file to the location needed
-
-# backend -> will hold all the math and processing that the tool needs
-#            where the 'actual' work happens, seperated in functions
-
-# tools -> will have all custom global functions and exceptions
-
-# converters -> will house the code for converting to all output formats
-
-
 import svg
 
 from src import tools
 
-
-# HACK should i use library for this? idk
 # also need to control size?
 def ConvertToSVG(text: list[str], red: list[int] | None, green: list[int] | None, blue: list[int] | None):
     
-    # adapt for backgroung color maybe?
-    elements = [svg.Style(text = "tspan { font-family: monospace }"),
-                svg.Rect(width=3000, height=3000, rx = 9, fill="#111111")] # HACK
     width = len(text[0])
     height = len(text)
+
+    elements = [svg.Style(text = "tspan { font-family: monospace }"),
+                svg.Rect(width=width*12, height=height*12 + 3, rx = 9, fill="#999999")]
+
 
     el = []
     y = 14
@@ -56,20 +32,28 @@ def ConvertToSVG(text: list[str], red: list[int] | None, green: list[int] | None
                     x = x,
                     y = y,
                     fill = tools._colorsToHex(
-                        red[r*width + c],
-                        green[r*width + c],
-                        blue[r*width + c]
+                        red[r*width + c] if not (len(red) == 0 or not red) else 0,
+                        green[r*width + c] if not (len(green) == 0 or not green) else 0,
+                        blue[r*width + c] if not (len(blue) == 0 or not blue) else 0
                     ),
                     text = tools._formatForSVG(text[r][c])
                 )
             )
             x += 12
-        x = 0 # HACK fix with this https://gist.github.com/13rac1/7e0b5fb32939685ea44e1a713aac081b
+        # HACK fix with this https://gist.github.com/13rac1/7e0b5fb32939685ea44e1a713aac081b 
+        # or this https://stackoverflow.com/questions/64660531/is-there-a-precise-way-to-measure-text-size-in-a-specific-font-in-python-3-7
+        x = 0
         y += 12
         el.append("\n")
     elements.append(svg.Text(x = 4, y = 4, elements=el))
 
-    return elements   
+    file = svg.SVG(
+        width = width*12,
+        height = height*12 + 3,
+        elements = elements,
+    )
+
+    return file   
 
 def ConvertToXML():
     pass

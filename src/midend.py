@@ -7,24 +7,6 @@
 #                                                                         #
 ###########################################################################
 
-
-# main -> tells frontend to make parser and then run
-#         also gets result, error or ascii, and shows it on screen or returns it
-
-# frontend -> will hold parser, and prolly not use it much after initialisation
-#             makes parser, handles return and error
-#             surface checks if flags are ok, and either asks or errors
-#             calls stuff from midend depending on flags
-
-# midend -> will hold the ascii array
-#           communicates with backend to tell it what to process
-#           depending on the function called, it will provide backend with data to process
-#           will also call the converters to make the jpg png etc
-#           it will handle the saving of the file to the location needed
-
-# backend -> will hold all the math and processing that the tool needs
-#            where the 'actual' work happens, seperated in functions
-
 import pathlib as pl
 from PIL import Image
 import numpy as np
@@ -45,6 +27,8 @@ TilePixels_Width: int = 0
 TilePixels_Height: int = 0
 
 _Output_Path: pl.Path
+_Output_Type: tools.ValidTypes
+_Output_Name_Flag: str
 
 _Output_Ascii: list # TODO change this so it can handle colors for each character
 
@@ -55,7 +39,11 @@ def setInputImageFile(inputImagePath: pl.Path):
 
     global InputImageFile, InputImage_Width, InputImage_Height
 
-    InputImageFile = Image.open(inputImagePath) # FIXME catch exception early
+    try:
+        InputImageFile = Image.open(inputImagePath)
+    except FileNotFoundError:
+        raise tools.Errors.GenericError(f"File path was not found -> {inputImagePath}")
+    
     InputImage_Width, InputImage_Height = InputImageFile.size
 
 def setAutomatic(auto: bool):
@@ -70,20 +58,20 @@ def setColored(color: bool):
 
 def setGrayscale(gsc: int):
     global Grayscale_List
-    if not tools.Grayscales.__contains__(gsc):
-        raise tools.ValueInvalidError("gsc", gsc)
+    if not tools.Grayscales.__contains__(gsc): # NOTE this may look unnecessary cause parser does the checks, but i leave it for api
+        raise tools.Errors.VariableInvalidValueError("gsc", gsc)
     Grayscale_List = tools.Grayscales[gsc]
 
 
 def getInputImageSize() -> tuple[int, int]:
     """
     Returns the image dimensions in a tuple(width, height).\n
-    Raises ValueNotInitialisedError if called before image was passed.
+    Raises VariableNotInitialisedError if called before image was passed.
     """
     global InputImageFile
 
     if not InputImageFile:
-        raise tools.ValueNotInitialisedError("InputImageFile") # NOTE is this necessary? prolly for future API
+        raise tools.Errors.VariableNotInitialisedError("InputImageFile") # NOTE is this necessary? prolly for future API
     return (InputImage_Width, InputImage_Height)
 
 def getInputImageWidth() -> int:
@@ -106,16 +94,17 @@ def getTileWidth():
 
 def HandleWidth(twp: int, twc: int):
     if not (twp or twc):
-        raise tools.ValueNotInitialisedError("twp")
+        raise tools.Errors.VariableNotInitialisedError("twp")
+    
     if twp:
         if (twp < 1 or twp > getInputImageWidth()):
-            print("Invalid input tile width!")
-            raise tools.ValueInvalidError("twp", twp)
+            raise tools.Errors.VariableInvalidValueError("twp", twp, "Invalid input tile width!")
         setTileWidth(twp)
+
     else:
         if (twc < 1 or twc > getInputImageWidth()):
-            print("Invalid input tile width!")
-            raise tools.ValueInvalidError("twc", twc)
+            raise tools.Errors.VariableInvalidValueError("twc", twc, "Invalid input tile width!")
+        
         temp = int(np.ceil( getInputImageWidth() / twc ))
         setTileWidth(temp)
 
@@ -133,26 +122,34 @@ def getTileHeight():
 
 def HandleHeight(thp: int, thc: int):
     if not (thp or thc):
-        raise tools.ValueNotInitialisedError("thp")
+        raise tools.Errors.VariableNotInitialisedError("thp")
+    
     if thp:
         if (thp < 1 or thp > getInputImageHeight()):
-            print("Invalid input tile height!")
-            raise tools.ValueInvalidError("thp", thp)
+            raise tools.Errors.VariableInvalidValueError("thp", thp, "Invalid input tile height!")
         setTileHeight(thp)
+
     else:
         if (thc < 1 or thc > getInputImageHeight()):
-            print("Invalid input tile height!")
-            raise tools.ValueInvalidError("thc", thc)
+            raise tools.Errors.VariableInvalidValueError("thc", thc, "Invalid input tile height!")
+        
         temp = int(np.ceil( getInputImageHeight() / thc ))
         setTileHeight(temp)
 
 # ================= Output Flags ================
 
-def HandleOutput(path: pl.Path, format: str):
+def setName(nameFlag: str):
+    global _Output_Name_Flag 
+    _Output_Name_Flag = nameFlag
 
-    global _Output_Path
+def HandleOutput(name: pl.Path, path: pl.Path, format: str):
 
-    format = "." + format
+    global _Output_Path, _Output_Type
+
+    _Output_Type = tools.ValidTypes[format.upper()]
+
+    format = "." + format.lower()
+
     
     # get input path
     #   if it exists, create the file there with the name given, whatever that is, and append type at the end
@@ -162,16 +159,16 @@ def HandleOutput(path: pl.Path, format: str):
 
     if (not path):
         outFile = tools._getUniqueName()
-        #outFile = "temporary_name"
+        if _Output_Name_Flag == 'INPUT':
+            outFile = name.name[:-4] # remove format text
         outFile += format
     else:
-        # TODO check if path exists, if it doesnt prompt user to create it or not
-        # also make example, cause it works as so:
+        # make example, cause it works as so:
         #       if test             -> makes \test.txt
-        #       if test[/ or \]     -> makes \test.txt -> fixed this with the following if statement
-        #       if test[/ or \]name -> makes \test\name.txt
-        if path[-1] in {"/", "\\"}:
-            path += tools._getUniqueName()
+        #       if test[/ or \]     -> makes \test.txt -> fixed this with the following code
+        #       if test[/ or \]name -> makes \test\name.txt (iterative, will do as many folders as needed)
+
+        pl.Path.mkdir(path.absolute().parent, parents = True, exist_ok=True)
         outFile = pl.Path.cwd().joinpath(path).__str__() + format
         
     
@@ -182,57 +179,110 @@ def HandleOutput(path: pl.Path, format: str):
 def Execute():
 
     img = InputImageFile.convert('L')
+    resR: list[int] = []
+    resG: list[int] = []
+    resB: list[int] = []
     
     res = backend.Convert2Ascii(img,\
                                 getInputImageWidth(), getInputImageHeight(),\
                                 getTileWidth(), getTileHeight(),\
                                 Grayscale_List)
     
-    # if Input_Colored: # i need to setup xml or png or jpg first, so i can see the result lmao
-    imgR = InputImageFile.getchannel('R')
-    imgG = InputImageFile.getchannel('G')
-    imgB = InputImageFile.getchannel('B')
-
-    resR = backend.Convert2Ascii(imgR,
-                            getInputImageWidth(), getInputImageHeight(),
-                            getTileWidth(), getTileHeight(),
-                            onlyColor = True)
     
-    resG = backend.Convert2Ascii(imgG,
-                            getInputImageWidth(), getInputImageHeight(),
-                            getTileWidth(), getTileHeight(),
-                            onlyColor = True)
-    
-    resB = backend.Convert2Ascii(imgB,
-                            getInputImageWidth(), getInputImageHeight(),
-                            getTileWidth(), getTileHeight(),
-                            onlyColor = True)
+    if Input_Colored:
+        imgR = InputImageFile.getchannel('R')
+        imgG = InputImageFile.getchannel('G')
+        imgB = InputImageFile.getchannel('B')
 
-    temp = converters.ConvertToSVG(res, resR, resG, resB)
+        resR = backend.Convert2Ascii(imgR,
+                                getInputImageWidth(), getInputImageHeight(),
+                                getTileWidth(), getTileHeight(),
+                                onlyColor = True)
+        
+        resG = backend.Convert2Ascii(imgG,
+                                getInputImageWidth(), getInputImageHeight(),
+                                getTileWidth(), getTileHeight(),
+                                onlyColor = True)
+        
+        resB = backend.Convert2Ascii(imgB,
+                                getInputImageWidth(), getInputImageHeight(),
+                                getTileWidth(), getTileHeight(),
+                                onlyColor = True)
 
-    file = svg.SVG(
-        width= 3000,
-        height= 3000,
-        elements = temp,
-    )
+    match _Output_Type:
+        case tools.ValidTypes.TXT:
+            if Input_Colored:
+                print("\nInput flag { -c : Colored } was set, but output type is .txt! Choose one of the following:")
+                print("\tOutput only the ASCII characters -> t")
+                print("\tOutput colors and text in per-pixel format [RRGGBBc RRGGBBc ...] -> c")
+                print("\tExit without proceeding -> e")
+                inp: str
+                while True:
+                    inp = input("Leave empty for default (e) : ").lower()
+                    if not inp:
+                        inp = 'e'
+                        break
+                    if inp in 'tce':
+                        break
+                
+                if inp == 't':
+                    print("Outputting only the ASCII characters.")
+                    pass # do nothing with the colors
 
-    f = open("temp.svg", mode='w', encoding='utf-8')
-    f.write(file.as_str())
-    f.close()
-    
-    #Save(res)
+                if inp == 'c':
+                    print("Converting output to per-pixel format : [RRGGBBc RRGGBBc RRGGBBc ...]")
+                    height = len(res)
+                    width = len(res[0])
+
+                    for r in range(height):
+                        temp = ""
+                        for c in range(width):
+                            temp += f"{tools._colorsToHex(resR[r*height +c], resG[r*height +c], resB[r*height +c])[1:].upper()}{res[r][c]} "
+                        res[r] = temp
+
+                if inp == 'e':
+                    raise tools.Errors.GenericError("Colored flag was set, but output type was .txt! User requested to exit.")
+                
+        case tools.ValidTypes.JPG:
+            raise tools.Errors.UNIMPLEMENTED
+        case tools.ValidTypes.PNG:
+            raise tools.Errors.UNIMPLEMENTED
+        case tools.ValidTypes.XML:
+            raise tools.Errors.UNIMPLEMENTED
+        
+        case tools.ValidTypes.SVG:
+            res = converters.ConvertToSVG(res, resR, resG, resB)
+        
+
+
+    Save(res)
 
 def Save(data): 
-    # TODO change for other types too like jpg
-    # TODO also handle and raise errors etc
+    # TODO  handle and raise errors etc
 
 
-    f = open(_Output_Path, 'w')
-    for r in data:
-        f.write(r + '\n')
+    f = open(_Output_Path, mode = 'w', encoding = 'utf-8')
+
+    match _Output_Type:
+        case tools.ValidTypes.TXT:
+            for r in data:
+                f.write(r + '\n')
+
+        case tools.ValidTypes.JPG:
+            raise tools.Errors.UNIMPLEMENTED
+        case tools.ValidTypes.PNG:
+            raise tools.Errors.UNIMPLEMENTED
+        case tools.ValidTypes.XML:
+            raise tools.Errors.UNIMPLEMENTED
+        
+        case tools.ValidTypes.SVG:
+            f.write(data.as_str())
+
+
     f.close()
 
-    print(f"Saved file to {_Output_Path}")
+    print(f"\nSaved file to {_Output_Path}")
+
 
 
 

@@ -7,38 +7,67 @@
 #                                                                         #
 ###########################################################################
 
+from enum import Enum
 import numpy as np
 
-class ValueNotInitialisedError(Exception):
 
-    errorMsg = "Value was accessed before being initialised: "
-    value_name = ''
+class Errors:
+    class GenericError(Exception):
 
-    def __init__(self, value_name: str, message = errorMsg, *args: object) -> None:
-        super().__init__(message + value_name)
-        self.errorMsg = message
-        self.value_name = value_name
+        error_msg = "Generic error message!"
 
+        def __init__(self, error_msg = error_msg, *args: object) -> None:
+            self.error_msg = error_msg
 
-class ValueInvalidError(Exception):
-    errorMsg = "Value was invalid: "
-    value_name = ''
-    value = None
+            super().__init__(self.error_msg)
+    
+    class UNIMPLEMENTED(GenericError):
 
-    def __init__(self, value_name: str, value, message = errorMsg, *args: object) -> None:
-        super().__init__(message + value_name + f" -> {value}")
-        self.errorMsg = message
-        self.value_name = value_name
-        self.value = value
+        def __init__(self, *args: object) -> None:
+            super().__init__("FUNCTION IS NOT IMPLEMENTED!")
 
 
-ValidTypes = ['txt', 'jpg', 'png', 'xml']
+    class VariableNotInitialisedError(GenericError):
+
+        var_name = ""
+        error_msg = f"Value was accessed before being initialised!"
+
+        def __init__(self, var_name: str, error_msg = error_msg, *args: object) -> None:
+            self.var_name = var_name
+            self.errorMsg = error_msg + f"\n\t\tVariable Name -> {var_name}"
+
+            super().__init__(self.error_msg)
+
+    class VariableInvalidValueError(GenericError):
+
+        var_name = ""
+        var_value = None
+        error_msg = "Variable has an invalid value!"
+
+        def __init__(self, var_name: str, var_value, error_msg = error_msg, *args: object) -> None:
+            self.var_name = var_name
+            self.var_value = var_value
+            self.error_msg = error_msg + f"\n\t\tVariable Name -> {var_name}\n\t\tVariable Value -> {var_value}"
+
+            super().__init__(self.error_msg)
+
+
+class ValidTypes(Enum):
+    TXT = 0,
+    JPG = 1,
+    PNG = 2,
+    XML = 3,
+    SVG = 4
+
+    @classmethod
+    def asList(self):
+        return [v.name.lower() for v in self]
+
 
 
 # gray scale level values from: 
 # http://paulbourke.net/dataformats/asciiart/
 # for Courier font, aspect ratio is about 0.43
-
 Grayscales = {
     10: '@%#*+=-:. ', # TODO change these
     70: "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. " # TODO change these
@@ -82,15 +111,15 @@ def _getUniqueName() -> str:
 
     return parts[adj1][pos1] + '_' + parts[adj2][pos2] + '_' + objects[obj]
 
-def _colorsToHex(r: int = 0, g: int = 0, b: int = 0):
+def _colorsToHex(r: int = 0, g: int = 0, b: int = 0) -> str:
     if not (0 <= r <= 255):
-        print("ZERO VALUE")
+        raise Errors.VariableInvalidValueError('r', r, "RGB values must be between 0 and 256 (exclusive)!")
     if not (0 <= g <= 255):
-        print("ZERO VALUE")
+        raise Errors.VariableInvalidValueError('g', g, "RGB values must be between 0 and 256 (exclusive)!")
     if not (0 <= b <= 255):
-        print("ZERO VALUE")
+        raise Errors.VariableInvalidValueError('b', b, "RGB values must be between 0 and 256 (exclusive)!")
     
-    return str.lower(f"#{format(r, '02X')}{format(g, '02X')}{format(b, '02X')}")
+    return str.lower(f"#{r:02X}{g:02X}{b:02X}")
 
 def _formatForSVG(char: str):
     if char in SVGMaps:

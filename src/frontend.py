@@ -53,12 +53,13 @@ def SetupParser() -> None:
     global Parser
     Parser = ap.ArgumentParser( # TODO check out prog
 
-      usage = dedent(
+        # TODO somehow make these dynamic
+        usage = dedent(
 'converter.py inputFile [-h] [-a] [-c] \n\
                     [-wi INTEGER | -wc INTEGER] \n\
                     [-hi INTEGER | -hc INTEGER] \n\
                     [-gsc {10,70} def: 70] \n\
-                    [-op PATH] [-t {txt, jpg, png, xml} def: txt]'
+                    [-op PATH] [-ot {txt, jpg, png, xml, svg} def: txt]'
         ),
         
         description = 'Program that converts an input image into an ASCII representation. Usage message formatted for readability.'
@@ -96,12 +97,12 @@ def _setupArguments() -> None:
 
 # ========= Mechanism Flags ======== 
 
-    Parser.add_argument(    # colored NI
+    Parser.add_argument(    # colored
             '-c', '--colored',
             dest        =   'inputColored',
             required    =   False,
             action      =   'store_true',
-            help        =   'Should the output image be colored instead of greyscale? NOT IMPLEMENTED'
+            help        =   'Should the output image be colored instead of greyscale?'
     )
 
     Parser.add_argument(    # how many grayscale TODO
@@ -167,27 +168,50 @@ def _setupArguments() -> None:
             help        =   'The full path of the output file.',
             metavar     =   'PATH'
     )
-    Parser.add_argument(    # output type
-            '-t', '--outputfiletype',
+    Parser.add_argument(    # output type TODO
+            '-ot', '--outputfiletype',
             dest        =   'inputFileTypeOut',
             required    =   False,
-            choices     =   tools.ValidTypes,
+            choices     =   tools.ValidTypes.asList(),
             default     =   'txt',
             help        =   'The format of the output file.'
+    )
+
+    # TODO change this to be more readable in help message somehow?
+    nhelp = "The name of the output file.\
+    INPUT uses the same as the input file,\
+    RANDOM generates a random readable name,\
+    CUSTOM uses the name provided in the output path.\
+        If no such path is provided, it uses RANDOM.\
+    If path name is provided, program assumes CUSTOM, ignoring the other choices even if they are set."
+
+    Parser.add_argument(
+            '-on', '--name',
+            dest        =   'inputFileNameOut',
+            required    =   False,
+            choices     =   ['CUSTOM', 'INPUT', 'RANDOM'],
+            default     =   'RANDOM',
+            help        =   nhelp
+
     )
 
 
 def RunTool(shouldSave: bool = False): # TODO implement shouldSave, if false return the list instead of saving it (maybe have it do both?)
     args = Parser.parse_args()
 
-    midend.setInputImageFile(args.inputFile)
-    midend.setAutomatic(args.inputAuto)
-    midend.setColored(args.inputColored)
+    try:
+        midend.setInputImageFile(args.inputFile)
+        midend.setAutomatic(args.inputAuto)
+        midend.setColored(args.inputColored)
+        midend.setName(args.inputFileNameOut)
+    except Exception as e:
+        Exit(e)
+
+
     try:
         midend.setGrayscale(args.inputGSCount)
-    except tools.ValueInvalidError as e:
-        print(f"Invalid Grayscale size used: {e.value}!")
-        Exit()
+    except tools.Errors.VariableInvalidValueError as e:
+        Exit(f"Invalid Grayscale size used: {e.value}!")
 
     imageSize = midend.getInputImageSize()
     print(f"\nInput image dimensions (w x h): {imageSize[0]} x {imageSize[1]} pixels")
@@ -196,21 +220,21 @@ def RunTool(shouldSave: bool = False): # TODO implement shouldSave, if false ret
     # TODO handle for auto
     try:
         midend.HandleWidth(args.inputWidthPixel, args.inputWidthCount) # pass both and let it handle them  
-    except tools.ValueInvalidError:
-        print("Input arguments for width are Invalid!")
+    except tools.Errors.VariableInvalidValueError:
+        print("\nInput arguments for width are Invalid!")
         res = _handleNonexistentTile(imageSize[0], "width") # if there was an error, ask user for value
         midend.setTileWidth(res) # FIXME catch exception
-    except tools.ValueNotInitialisedError:
+    except tools.Errors.VariableNotInitialisedError:
         res = _handleNonexistentTile(imageSize[0], "width") # if there was an error, ask user for value
         midend.setTileWidth(res) # FIXME catch exception
         
     try:
         midend.HandleHeight(args.inputHeightPixel, args.inputHeightCount) # pass both and let it handle them
-    except tools.ValueInvalidError:
-        print("Input arguments for height are Invalid!")
+    except tools.Errors.VariableInvalidValueError:
+        print("\nInput arguments for height are Invalid!")
         res = _handleNonexistentTile(imageSize[1], "height") # if there was an error, ask user for value
         midend.setTileHeight(res) # FIXME catch exception
-    except tools.ValueNotInitialisedError:
+    except tools.Errors.VariableNotInitialisedError:
         res = _handleNonexistentTile(imageSize[1], "height") # if there was an error, ask user for value
         midend.setTileHeight(res) # FIXME catch exception
 
@@ -221,10 +245,13 @@ def RunTool(shouldSave: bool = False): # TODO implement shouldSave, if false ret
     print(f"Total tile count \n\tPer axis (w x h): {tilecountw} x {tilecounth}\n\tTotal tiles: {tilecountw*tilecounth}\n")
 
 
-    midend.HandleOutput(args.inputFilePathOut, args.inputFileTypeOut)
+    midend.HandleOutput(args.inputFile, args.inputFilePathOut, args.inputFileTypeOut)
 
-    midend.Execute()
-    
+    try:
+        midend.Execute()
+    except tools.Errors.GenericError as e:
+        print(e)
+        Exit(e)
         
 
 
@@ -233,17 +260,23 @@ def RunTool(shouldSave: bool = False): # TODO implement shouldSave, if false ret
 
 def _handleNonexistentTile(img: int, type: str) -> int:
     divs = tools._getDivisors(img)
-    print(f"Input the desired tile {type} size in pixels. Integer divisors of the image {type}:")
+    print(f"\nInput the desired tile {type} size in pixels. Integer divisors of the image {type}:")
     print(divs)
     while True:
-        userin = int(input()) # FIXME catch exception
+        try:
+            userin = int(input())
+        except Exception as e:
+            Exit("User issued an exit command during input dialogue.")
+
         if userin > img or userin < 1:
             print(f"Input a valid integer within the bounds: [1-{img}]!") # TODO add auto option and custom option
         else:
             return userin
         
-def Exit(error = None):
-    print("\nTool is exiting...")
+def Exit(error: str = None):
+    if error:
+        print(f"\nDuring processing, program encountered an error with the message:\n\t{error}")
+    print("\nTool is exiting...\n")
     exit()
 
 

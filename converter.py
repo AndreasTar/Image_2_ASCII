@@ -7,19 +7,6 @@
 #                                                                         #
 ###########################################################################
 
-# [ ] add convertion from link
-# [ ] add colored conversion to colored ascii
-
-# TODO learn how argparse and improve this
-# TODO since characters dont have a square aspect ratio
-#   figure out some math or something to fix it?
-#   maybe also implement a recommended input (like auto)
-# TODO add maybe a direct output? i guess you can do that by just returning the final array
-# TODO also maybe use input file name optionally when saving
-# NOTE also pil has functions for opening and saving files, so check them out, maybe pathlib aint needed
-# TODO also have flag to consider alpha?
-# TODO i think some cmds can output colored text, but either way add option to output on screen?
-
 # Project inspired by this tutorial:
 # https://www.geeksforgeeks.org/converting-image-ascii-image-python/
 # More details at:
@@ -31,6 +18,7 @@ def main():
     print("Starting tool...\n")
     frontend.SetupParser()
     frontend.RunTool()
+    print("\nTool finished with no errors!\n")
 	
 
 if __name__ == '__main__':
