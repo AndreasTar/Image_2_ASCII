@@ -214,7 +214,7 @@ def Execute():
             if Input_Colored:
                 print("\nInput flag { -c : Colored } was set, but output type is .txt! Choose one of the following:")
                 print("\tOutput only the ASCII characters -> t")
-                print("\tOutput colors and text in per-pixel format [RRGGBBc RRGGBBc ...] -> c")
+                print("\tOutput colors and text in per-pixel format : [RRGGBBc RRGGBBc ...] -> c")
                 print("\tExit without proceeding -> e")
                 inp: str
                 while True:
@@ -244,20 +244,58 @@ def Execute():
                     raise tools.Errors.GenericError("Colored flag was set, but output type was .txt! User requested to exit.")
                 
         case tools.ValidTypes.JPG:
-            raise tools.Errors.UNIMPLEMENTED
+            res = converters.ConvertToPNG(res, resR, resG, resB, Input_Colored)
         case tools.ValidTypes.PNG:
-            raise tools.Errors.UNIMPLEMENTED
+            res = converters.ConvertToPNG(res, resR, resG, resB, Input_Colored)
         case tools.ValidTypes.XML:
-            raise tools.Errors.UNIMPLEMENTED
-        
+            if Input_Colored:
+                print("\nInput flag { -c : Colored } was set, but output type is .xml! Choose one of the following:")
+                print("\tOutput only the ASCII characters in format : [<char>c</char> ...] -> t")
+                print("\tOutput colors and text in per-character format : [<col>RRGGBB</col><char>c</char> ...] -> c")
+                print("\tExit without proceeding -> e")
+                inp: str
+                while True:
+                    inp = input("Leave empty for default (e) : ").lower()
+                    if not inp:
+                        inp = 'e'
+                        break
+                    if inp in 'tce':
+                        break
+                
+                if inp == 't':
+                    print("Outputting only the ASCII characters in format : [<char>c</char> ...]")
+                    height = len(res)
+                    width = len(res[0])
+
+                    for r in range(height):
+                        temp = "<row>\n\t"
+                        for c in range(width):
+                            temp += f"<char>{res[r][c]}<char> "
+                        temp += "</row>\n"
+                        res[r] = temp
+
+                if inp == 'c':
+                    print("Converting output to per-character format : [<col>RRGGBB</col><char>c</char> ...]")
+                    height = len(res)
+                    width = len(res[0])
+
+                    for r in range(height):
+                        temp = "<row>\n\t"
+                        for c in range(width):
+                            temp += f"<col>{tools._colorsToHex(resR[r*height +c], resG[r*height +c], resB[r*height +c])[1:].upper()}</col><char>{res[r][c]}<char> "
+                        temp += "</row>\n"
+                        res[r] = temp
+
+                if inp == 'e':
+                    raise tools.Errors.GenericError("Colored flag was set, but output type was .txt! User requested to exit.")
         case tools.ValidTypes.SVG:
-            res = converters.ConvertToSVG(res, resR, resG, resB)
+            res = converters.ConvertToSVG(res, resR, resG, resB, Input_Colored)
         
 
 
     Save(res)
 
-def Save(data): 
+def Save(data: svg.SVG | Image.Image): 
     # TODO  handle and raise errors etc
 
 
@@ -269,12 +307,12 @@ def Save(data):
                 f.write(r + '\n')
 
         case tools.ValidTypes.JPG:
-            raise tools.Errors.UNIMPLEMENTED
+            data.save(_Output_Path, 'JPEG')
         case tools.ValidTypes.PNG:
-            raise tools.Errors.UNIMPLEMENTED
+            data.save(_Output_Path, 'PNG')
         case tools.ValidTypes.XML:
-            raise tools.Errors.UNIMPLEMENTED
-        
+            for r in data:
+                f.write(r + '\n')
         case tools.ValidTypes.SVG:
             f.write(data.as_str())
 
