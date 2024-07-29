@@ -30,8 +30,6 @@ _Output_Path: pl.Path
 _Output_Type: tools.ValidTypes
 _Output_Name_Flag: str
 
-_Output_Ascii: list # TODO change this so it can handle colors for each character
-
 
 # ================= Main Flags ================ 
 
@@ -241,12 +239,11 @@ def Execute():
                         res[r] = temp
 
                 if inp == 'e':
-                    raise tools.Errors.GenericError("Colored flag was set, but output type was .txt! User requested to exit.")
-                
+                    raise tools.Errors.GenericError("Colored flag was set, but output type was .txt! User requested to exit.")     
         case tools.ValidTypes.JPG:
-            res = converters.ConvertToPNG(res, resR, resG, resB, Input_Colored)
+            res = converters.ConvertToIMG(res, resR, resG, resB, Input_Colored)
         case tools.ValidTypes.PNG:
-            res = converters.ConvertToPNG(res, resR, resG, resB, Input_Colored)
+            res = converters.ConvertToIMG(res, resR, resG, resB, Input_Colored)
         case tools.ValidTypes.XML:
             if Input_Colored:
                 print("\nInput flag { -c : Colored } was set, but output type is .xml! Choose one of the following:")

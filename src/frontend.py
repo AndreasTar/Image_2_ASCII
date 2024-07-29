@@ -58,8 +58,8 @@ def SetupParser() -> None:
 'converter.py inputFile [-h] [-a] [-c] \n\
                     [-wi INTEGER | -wc INTEGER] \n\
                     [-hi INTEGER | -hc INTEGER] \n\
-                    [-gsc {10,70} def: 70] \n\
-                    [-op PATH] [-ot {txt, jpg, png, xml, svg} def: txt]'
+                    [-gsc {10,70} (def: 70)] \n\
+                    [-op PATH] [-ot {txt, svg, png, jpg, xml} (def: txt)]'
         ),
         
         description = 'Program that converts an input image into an ASCII representation. Usage message formatted for readability.'
@@ -275,7 +275,7 @@ def _handleNonexistentTile(img: int, type: str) -> int:
         
 def Exit(error: str = None):
     if error:
-        print(f"\nDuring processing, program encountered an error with the message:\n\t{error}")
+        print(f"\nDuring processing, program encountered an error with the message:\n\t{error}\n")
     print("\nTool is exiting...\n")
     exit()
 

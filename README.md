@@ -15,8 +15,8 @@ You can always run the tool with the flag `-h` for info about each flag.
 converter.py inputFile [-h] [-a] [-c]
                        [-wi INTEGER | -wc INTEGER]
                        [-hi INTEGER | -hc INTEGER]
-                       [-gsc {10,70} def: 70]
-                       [-op PATH] [-t {png, jpg, xml, txt} def: txt]
+                       [-gsc {10,70} (def: 70)]
+                       [-op PATH] [-t {txt, svg, png, jpg, xml} (def: txt)]
 ```
 
 ### Explanation of the flags

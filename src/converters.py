@@ -58,7 +58,7 @@ def ConvertToSVG(text: list[str], red: list[int] | None, green: list[int] | None
 
     return file   
 
-def ConvertToPNG(text: list[str], red: list[int] | None, green: list[int] | None, blue: list[int] | None, colored: bool) -> Image.Image:
+def ConvertToIMG(text: list[str], red: list[int] | None, green: list[int] | None, blue: list[int] | None, colored: bool) -> Image.Image:
 
     width = len(text[0])
     height = len(text)
