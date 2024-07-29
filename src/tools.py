@@ -26,7 +26,6 @@ class Errors:
         def __init__(self, *args: object) -> None:
             super().__init__("FUNCTION IS NOT IMPLEMENTED!")
 
-
     class VariableNotInitialisedError(GenericError):
 
         var_name = ""
@@ -78,7 +77,6 @@ SVGMaps = {
     '&' : '&amp;',
     '<' : '&lt;',
     '>' : '&gt;',
-
 }
 
 
@@ -113,11 +111,11 @@ def _getUniqueName() -> str:
 
 def _colorsToHex(r: int = 0, g: int = 0, b: int = 0) -> str:
     if not (0 <= r <= 255):
-        raise Errors.VariableInvalidValueError('r', r, "RGB values must be between 0 and 256 (exclusive)!")
+        raise Errors.VariableInvalidValueError('r', r, "RGB values must be between 0 and 255 (inclusive)!")
     if not (0 <= g <= 255):
-        raise Errors.VariableInvalidValueError('g', g, "RGB values must be between 0 and 256 (exclusive)!")
+        raise Errors.VariableInvalidValueError('g', g, "RGB values must be between 0 and 255 (inclusive)!")
     if not (0 <= b <= 255):
-        raise Errors.VariableInvalidValueError('b', b, "RGB values must be between 0 and 256 (exclusive)!")
+        raise Errors.VariableInvalidValueError('b', b, "RGB values must be between 0 and 255 (inclusive)!")
     
     return str.lower(f"#{r:02X}{g:02X}{b:02X}")
 

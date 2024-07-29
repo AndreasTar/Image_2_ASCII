@@ -46,7 +46,6 @@ Houses the code for converting to all output formats
   - figure out some math or something to fix it?
   - maybe also implement a recommended input (like auto)
 - TODO add maybe a direct output? i guess you can do that by just returning the final array
-- TODO also maybe use input file name optionally when saving
 - NOTE also pil has functions for opening and saving files, so check them out, maybe pathlib aint needed
 - TODO also have flag to consider alpha?
 - TODO i think some cmds can output colored text, but either way add option to output on screen?
