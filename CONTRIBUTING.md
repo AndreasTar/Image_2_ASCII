@@ -18,17 +18,25 @@ On **bug fixes** create a **patch note in the pull request message** so we know 
 
 ## Style
 
-| Kind                 | Case          |
-|:---------------------|:--------------|
-| **Class**            | ClassName     |
-| **Enum**             | EnumName      |
-| **Function**         | functionName  |
-| **Private Function** | pFunctionName |
-| **Variable**         | variableName  |
-| **Const Variable**   | VARIABLE_NAME |
-| **Private Variable** | pVariableName |
-| **Module**           | fileName      |
-| **Private Module**   | pfileName     |
+| Kind                      | Case          |
+|:--------------------------|:--------------|
+| **Class**                 | ClassName     |
+| **Private Class**         | PClassName    |
+| **Class Fields**          | fieldName     |
+| **Class Methods**         | methodName    |
+| **Private Class Fields**  | pfieldName    |
+| **Private Class Methods** | pmathodName   |
+| **Enum**                  | EnumName      |
+| **Enum Fields**           | EnumField     |
+| **Enum Methods**          | enumMethod    |
+| **Enum Private Methods**  | pEnumMethod   |
+| **Function**              | functionName  |
+| **Private Function**      | pFunctionName |
+| **Variable**              | variableName  |
+| **Const Variable**        | VARIABLE_NAME |
+| **Private Variable**      | pVariableName |
+| **Module**                | fileName      |
+| **Private Module**        | pfileName     |
 
 ## Where is the Todo list and Roadmap?
 
