@@ -16,7 +16,7 @@ On **bug fixes** create a **patch note in the pull request message** so we know 
 > [!Important]
 > If you are fulfilling an issue refer to that issue number in the commits or pull request message
 
-## [Style]
+## Style
 
 | Kind                 | Case          |
 |:---------------------|:--------------|
@@ -30,7 +30,7 @@ On **bug fixes** create a **patch note in the pull request message** so we know 
 | **Module**           | fileName      |
 | **Private Module**   | pfileName     |
 
-## [Where is the Todo list and Roadmap?]
+## Where is the Todo list and Roadmap?
 
 ### Roadmap
 
