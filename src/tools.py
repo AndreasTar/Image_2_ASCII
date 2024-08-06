@@ -16,41 +16,41 @@ import numpy as np
 class Errors:
     class GenericError(Exception):
 
-        error_msg = "Generic error message!"
+        errorMsg = "Generic error message!"
 
-        def __init__(self, error_msg = error_msg, *args: object) -> None:
-            self.error_msg = error_msg
+        def __init__(self, error_msg = errorMsg, *args: object) -> None:
+            self.errorMsg = error_msg
 
-            super().__init__(self.error_msg)
+            super().__init__(self.errorMsg)
     
-    class UNIMPLEMENTED(GenericError):
+    class Unimplemented(GenericError):
 
         def __init__(self, *args: object) -> None:
             super().__init__("FUNCTION IS NOT IMPLEMENTED!")
 
     class VariableNotInitialisedError(GenericError):
 
-        var_name = ""
-        error_msg = f"Value was accessed before being initialised!"
+        varName = ""
+        errorMsg = f"Value was accessed before being initialised!"
 
-        def __init__(self, var_name: str, error_msg = error_msg, *args: object) -> None:
-            self.var_name = var_name
+        def __init__(self, var_name: str, error_msg = errorMsg, *args: object) -> None:
+            self.varName = var_name
             self.errorMsg = error_msg + f"\n\t\tVariable Name -> {var_name}"
 
-            super().__init__(self.error_msg)
+            super().__init__(self.errorMsg)
 
     class VariableInvalidValueError(GenericError):
 
-        var_name = ""
-        var_value = None
-        error_msg = "Variable has an invalid value!"
+        varName = ""
+        varValue = None
+        errorMsg = "Variable has an invalid value!"
 
-        def __init__(self, var_name: str, var_value, error_msg = error_msg, *args: object) -> None:
-            self.var_name = var_name
-            self.var_value = var_value
-            self.error_msg = error_msg + f"\n\t\tVariable Name -> {var_name}\n\t\tVariable Value -> {var_value}"
+        def __init__(self, var_name: str, var_value, error_msg = errorMsg, *args: object) -> None:
+            self.varName = var_name
+            self.varValue = var_value
+            self.errorMsg = error_msg + f"\n\t\tVariable Name -> {var_name}\n\t\tVariable Value -> {var_value}"
 
-            super().__init__(self.error_msg)
+            super().__init__(self.errorMsg)
 
 
 class ValidTypes(Enum):
@@ -69,13 +69,13 @@ class ValidTypes(Enum):
 # gray scale level values from: 
 # http://paulbourke.net/dataformats/asciiart/
 # for Courier font, aspect ratio is about 0.43
-Grayscales = {
+GRAYSCALES = {
     10: '@%#*+=-:. ', # TODO change these
     70: "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. " # TODO change these
 }
 
 # Map taken from https://rabbit.eng.miami.edu/info/htmlchars.html
-SVGMaps = {
+SVG_MAPS = {
     '&' : '&amp;',
     '<' : '&lt;',
     '>' : '&gt;',
@@ -85,15 +85,15 @@ SVGMaps = {
 # HACK very dumb and slow way to find all divisors, fix it
 # also generator function with yield is better since we care more about
 # memory (in the case of huge images) rather than speed
-def _divisorGenerator(n: int):
+def pDivisorGenerator(n: int):
     for i in range(1, int(n/2+1)):
         if n%i == 0: yield i
     yield n
 
-def _getDivisors(n: int):
-    return list(_divisorGenerator(n))
+def pGetDivisors(n: int):
+    return list(pDivisorGenerator(n))
 
-def _getUniqueName() -> str:
+def pGetUniqueName() -> str:
 
     part1 = ['Cheap', 'Expensive', 'Nice', 'Ugly', 'Stupid', 'Smart', 'Brilliant', 'Great', 'Pretty', 'Rich']
     part2 = ['Small', 'Tiny', 'Huge', 'Big', 'Miniscule', 'Tall', 'Little', 'Large', 'Colossal', 'Puny']
@@ -111,7 +111,7 @@ def _getUniqueName() -> str:
 
     return parts[adj1][pos1] + '_' + parts[adj2][pos2] + '_' + objects[obj]
 
-def _colorsToHex(r: int = 0, g: int = 0, b: int = 0) -> str:
+def pColorsToHex(r: int = 0, g: int = 0, b: int = 0) -> str:
     if not (0 <= r <= 255):
         raise Errors.VariableInvalidValueError('r', r, "RGB values must be between 0 and 255 (inclusive)!")
     if not (0 <= g <= 255):
@@ -121,7 +121,7 @@ def _colorsToHex(r: int = 0, g: int = 0, b: int = 0) -> str:
     
     return str.lower(f"#{r:02X}{g:02X}{b:02X}")
 
-def _formatForSVG(char: str):
-    if char in SVGMaps:
-        char = SVGMaps.get(char)
+def pFormatForSVG(char: str):
+    if char in SVG_MAPS:
+        char = SVG_MAPS.get(char)
     return char

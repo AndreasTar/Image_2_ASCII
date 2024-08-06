@@ -44,7 +44,7 @@ from src import tools, midend
 
 Parser: ap.ArgumentParser
 
-def SetupParser() -> None:
+def setupParser() -> None:
     """
     Entry point for the tool.
     Sets up the parser and the argument flags needed for this tool to work.
@@ -69,9 +69,9 @@ def SetupParser() -> None:
 #                     [-op PATH | -on STRING] [-t {png,jpg,xml,txt}]
 #                     inputFile
 
-    _setupArguments()
+    pSetupArguments()
 
-def _setupArguments() -> None:
+def pSetupArguments() -> None:
     """
     --- Private method! ---\n
     Creates the flags of the tool.
@@ -196,7 +196,7 @@ def _setupArguments() -> None:
     )
 
 
-def RunTool(shouldSave: bool = False): # TODO implement shouldSave, if false return the list instead of saving it (maybe have it do both?)
+def runTool(shouldSave: bool = False): # TODO implement shouldSave, if false return the list instead of saving it (maybe have it do both?)
     args = Parser.parse_args()
 
     try:
@@ -205,13 +205,13 @@ def RunTool(shouldSave: bool = False): # TODO implement shouldSave, if false ret
         midend.setColored(args.inputColored)
         midend.setName(args.inputFileNameOut)
     except Exception as e:
-        Exit(e)
+        exitWith(e)
 
 
     try:
         midend.setGrayscale(args.inputGSCount)
     except tools.Errors.VariableInvalidValueError as e:
-        Exit(f"Invalid Grayscale size used: {e.value}!")
+        exitWith(f"Invalid Grayscale size used: {e.value}!")
 
     imageSize = midend.getInputImageSize()
     print(f"\nInput image dimensions (w x h): {imageSize[0]} x {imageSize[1]} pixels")
@@ -222,20 +222,20 @@ def RunTool(shouldSave: bool = False): # TODO implement shouldSave, if false ret
         midend.HandleWidth(args.inputWidthPixel, args.inputWidthCount) # pass both and let it handle them  
     except tools.Errors.VariableInvalidValueError:
         print("\nInput arguments for width are Invalid!")
-        res = _handleNonexistentTile(imageSize[0], "width") # if there was an error, ask user for value
+        res = pHandleNonexistentTile(imageSize[0], "width") # if there was an error, ask user for value
         midend.setTileWidth(res) # FIXME catch exception
     except tools.Errors.VariableNotInitialisedError:
-        res = _handleNonexistentTile(imageSize[0], "width") # if there was an error, ask user for value
+        res = pHandleNonexistentTile(imageSize[0], "width") # if there was an error, ask user for value
         midend.setTileWidth(res) # FIXME catch exception
         
     try:
-        midend.HandleHeight(args.inputHeightPixel, args.inputHeightCount) # pass both and let it handle them
+        midend.handleHeight(args.inputHeightPixel, args.inputHeightCount) # pass both and let it handle them
     except tools.Errors.VariableInvalidValueError:
         print("\nInput arguments for height are Invalid!")
-        res = _handleNonexistentTile(imageSize[1], "height") # if there was an error, ask user for value
+        res = pHandleNonexistentTile(imageSize[1], "height") # if there was an error, ask user for value
         midend.setTileHeight(res) # FIXME catch exception
     except tools.Errors.VariableNotInitialisedError:
-        res = _handleNonexistentTile(imageSize[1], "height") # if there was an error, ask user for value
+        res = pHandleNonexistentTile(imageSize[1], "height") # if there was an error, ask user for value
         midend.setTileHeight(res) # FIXME catch exception
 
     tilecountw = int(imageSize[0] / midend.getTileWidth())
@@ -245,20 +245,20 @@ def RunTool(shouldSave: bool = False): # TODO implement shouldSave, if false ret
     print(f"Total tile count \n\tPer axis (w x h): {tilecountw} x {tilecounth}\n\tTotal tiles: {tilecountw*tilecounth}\n")
 
 
-    midend.HandleOutput(args.inputFile, args.inputFilePathOut, args.inputFileTypeOut)
+    midend.handleOutput(args.inputFile, args.inputFilePathOut, args.inputFileTypeOut)
 
     try:
-        midend.Execute()
+        midend.execute()
     except tools.Errors.GenericError as e:
         print(e)
-        Exit(e)
+        exitWith(e)
         
 
 
 
 
 
-def _handleNonexistentTile(img: int, type: str) -> int:
+def pHandleNonexistentTile(img: int, type: str) -> int:
     divs = tools._getDivisors(img)
     print(f"\nInput the desired tile {type} size in pixels. Integer divisors of the image {type}:")
     print(divs)
@@ -266,14 +266,15 @@ def _handleNonexistentTile(img: int, type: str) -> int:
         try:
             userin = int(input())
         except Exception as e:
-            Exit("User issued an exit command during input dialogue.")
+            exitWith("User issued an exit command during input dialogue.")
 
         if userin > img or userin < 1:
             print(f"Input a valid integer within the bounds: [1-{img}]!") # TODO add auto option and custom option
         else:
             return userin
         
-def Exit(error: str = None):
+# FIXME: This takes Exception according to line 208 regards gigagfe (also probably non 0 exit code)
+def exitWith(error: str = None):
     if error:
         print(f"\nDuring processing, program encountered an error with the message:\n\t{error}\n")
     print("\nTool is exiting...\n")

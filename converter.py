@@ -16,8 +16,8 @@ from src import frontend
 
 def main():
     print("Starting tool...\n")
-    frontend.SetupParser()
-    frontend.RunTool()
+    frontend.setupParser()
+    frontend.runTool()
     print("\nTool finished with no errors!\n")
 	
 

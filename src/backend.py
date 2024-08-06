@@ -10,7 +10,7 @@
 from PIL import Image
 import numpy as np
 
-def Convert2Ascii(image: Image.Image,\
+def convert2Ascii(image: Image.Image,\
                   imgWidth: int, imgHeight: int,\
                   tileWidth: int, tileHeight: int,\
                   charList: list = None, onlyColor: bool = False) -> list:
@@ -44,7 +44,7 @@ def Convert2Ascii(image: Image.Image,\
             
             tile = image.crop((xleft, ytop, xright, ybot))
 
-            val = int(_getAverage(tile))
+            val = int(pGetAverage(tile))
 
             if not onlyColor:               # if we want the ascii character instead of just color value
                 val = charList[int((val *  charSize) / 255)]
@@ -54,7 +54,7 @@ def Convert2Ascii(image: Image.Image,\
 
     return asciiImage
 
-def _getAverage(tile: Image.Image):
+def pGetAverage(tile: Image.Image):
     npImg = np.array(tile)
     tw, th = npImg.shape
 
