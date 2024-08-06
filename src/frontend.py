@@ -42,7 +42,7 @@ from PIL import Image
 
 from src import tools, midend
 
-Parser: ap.ArgumentParser
+parser: ap.ArgumentParser
 
 def setupParser() -> None:
     """
@@ -50,8 +50,8 @@ def setupParser() -> None:
     Sets up the parser and the argument flags needed for this tool to work.
     Also initialises the mid-end and the back-end.
     """
-    global Parser
-    Parser = ap.ArgumentParser( # TODO check out prog
+    global parser
+    parser = ap.ArgumentParser( # TODO check out prog
 
         # TODO somehow make these dynamic
         usage = dedent(
@@ -82,12 +82,12 @@ def pSetupArguments() -> None:
 
 # ========= Main Flags ======== 
 
-    Parser.add_argument(    #input file
+    parser.add_argument(    #input file
             'inputFile',
             type        =   pathlib.Path,
             help        =   'The path to the file to be converted'
     )
-    Parser.add_argument(    # automatic NI
+    parser.add_argument(    # automatic NI
             '-a', '--auto',
             dest        =   'inputAuto',
             required    =   False,
@@ -97,7 +97,7 @@ def pSetupArguments() -> None:
 
 # ========= Mechanism Flags ======== 
 
-    Parser.add_argument(    # colored
+    parser.add_argument(    # colored
             '-c', '--colored',
             dest        =   'inputColored',
             required    =   False,
@@ -105,7 +105,7 @@ def pSetupArguments() -> None:
             help        =   'Should the output image be colored instead of greyscale?'
     )
 
-    Parser.add_argument(    # how many grayscale TODO
+    parser.add_argument(    # how many grayscale TODO
             '-gsc', '--grayscalecount',
             dest        =   'inputGSCount',
             required    =   False,
@@ -117,7 +117,7 @@ def pSetupArguments() -> None:
 
 # ========= Width Flags ======== 
 
-    wgroup = Parser.add_mutually_exclusive_group()
+    wgroup = parser.add_mutually_exclusive_group()
 
     wgroup.add_argument(    # width pixel per tile
             '-wi', '--width',
@@ -138,7 +138,7 @@ def pSetupArguments() -> None:
 
 # ========= Height Flags ======== 
 
-    hgroup = Parser.add_mutually_exclusive_group()
+    hgroup = parser.add_mutually_exclusive_group()
 
     hgroup.add_argument(    # height pixel per tile
             '-hi', '--height',
@@ -159,7 +159,7 @@ def pSetupArguments() -> None:
 
 # ========= Output Flags ========
 
-    Parser.add_argument(    # output path
+    parser.add_argument(    # output path
             '-op', '--outputfilepath',
             dest        =   'inputFilePathOut',
             required    =   False,
@@ -168,7 +168,7 @@ def pSetupArguments() -> None:
             help        =   'The full path of the output file.',
             metavar     =   'PATH'
     )
-    Parser.add_argument(    # output type TODO
+    parser.add_argument(    # output type TODO
             '-ot', '--outputfiletype',
             dest        =   'inputFileTypeOut',
             required    =   False,
@@ -185,7 +185,7 @@ def pSetupArguments() -> None:
         If no such path is provided, it uses RANDOM.\
     If path name is provided, program assumes CUSTOM, ignoring the other choices even if they are set."
 
-    Parser.add_argument(
+    parser.add_argument(
             '-on', '--name',
             dest        =   'inputFileNameOut',
             required    =   False,
@@ -197,7 +197,7 @@ def pSetupArguments() -> None:
 
 
 def runTool(shouldSave: bool = False): # TODO implement shouldSave, if false return the list instead of saving it (maybe have it do both?)
-    args = Parser.parse_args()
+    args = parser.parse_args()
 
     try:
         midend.setInputImageFile(args.inputFile)
@@ -259,7 +259,7 @@ def runTool(shouldSave: bool = False): # TODO implement shouldSave, if false ret
 
 
 def pHandleNonexistentTile(img: int, type: str) -> int:
-    divs = tools._getDivisors(img)
+    divs = tools.pGetDivisors(img)
     print(f"\nInput the desired tile {type} size in pixels. Integer divisors of the image {type}:")
     print(divs)
     while True:
