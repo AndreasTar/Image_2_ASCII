@@ -38,6 +38,7 @@
 import argparse as ap
 import pathlib
 from textwrap import dedent
+from typing import NoReturn
 from PIL import Image
 
 from src import tools, midend
@@ -211,6 +212,7 @@ def runTool(shouldSave: bool = False): # TODO implement shouldSave, if false ret
     try:
         midend.setGrayscale(args.inputGSCount)
     except tools.Errors.VariableInvalidValueError as e:
+        # FIXME: e.value is unknown?
         exitWith(f"Invalid Grayscale size used: {e.value}!")
 
     imageSize = midend.getInputImageSize()
@@ -265,7 +267,7 @@ def pHandleNonexistentTile(img: int, type: str) -> int:
     while True:
         try:
             userin = int(input())
-        except Exception as e:
+        except Exception:
             exitWith("User issued an exit command during input dialogue.")
 
         if userin > img or userin < 1:
@@ -274,7 +276,7 @@ def pHandleNonexistentTile(img: int, type: str) -> int:
             return userin
         
 # FIXME: This takes Exception according to line 208 regards gigagfe (also probably non 0 exit code)
-def exitWith(error: str = None):
+def exitWith(error: Exception | str | None = None) -> NoReturn:
     if error:
         print(f"\nDuring processing, program encountered an error with the message:\n\t{error}\n")
     print("\nTool is exiting...\n")

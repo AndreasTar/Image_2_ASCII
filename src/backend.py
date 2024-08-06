@@ -13,10 +13,11 @@ import numpy as np
 def convert2Ascii(image: Image.Image,\
                   imgWidth: int, imgHeight: int,\
                   tileWidth: int, tileHeight: int,\
-                  charList: list = None, onlyColor: bool = False) -> list:
+                  charList: list[str] | str | None = None, onlyColor: bool = False) -> list:
 
     if (charList is None and not onlyColor):
-        pass # Return exception
+        # TODO: Return exception
+        assert False, "Charlist is none and not only color" 
     
     asciiImage = []                     # each row is a string
 
@@ -54,6 +55,7 @@ def convert2Ascii(image: Image.Image,\
 
     return asciiImage
 
+# TODO: type hint return type
 def pGetAverage(tile: Image.Image):
     npImg = np.array(tile)
     tw, th = npImg.shape

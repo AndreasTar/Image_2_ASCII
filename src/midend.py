@@ -33,7 +33,7 @@ pOutputNameFlag: str
 
 # ================= Main Flags ================ 
 
-def setInputImageFile(inputImagePath: pl.Path):
+def setInputImageFile(inputImagePath: pl.Path) -> None:
 
     global inputImageFile, inputImageWidth, inputImageHeight
 
@@ -44,21 +44,21 @@ def setInputImageFile(inputImagePath: pl.Path):
     
     inputImageWidth, inputImageHeight = inputImageFile.size
 
-def setAutomatic(auto: bool):
+def setAutomatic(auto: bool) -> None:
     global inputAuto
     inputAuto = auto
 
 # ================= Mechanism Flags ================ 
 
-def setColored(color: bool):
+def setColored(color: bool) -> None:
     global inputColored
     inputColored = color
 
-def setGrayscale(gsc: int):
+def setGrayscale(gsc: int) -> None:
     global grayscaleList
-    if not tools.Grayscales.__contains__(gsc): # NOTE this may look unnecessary cause parser does the checks, but i leave it for api
+    if not tools.GRAYSCALES.__contains__(gsc): # NOTE this may look unnecessary cause parser does the checks, but i leave it for api
         raise tools.Errors.VariableInvalidValueError("gsc", gsc)
-    grayscaleList = tools.Grayscales[gsc]
+    grayscaleList = tools.GRAYSCALES[gsc]
 
 
 def getInputImageSize() -> tuple[int, int]:
@@ -80,17 +80,17 @@ def getInputImageHeight() -> int:
 
 # ================= Width Flags ================ 
 
-def setTileWidth(twp: int): # NOTE should this raise an error?
+def setTileWidth(twp: int) -> None: # NOTE should this raise an error?
 
     global tilePixelsWidth
 
     tilePixelsWidth = twp
 
-def getTileWidth():
+def getTileWidth() -> int:
     global tilePixelsWidth
     return tilePixelsWidth
 
-def HandleWidth(twp: int, twc: int):
+def HandleWidth(twp: int, twc: int) -> None:
     if not (twp or twc):
         raise tools.Errors.VariableNotInitialisedError("twp")
     
@@ -108,17 +108,17 @@ def HandleWidth(twp: int, twc: int):
 
 # ================= Height Flags ================
 
-def setTileHeight(thp: int): # NOTE should this raise an error?
+def setTileHeight(thp: int) -> None: # NOTE should this raise an error?
 
     global tilePixelsHeight
 
     tilePixelsHeight = thp
 
-def getTileHeight():
+def getTileHeight() -> int:
     global tilePixelsHeight
     return tilePixelsHeight
 
-def handleHeight(thp: int, thc: int):
+def handleHeight(thp: int, thc: int) -> None:
     if not (thp or thc):
         raise tools.Errors.VariableNotInitialisedError("thp")
     
@@ -136,11 +136,11 @@ def handleHeight(thp: int, thc: int):
 
 # ================= Output Flags ================
 
-def setName(nameFlag: str):
+def setName(nameFlag: str) -> None:
     global pOutputNameFlag 
     pOutputNameFlag = nameFlag
 
-def handleOutput(name: pl.Path, path: pl.Path, format: str):
+def handleOutput(name: pl.Path, path: pl.Path, format: str) -> None:
 
     global pOutputPath, pOutputType
 
@@ -156,7 +156,7 @@ def handleOutput(name: pl.Path, path: pl.Path, format: str):
     outFile = ""
 
     if (not path):
-        outFile = tools._getUniqueName()
+        outFile = tools.pGetUniqueName()
         if pOutputNameFlag == 'INPUT':
             outFile = name.name[:-4] # remove format text
         outFile += format
@@ -174,7 +174,7 @@ def handleOutput(name: pl.Path, path: pl.Path, format: str):
     
 # ================= Process ================
 
-def execute():
+def execute() -> None:
 
     img = inputImageFile.convert('L')
     resR: list[int] = []
@@ -235,7 +235,7 @@ def execute():
                     for r in range(height):
                         temp = ""
                         for c in range(width):
-                            temp += f"{tools._colorsToHex(resR[r*height +c], resG[r*height +c], resB[r*height +c])[1:].upper()}{res[r][c]} "
+                            temp += f"{tools.pColorsToHex(resR[r*height +c], resG[r*height +c], resB[r*height +c])[1:].upper()}{res[r][c]} "
                         res[r] = temp
 
                 if inp == 'e':
@@ -279,7 +279,7 @@ def execute():
                     for r in range(height):
                         temp = "<row>\n\t"
                         for c in range(width):
-                            temp += f"<col>{tools._colorsToHex(resR[r*height +c], resG[r*height +c], resB[r*height +c])[1:].upper()}</col><char>{res[r][c]}<char> "
+                            temp += f"<col>{tools.pColorsToHex(resR[r*height +c], resG[r*height +c], resB[r*height +c])[1:].upper()}</col><char>{res[r][c]}<char> "
                         temp += "</row>\n"
                         res[r] = temp
 

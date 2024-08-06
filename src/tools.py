@@ -61,8 +61,8 @@ class ValidTypes(Enum):
     SVG = 4
 
     @classmethod
-    def asList(self):
-        return [v.name.lower() for v in self]
+    def asList(cls):
+        return [v.name.lower() for v in cls]
 
 
 
@@ -121,7 +121,8 @@ def pColorsToHex(r: int = 0, g: int = 0, b: int = 0) -> str:
     
     return str.lower(f"#{r:02X}{g:02X}{b:02X}")
 
-def pFormatForSVG(char: str):
+def pFormatForSVG(char: str) -> str | None:
+    res = None
     if char in SVG_MAPS:
-        char = SVG_MAPS.get(char)
-    return char
+        res = SVG_MAPS.get(char)
+    return res
