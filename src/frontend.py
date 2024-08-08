@@ -212,8 +212,7 @@ def runTool(shouldSave: bool = False): # TODO implement shouldSave, if false ret
     try:
         midend.setGrayscale(args.inputGSCount)
     except tools.Errors.VariableInvalidValueError as e:
-        # FIXME: e.value is unknown?
-        exitWith(f"Invalid Grayscale size used: {e.value}!")
+        exitWith(f"Invalid Grayscale size used: {e.varValue}!")
 
     imageSize = midend.getInputImageSize()
     print(f"\nInput image dimensions (w x h): {imageSize[0]} x {imageSize[1]} pixels")
@@ -275,12 +274,12 @@ def pHandleNonexistentTile(img: int, type: str) -> int:
         else:
             return userin
         
-# FIXME: This takes Exception according to line 208 regards gigagfe (also probably non 0 exit code)
 def exitWith(error: Exception | str | None = None) -> NoReturn:
     if error:
         print(f"\nDuring processing, program encountered an error with the message:\n\t{error}\n")
     print("\nTool is exiting...\n")
-    exit()
+    # Non zero exit code indicates something went wrong
+    exit(1)
 
 
 
