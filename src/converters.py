@@ -34,12 +34,12 @@ def ConvertToSVG(text: list[str], red: list[int] | None, green: list[int] | None
                 svg.TSpan(
                     x = x,
                     y = y,
-                    fill = tools._colorsToHex(
+                    fill = tools.pColorsToHex(
                         red[r*width + c] if not (len(red) == 0 or not red) else 0,
                         green[r*width + c] if not (len(green) == 0 or not green) else 0,
                         blue[r*width + c] if not (len(blue) == 0 or not blue) else 0
                     ),
-                    text = tools._formatForSVG(text[r][c])
+                    text = tools.pFormatForSVG(text[r][c])
                 )
             )
             x += 12
@@ -75,7 +75,7 @@ def ConvertToIMG(text: list[str], red: list[int] | None, green: list[int] | None
             d.text(
                 (x,y),
                 text[r][c],
-                tools._colorsToHex(
+                tools.pColorsToHex(
                     red[r*width + c] if not (len(red) == 0 or not red) else 0,
                     green[r*width + c] if not (len(green) == 0 or not green) else 0,
                     blue[r*width + c] if not (len(blue) == 0 or not blue) else 0
