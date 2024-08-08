@@ -58,7 +58,8 @@ The roadmap can be found in the top level readme file of the project, this inclu
 
 ### Todo list
 
-There are currently two todo lists:
+**There are several places to find the todo lists:**
 
 1. top level readme under Roadmap
 2. src/readme under TODOs
+3. there are [TODO's](#todo) scattered in the codebase, these can be found with your favorite search tool
