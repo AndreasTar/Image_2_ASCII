@@ -121,8 +121,6 @@ def pColorsToHex(r: int = 0, g: int = 0, b: int = 0) -> str:
     
     return str.lower(f"#{r:02X}{g:02X}{b:02X}")
 
-def pFormatForSVG(char: str) -> str | None:
-    res = None
-    if char in SVG_MAPS:
-        res = SVG_MAPS.get(char)
-    return res
+def pFormatForSVG(char: str) -> str:
+    # Gets key, or defaults to returning the character
+    return SVG_MAPS.get(char, char)
