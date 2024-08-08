@@ -68,7 +68,7 @@ def next():
 
 | Syntax             | Description                                             |
 | :----------------- | :------------------------------------------------------ |
-| `FIXME: <message>` | Used when there is a bug in the typing or in the code   |
+| `FIXME: <message>` | Used when there is a issue in the typing or in the code |
 | `HACK: <message>`  | Used when you have created a hotfix for a bug           |
 | `TODO: <message>`  | Used for any todo that does not fit in any of the above |
 
