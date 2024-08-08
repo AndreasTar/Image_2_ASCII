@@ -18,6 +18,8 @@ On **bug fixes** create a **patch note in the pull request message** so we know 
 
 ## Style
 
+### Casing
+
 | Kind                      | Case          |
 | :------------------------ | :------------ |
 | **Class**                 | ClassName     |
@@ -37,6 +39,16 @@ On **bug fixes** create a **patch note in the pull request message** so we know 
 | **Private Variable**      | pVariableName |
 | **Module**                | fileName      |
 | **Private Module**        | pfileName     |
+
+### TODO
+
+**There are several ways to write todo's in this codebase, these are as follows:**
+
+| Syntax             | Description                                             |
+| :----------------- | :------------------------------------------------------ |
+| `FIXME: <message>` | Used when there is a bug in the typing or in the code   |
+| `HACK: <message>`  | Used when you have created a hotfix for a bug           |
+| `TODO: <message>`  | Used for any todo that does not fit in any of the above |
 
 ## Where is the Todo list and Roadmap?
 
