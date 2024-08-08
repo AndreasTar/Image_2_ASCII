@@ -19,13 +19,13 @@ On **bug fixes** create a **patch note in the pull request message** so we know 
 ## Style
 
 | Kind                      | Case          |
-|:--------------------------|:--------------|
+| :------------------------ | :------------ |
 | **Class**                 | ClassName     |
 | **Private Class**         | PClassName    |
 | **Class Fields**          | fieldName     |
 | **Class Methods**         | methodName    |
-| **Private Class Fields**  | pfieldName    |
-| **Private Class Methods** | pmathodName   |
+| **Private Class Fields**  | pFieldName    |
+| **Private Class Methods** | pMethodName   |
 | **Enum**                  | EnumName      |
 | **Enum Fields**           | EnumField     |
 | **Enum Methods**          | enumMethod    |
