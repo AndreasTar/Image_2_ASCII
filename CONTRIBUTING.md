@@ -84,7 +84,7 @@ The roadmap can be found in the top level readme file of the project, this inclu
 
 1. top level readme under Roadmap
 2. src/readme under TODOs
-3. there are [TODO's](#todo) scattered in the codebase, these can be found with your favorite search tool
+3. there are [TODOs](#todo) scattered in the codebase, these can be found with your favorite search tool
 
 ## Dependencies
 
