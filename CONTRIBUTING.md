@@ -18,6 +18,28 @@ On **bug fixes** create a **patch note in the pull request message** so we know 
 
 ## Style
 
+### Rules
+
+- Keep to a **line width of 120**
+
+- On **bigger scope bodies** use **2 lines to next definition**
+```python
+def simpleBody():
+    return "Foo"
+
+def largeBody():
+    if condition:
+        x = "Bar"
+    else:
+        x = "Baz"
+
+    print(x)
+
+
+def next():
+    ...
+```
+
 ### Casing
 
 | Kind                      | Case          |
