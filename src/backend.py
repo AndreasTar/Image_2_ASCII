@@ -24,6 +24,7 @@ def convert2Ascii(image: Image.Image,\
 
     rowIndex = int(imgHeight / tileHeight)
     colIndex = int(imgWidth / tileWidth)
+    # FIXME: Charsize may be unbound due to it only being bound inside this check 
     if charList:
         charSize = len(charList) -1
 
