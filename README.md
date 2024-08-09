@@ -55,6 +55,44 @@ ToDo List:
 - [ ] Add other types of characters, like braille for more blocky looks.
 - [ ] Allow for custom Grayscale array.
 
+## How to run
+
+### Environment
+
+**If you have the packages in [requirements.txt](requirements.txt) installed on your root environment 
+or wish to install it on your root environmen you can skip this section**.
+
+
+#### Create Environment
+
+```sh
+$ python -m venv venv/<name>
+```
+
+#### Activate Environment
+
+##### Windows
+
+```sh
+$ ./venv/<name>/Scripts/Activate
+```
+
+##### Linux
+```sh
+$ source venv/<name>/bin/activate
+```
+
+### Install packages
+
+```sh
+$ pip install -r requirements.txt
+```
+
+### Run
+
+```sh
+$ python converter.py
+```
 
 ## Contribution
 
