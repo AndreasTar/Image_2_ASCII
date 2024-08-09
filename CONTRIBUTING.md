@@ -82,8 +82,8 @@ The roadmap can be found in the top level readme file of the project, this inclu
 
 **There are several places to find the todo lists:**
 
-1. top level readme under Roadmap
-2. src/readme under TODOs
+1. [top level readme](README.md) under Roadmap
+2. [readme inside src](src/README.md) under TODOs
 3. there are [TODOs](#todo) scattered in the codebase, these can be found with your favorite search tool
 
 ## Dependencies
