@@ -275,11 +275,13 @@ def pHandleNonexistentTile(img: int, type: str) -> int:
             return userin
         
 def exitWith(error: Exception | str | None = None) -> NoReturn:
+    code = 0
     if error:
         print(f"\nDuring processing, program encountered an error with the message:\n\t{error}\n")
+        # Non zero exit code indicates something went wrong
+        code = 1
     print("\nTool is exiting...\n")
-    # Non zero exit code indicates something went wrong
-    exit(1)
+    exit(code)
 
 
 
