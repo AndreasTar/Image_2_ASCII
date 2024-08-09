@@ -88,10 +88,10 @@ The roadmap can be found in the top level readme file of the project, this inclu
 
 ## Dependencies
 
-All dependencies has to be **added into requirements.txt** on the top level.
+All dependencies has to be **added into [requirements.txt](requirements.txt)** on the top level.
 
 If you are **creating a virtual environment (venv)** 
-put it in any folders currently in **.gitignore under Environments comment**.
+put it in any folders currently in **[.gitignore](.gitignore) under Environments comment**.
 
 > [!Important]
 > Ask before you add any dependecies
