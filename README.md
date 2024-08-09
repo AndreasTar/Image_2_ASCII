@@ -56,6 +56,9 @@ ToDo List:
 ## Contribution
 Found a bug? Or do you want to help improve this tool? Then please feel free to open a new **Issue** or submit a **Pull Request**!
 
+> [!Important]
+> Before you contribute read [CONTRIBUTING.md](CONTRIBUTING.md)
+
 ## Donate ♡
 If you like this tool or the things I'm creating, please consider **Donating** using the **Kofi** link below or the link on the "Sponsor this project" section! This is NOT mandatory, but it helps out a lot and is greatly appreciated! **:)**\
 You will also be added into my **Donation List** for everyone to see! (still in the works)\
