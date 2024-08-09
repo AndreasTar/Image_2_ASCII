@@ -7,6 +7,7 @@
 #                                                                         #
 ###########################################################################
 
+from typing import Any
 from PIL import Image
 import numpy as np
 
@@ -56,7 +57,7 @@ def convert2Ascii(image: Image.Image,\
     return asciiImage
 
 # TODO: type hint return type
-def pGetAverage(tile: Image.Image):
+def pGetAverage(tile: Image.Image) -> np.floating[Any]:
     npImg = np.array(tile)
     tw, th = npImg.shape
 
