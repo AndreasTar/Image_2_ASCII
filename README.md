@@ -9,7 +9,40 @@
   
  This source code is licensed under the BSD-style license found in the **LICENSE** file in the root directory of this Repository.
 
-## Usage
+## How to run
+
+### Environment
+
+**If you have the packages in [requirements.txt](requirements.txt) installed on your root environment 
+or wish to install it on your root environmen you can skip this section**.
+
+
+#### Create Environment
+
+```sh
+$ python -m venv venv/<name>
+```
+
+#### Activate Environment
+
+##### Windows
+
+```sh
+$ ./venv/<name>/Scripts/Activate
+```
+
+##### Linux
+```sh
+$ source venv/<name>/bin/activate
+```
+
+### Install packages
+
+```sh
+$ pip install -r requirements.txt
+```
+
+### Usage
 
 This tool has a few features executed via command-line flags. In its simplest form, it analyses an image and splits it into a 2-Dimensional grid to then convert each slot into a grayscale format and assign an ASCII character to it from a given range.
 You can always run the tool with the flag `-h` for info about each flag.
@@ -54,45 +87,6 @@ ToDo List:
 - [ ] Add examples to the readme and improve its visual aspect.
 - [ ] Add other types of characters, like braille for more blocky looks.
 - [ ] Allow for custom Grayscale array.
-
-## How to run
-
-### Environment
-
-**If you have the packages in [requirements.txt](requirements.txt) installed on your root environment 
-or wish to install it on your root environmen you can skip this section**.
-
-
-#### Create Environment
-
-```sh
-$ python -m venv venv/<name>
-```
-
-#### Activate Environment
-
-##### Windows
-
-```sh
-$ ./venv/<name>/Scripts/Activate
-```
-
-##### Linux
-```sh
-$ source venv/<name>/bin/activate
-```
-
-### Install packages
-
-```sh
-$ pip install -r requirements.txt
-```
-
-### Run
-
-```sh
-$ python converter.py
-```
 
 ## Contribution
 
