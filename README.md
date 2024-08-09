@@ -1,13 +1,16 @@
 # Image_2_ASCII
+
 **A command-line tool for converting images into ASCII representation** 
  
 ## Disclaimer
+
 - **⚠︎ This project is under development!**
 - **⚠︎ Expect bugs and breaking changes.**
   
  This source code is licensed under the BSD-style license found in the **LICENSE** file in the root directory of this Repository.
 
 ## Usage
+
 This tool has a few features executed via command-line flags. In its simplest form, it analyses an image and splits it into a 2-Dimensional grid to then convert each slot into a grayscale format and assign an ASCII character to it from a given range.
 You can always run the tool with the flag `-h` for info about each flag.
 
@@ -54,6 +57,7 @@ ToDo List:
 
 
 ## Contribution
+
 Found a bug? Or do you want to help improve this tool? Then please feel free to open a new **Issue** or submit a **Pull Request**!
 
 > [!Important]
