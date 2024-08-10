@@ -7,26 +7,25 @@
 - **⚠︎ This project is under development!**
 - **⚠︎ Expect bugs and breaking changes.**
   
- This source code is licensed under the BSD-style license found in the **LICENSE** file in the root directory of this Repository.
+ This source code is licensed under the BSD-style license found in the **[LICENSE](LICENSE)** file in the root directory of this Repository.
 
 ## How to run
 
-### Environment
+You will need the packages mentioned in [requirements.txt](requirements.txt) in order to run this app. **If you already have the required packages, you can skip this section.** Otherwise, you can install them by running the following shell command
+```sh
+$ pip install -r requirements.txt
+```
 
-**If you have the packages in [requirements.txt](requirements.txt) installed on your root environment 
-or wish to install it on your root environmen you can skip this section**.
+or if you want to setup a **virtual** enviroment to not pollute the **root** enviroment, you can run one of the following commands, depending on your Operating System.
 
-
-#### Create Environment
+First, create the virtual enviroment
 
 ```sh
 $ python -m venv venv/<name>
 ```
-
-#### Activate Environment
+then, activate it using the appropriate command, depending on your OS.
 
 ##### Windows
-
 ```sh
 $ ./venv/<name>/Scripts/Activate
 ```
@@ -36,13 +35,13 @@ $ ./venv/<name>/Scripts/Activate
 $ source venv/<name>/bin/activate
 ```
 
-### Install packages
-
+\
+When thats completed, run the shell command
 ```sh
 $ pip install -r requirements.txt
 ```
 
-### Usage
+## Usage
 
 This tool has a few features executed via command-line flags. In its simplest form, it analyses an image and splits it into a 2-Dimensional grid to then convert each slot into a grayscale format and assign an ASCII character to it from a given range.
 You can always run the tool with the flag `-h` for info about each flag.
@@ -59,17 +58,17 @@ converter.py inputFile [-h] [-a] [-c]
 
 | Flag   | Long Flag          | Description                                                                             | Value type                | Implemented |
 | :----- | :----------------- | :-------------------------------------------------------------------------------------- | :------------------------ | :---------: |
-| `-h`   | `--help`           | Displays a help message with more info.                                                 | Bool                      |     ✔       |
-| `-a`   | `--auto`           | Figures out the usage parameters automatically from the input                           | Bool                      |     ✖       |
-| `-c`   | `--colored`        | Output text will be colored instead of grayscale. Used for XML or image output formats. | Bool                      |     ✖       |
-| `-wi`  | `--width`          | Custom tile Width in pixels.                                                            | Integer                   |     ✔       |
-| `-wc`  | `--widthcount`     | Custom tile amount on the Vertical axis (width).                                        | Integer                   |     ✔       |
-| `-hi`  | `--height`         | Custom tile Height in pixels.                                                           | Integer                   |     ✔       |
-| `-hc`  | `--heightcount`    | Custom tile amount on the Horizontal axis (height).                                     | Integer                   |     ✔       |
-| `-gsc` | `--grayscalecount` | Amount of descrete grayscale values. Currently possible values are 10 and 70.           | [10, 70]                  |   **~**     |
-| `-op`  | `--outputfilepath` | The relative path of the output file                                                    | Path                      |     ✔       |
-| `-ot`  | `--outputfiletype` | The format of the output file                                                           | [txt, jpg, png, xml, svg] |     ✔       |
-| `-on`  | `--name`           | The name method to use for the output file                                              | [CUSTOM, INPUT, RANDOM]   |     ✔       |
+| `-h`   | `--help`           | Displays a help message with more info.                                                 | Bool                      |      ✔      |
+| `-a`   | `--auto`           | Figures out the usage parameters automatically from the input                           | Bool                      |      ✖      |
+| `-c`   | `--colored`        | Output text will be colored instead of grayscale. Used for XML or image output formats. | Bool                      |      ✖      |
+| `-wi`  | `--width`          | Custom tile Width in pixels.                                                            | Integer                   |      ✔      |
+| `-wc`  | `--widthcount`     | Custom tile amount on the Vertical axis (width).                                        | Integer                   |      ✔      |
+| `-hi`  | `--height`         | Custom tile Height in pixels.                                                           | Integer                   |      ✔      |
+| `-hc`  | `--heightcount`    | Custom tile amount on the Horizontal axis (height).                                     | Integer                   |      ✔      |
+| `-gsc` | `--grayscalecount` | Amount of descrete grayscale values. Currently possible values are 10 and 70.           | [10, 70]                  |    **~**    |
+| `-op`  | `--outputfilepath` | The relative path of the output file                                                    | Path                      |      ✔      |
+| `-ot`  | `--outputfiletype` | The format of the output file                                                           | [txt, jpg, png, xml, svg] |      ✔      |
+| `-on`  | `--name`           | The name method to use for the output file                                              | [CUSTOM, INPUT, RANDOM]   |      ✔      |
 
 ## Roadmap
 
