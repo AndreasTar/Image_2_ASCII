@@ -15,50 +15,50 @@ import svg
 
 from src import converters, tools, backend
 
-InputImageFile: Image.Image
-InputImage_Width: int
-InputImage_Height: int
+inputImageFile: Image.Image
+inputImageWidth: int
+inputImageHeight: int
 
-Input_Auto: bool = False
-Input_Colored: bool = False
-Grayscale_List: str
+inputAuto: bool = False
+inputColored: bool = False
+grayscaleList: str
 
-TilePixels_Width: int = 0
-TilePixels_Height: int = 0
+tilePixelsWidth: int = 0
+tilePixelsHeight: int = 0
 
-_Output_Path: pl.Path
-_Output_Type: tools.ValidTypes
-_Output_Name_Flag: str
+pOutputPath: pl.Path
+pOutputType: tools.ValidTypes
+pOutputNameFlag: str
 
 
 # ================= Main Flags ================ 
 
-def setInputImageFile(inputImagePath: pl.Path):
+def setInputImageFile(inputImagePath: pl.Path) -> None:
 
-    global InputImageFile, InputImage_Width, InputImage_Height
+    global inputImageFile, inputImageWidth, inputImageHeight
 
     try:
-        InputImageFile = Image.open(inputImagePath)
+        inputImageFile = Image.open(inputImagePath)
     except FileNotFoundError:
         raise tools.Errors.GenericError(f"File path was not found -> {inputImagePath}")
     
-    InputImage_Width, InputImage_Height = InputImageFile.size
+    inputImageWidth, inputImageHeight = inputImageFile.size
 
-def setAutomatic(auto: bool):
-    global Input_Auto
-    Input_Auto = auto
+def setAutomatic(auto: bool) -> None:
+    global inputAuto
+    inputAuto = auto
 
 # ================= Mechanism Flags ================ 
 
-def setColored(color: bool):
-    global Input_Colored
-    Input_Colored = color
+def setColored(color: bool) -> None:
+    global inputColored
+    inputColored = color
 
-def setGrayscale(gsc: int):
-    global Grayscale_List
-    if not tools.Grayscales.__contains__(gsc): # NOTE this may look unnecessary cause parser does the checks, but i leave it for api
+def setGrayscale(gsc: int) -> None:
+    global grayscaleList
+    if not tools.GRAYSCALES.__contains__(gsc): # NOTE this may look unnecessary cause parser does the checks, but i leave it for api
         raise tools.Errors.VariableInvalidValueError("gsc", gsc)
-    Grayscale_List = tools.Grayscales[gsc]
+    grayscaleList = tools.GRAYSCALES[gsc]
 
 
 def getInputImageSize() -> tuple[int, int]:
@@ -66,11 +66,11 @@ def getInputImageSize() -> tuple[int, int]:
     Returns the image dimensions in a tuple(width, height).\n
     Raises VariableNotInitialisedError if called before image was passed.
     """
-    global InputImageFile
+    global inputImageFile
 
-    if not InputImageFile:
+    if not inputImageFile:
         raise tools.Errors.VariableNotInitialisedError("InputImageFile") # NOTE is this necessary? prolly for future API
-    return (InputImage_Width, InputImage_Height)
+    return (inputImageWidth, inputImageHeight)
 
 def getInputImageWidth() -> int:
     return getInputImageSize()[0]
@@ -80,17 +80,17 @@ def getInputImageHeight() -> int:
 
 # ================= Width Flags ================ 
 
-def setTileWidth(twp: int): # NOTE should this raise an error?
+def setTileWidth(twp: int) -> None: # NOTE should this raise an error?
 
-    global TilePixels_Width
+    global tilePixelsWidth
 
-    TilePixels_Width = twp
+    tilePixelsWidth = twp
 
-def getTileWidth():
-    global TilePixels_Width
-    return TilePixels_Width
+def getTileWidth() -> int:
+    global tilePixelsWidth
+    return tilePixelsWidth
 
-def HandleWidth(twp: int, twc: int):
+def HandleWidth(twp: int, twc: int) -> None:
     if not (twp or twc):
         raise tools.Errors.VariableNotInitialisedError("twp")
     
@@ -108,17 +108,17 @@ def HandleWidth(twp: int, twc: int):
 
 # ================= Height Flags ================
 
-def setTileHeight(thp: int): # NOTE should this raise an error?
+def setTileHeight(thp: int) -> None: # NOTE should this raise an error?
 
-    global TilePixels_Height
+    global tilePixelsHeight
 
-    TilePixels_Height = thp
+    tilePixelsHeight = thp
 
-def getTileHeight():
-    global TilePixels_Height
-    return TilePixels_Height
+def getTileHeight() -> int:
+    global tilePixelsHeight
+    return tilePixelsHeight
 
-def HandleHeight(thp: int, thc: int):
+def handleHeight(thp: int, thc: int) -> None:
     if not (thp or thc):
         raise tools.Errors.VariableNotInitialisedError("thp")
     
@@ -136,15 +136,15 @@ def HandleHeight(thp: int, thc: int):
 
 # ================= Output Flags ================
 
-def setName(nameFlag: str):
-    global _Output_Name_Flag 
-    _Output_Name_Flag = nameFlag
+def setName(nameFlag: str) -> None:
+    global pOutputNameFlag 
+    pOutputNameFlag = nameFlag
 
-def HandleOutput(name: pl.Path, path: pl.Path, format: str):
+def handleOutput(name: pl.Path, path: pl.Path, format: str) -> None:
 
-    global _Output_Path, _Output_Type
+    global pOutputPath, pOutputType
 
-    _Output_Type = tools.ValidTypes[format.upper()]
+    pOutputType = tools.ValidTypes[format.upper()]
 
     format = "." + format.lower()
 
@@ -156,8 +156,8 @@ def HandleOutput(name: pl.Path, path: pl.Path, format: str):
     outFile = ""
 
     if (not path):
-        outFile = tools._getUniqueName()
-        if _Output_Name_Flag == 'INPUT':
+        outFile = tools.pGetUniqueName()
+        if pOutputNameFlag == 'INPUT':
             outFile = name.name[:-4] # remove format text
         outFile += format
     else:
@@ -170,46 +170,46 @@ def HandleOutput(name: pl.Path, path: pl.Path, format: str):
         outFile = pl.Path.cwd().joinpath(path).__str__() + format
         
     
-    _Output_Path = pl.Path("", outFile)
+    pOutputPath = pl.Path("", outFile)
     
 # ================= Process ================
 
-def Execute():
+def execute() -> None:
 
-    img = InputImageFile.convert('L')
+    img = inputImageFile.convert('L')
     resR: list[int] = []
     resG: list[int] = []
     resB: list[int] = []
     
-    res = backend.Convert2Ascii(img,\
+    res = backend.convert2Ascii(img,\
                                 getInputImageWidth(), getInputImageHeight(),\
                                 getTileWidth(), getTileHeight(),\
-                                Grayscale_List)
+                                grayscaleList)
     
     
-    if Input_Colored:
-        imgR = InputImageFile.getchannel('R')
-        imgG = InputImageFile.getchannel('G')
-        imgB = InputImageFile.getchannel('B')
+    if inputColored:
+        imgR = inputImageFile.getchannel('R')
+        imgG = inputImageFile.getchannel('G')
+        imgB = inputImageFile.getchannel('B')
 
-        resR = backend.Convert2Ascii(imgR,
+        resR = backend.convert2Ascii(imgR,
                                 getInputImageWidth(), getInputImageHeight(),
                                 getTileWidth(), getTileHeight(),
                                 onlyColor = True)
         
-        resG = backend.Convert2Ascii(imgG,
+        resG = backend.convert2Ascii(imgG,
                                 getInputImageWidth(), getInputImageHeight(),
                                 getTileWidth(), getTileHeight(),
                                 onlyColor = True)
         
-        resB = backend.Convert2Ascii(imgB,
+        resB = backend.convert2Ascii(imgB,
                                 getInputImageWidth(), getInputImageHeight(),
                                 getTileWidth(), getTileHeight(),
                                 onlyColor = True)
 
-    match _Output_Type:
+    match pOutputType:
         case tools.ValidTypes.TXT:
-            if Input_Colored:
+            if inputColored:
                 print("\nInput flag { -c : Colored } was set, but output type is .txt! Choose one of the following:")
                 print("\tOutput only the ASCII characters -> t")
                 print("\tOutput colors and text in per-pixel format : [RRGGBBc RRGGBBc ...] -> c")
@@ -235,17 +235,17 @@ def Execute():
                     for r in range(height):
                         temp = ""
                         for c in range(width):
-                            temp += f"{tools._colorsToHex(resR[r*height +c], resG[r*height +c], resB[r*height +c])[1:].upper()}{res[r][c]} "
+                            temp += f"{tools.pColorsToHex(resR[r*height +c], resG[r*height +c], resB[r*height +c])[1:].upper()}{res[r][c]} "
                         res[r] = temp
 
                 if inp == 'e':
                     raise tools.Errors.GenericError("Colored flag was set, but output type was .txt! User requested to exit.")     
         case tools.ValidTypes.JPG:
-            res = converters.ConvertToIMG(res, resR, resG, resB, Input_Colored)
+            res = converters.ConvertToIMG(res, resR, resG, resB, inputColored)
         case tools.ValidTypes.PNG:
-            res = converters.ConvertToIMG(res, resR, resG, resB, Input_Colored)
+            res = converters.ConvertToIMG(res, resR, resG, resB, inputColored)
         case tools.ValidTypes.XML:
-            if Input_Colored:
+            if inputColored:
                 print("\nInput flag { -c : Colored } was set, but output type is .xml! Choose one of the following:")
                 print("\tOutput only the ASCII characters in format : [<char>c</char> ...] -> t")
                 print("\tOutput colors and text in per-character format : [<col>RRGGBB</col><char>c</char> ...] -> c")
@@ -279,34 +279,34 @@ def Execute():
                     for r in range(height):
                         temp = "<row>\n\t"
                         for c in range(width):
-                            temp += f"<col>{tools._colorsToHex(resR[r*height +c], resG[r*height +c], resB[r*height +c])[1:].upper()}</col><char>{res[r][c]}<char> "
+                            temp += f"<col>{tools.pColorsToHex(resR[r*height +c], resG[r*height +c], resB[r*height +c])[1:].upper()}</col><char>{res[r][c]}<char> "
                         temp += "</row>\n"
                         res[r] = temp
 
                 if inp == 'e':
                     raise tools.Errors.GenericError("Colored flag was set, but output type was .txt! User requested to exit.")
         case tools.ValidTypes.SVG:
-            res = converters.ConvertToSVG(res, resR, resG, resB, Input_Colored)
+            res = converters.ConvertToSVG(res, resR, resG, resB, inputColored)
         
 
 
-    Save(res)
+    save(res)
 
-def Save(data: svg.SVG | Image.Image): 
+def save(data: svg.SVG | Image.Image): 
     # TODO  handle and raise errors etc
 
 
-    f = open(_Output_Path, mode = 'w', encoding = 'utf-8')
+    f = open(pOutputPath, mode = 'w', encoding = 'utf-8')
 
-    match _Output_Type:
+    match pOutputType:
         case tools.ValidTypes.TXT:
             for r in data:
                 f.write(r + '\n')
 
         case tools.ValidTypes.JPG:
-            data.save(_Output_Path, 'JPEG')
+            data.save(pOutputPath, 'JPEG')
         case tools.ValidTypes.PNG:
-            data.save(_Output_Path, 'PNG')
+            data.save(pOutputPath, 'PNG')
         case tools.ValidTypes.XML:
             for r in data:
                 f.write(r + '\n')
@@ -316,7 +316,7 @@ def Save(data: svg.SVG | Image.Image):
 
     f.close()
 
-    print(f"\nSaved file to {_Output_Path}")
+    print(f"\nSaved file to {pOutputPath}")
 
 
 

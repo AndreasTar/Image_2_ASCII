@@ -38,20 +38,21 @@
 import argparse as ap
 import pathlib
 from textwrap import dedent
+from typing import NoReturn
 from PIL import Image
 
 from src import tools, midend
 
-Parser: ap.ArgumentParser
+parser: ap.ArgumentParser
 
-def SetupParser() -> None:
+def setupParser() -> None:
     """
     Entry point for the tool.
     Sets up the parser and the argument flags needed for this tool to work.
     Also initialises the mid-end and the back-end.
     """
-    global Parser
-    Parser = ap.ArgumentParser( # TODO check out prog
+    global parser
+    parser = ap.ArgumentParser( # TODO check out prog
 
         # TODO somehow make these dynamic
         usage = dedent(
@@ -69,9 +70,9 @@ def SetupParser() -> None:
 #                     [-op PATH | -on STRING] [-t {png,jpg,xml,txt}]
 #                     inputFile
 
-    _setupArguments()
+    pSetupArguments()
 
-def _setupArguments() -> None:
+def pSetupArguments() -> None:
     """
     --- Private method! ---\n
     Creates the flags of the tool.
@@ -82,12 +83,12 @@ def _setupArguments() -> None:
 
 # ========= Main Flags ======== 
 
-    Parser.add_argument(    #input file
+    parser.add_argument(    #input file
             'inputFile',
             type        =   pathlib.Path,
             help        =   'The path to the file to be converted'
     )
-    Parser.add_argument(    # automatic NI
+    parser.add_argument(    # automatic NI
             '-a', '--auto',
             dest        =   'inputAuto',
             required    =   False,
@@ -97,7 +98,7 @@ def _setupArguments() -> None:
 
 # ========= Mechanism Flags ======== 
 
-    Parser.add_argument(    # colored
+    parser.add_argument(    # colored
             '-c', '--colored',
             dest        =   'inputColored',
             required    =   False,
@@ -105,7 +106,7 @@ def _setupArguments() -> None:
             help        =   'Should the output image be colored instead of greyscale?'
     )
 
-    Parser.add_argument(    # how many grayscale TODO
+    parser.add_argument(    # how many grayscale TODO
             '-gsc', '--grayscalecount',
             dest        =   'inputGSCount',
             required    =   False,
@@ -117,7 +118,7 @@ def _setupArguments() -> None:
 
 # ========= Width Flags ======== 
 
-    wgroup = Parser.add_mutually_exclusive_group()
+    wgroup = parser.add_mutually_exclusive_group()
 
     wgroup.add_argument(    # width pixel per tile
             '-wi', '--width',
@@ -138,7 +139,7 @@ def _setupArguments() -> None:
 
 # ========= Height Flags ======== 
 
-    hgroup = Parser.add_mutually_exclusive_group()
+    hgroup = parser.add_mutually_exclusive_group()
 
     hgroup.add_argument(    # height pixel per tile
             '-hi', '--height',
@@ -159,7 +160,7 @@ def _setupArguments() -> None:
 
 # ========= Output Flags ========
 
-    Parser.add_argument(    # output path
+    parser.add_argument(    # output path
             '-op', '--outputfilepath',
             dest        =   'inputFilePathOut',
             required    =   False,
@@ -168,7 +169,7 @@ def _setupArguments() -> None:
             help        =   'The full path of the output file.',
             metavar     =   'PATH'
     )
-    Parser.add_argument(    # output type TODO
+    parser.add_argument(    # output type TODO
             '-ot', '--outputfiletype',
             dest        =   'inputFileTypeOut',
             required    =   False,
@@ -185,7 +186,7 @@ def _setupArguments() -> None:
         If no such path is provided, it uses RANDOM.\
     If path name is provided, program assumes CUSTOM, ignoring the other choices even if they are set."
 
-    Parser.add_argument(
+    parser.add_argument(
             '-on', '--name',
             dest        =   'inputFileNameOut',
             required    =   False,
@@ -196,8 +197,8 @@ def _setupArguments() -> None:
     )
 
 
-def RunTool(shouldSave: bool = False): # TODO implement shouldSave, if false return the list instead of saving it (maybe have it do both?)
-    args = Parser.parse_args()
+def runTool(shouldSave: bool = False): # TODO implement shouldSave, if false return the list instead of saving it (maybe have it do both?)
+    args = parser.parse_args()
 
     try:
         midend.setInputImageFile(args.inputFile)
@@ -205,13 +206,13 @@ def RunTool(shouldSave: bool = False): # TODO implement shouldSave, if false ret
         midend.setColored(args.inputColored)
         midend.setName(args.inputFileNameOut)
     except Exception as e:
-        Exit(e)
+        exitWith(e)
 
 
     try:
         midend.setGrayscale(args.inputGSCount)
     except tools.Errors.VariableInvalidValueError as e:
-        Exit(f"Invalid Grayscale size used: {e.value}!")
+        exitWith(f"Invalid Grayscale size used: {e.varValue}!")
 
     imageSize = midend.getInputImageSize()
     print(f"\nInput image dimensions (w x h): {imageSize[0]} x {imageSize[1]} pixels")
@@ -222,20 +223,20 @@ def RunTool(shouldSave: bool = False): # TODO implement shouldSave, if false ret
         midend.HandleWidth(args.inputWidthPixel, args.inputWidthCount) # pass both and let it handle them  
     except tools.Errors.VariableInvalidValueError:
         print("\nInput arguments for width are Invalid!")
-        res = _handleNonexistentTile(imageSize[0], "width") # if there was an error, ask user for value
+        res = pHandleNonexistentTile(imageSize[0], "width") # if there was an error, ask user for value
         midend.setTileWidth(res) # FIXME catch exception
     except tools.Errors.VariableNotInitialisedError:
-        res = _handleNonexistentTile(imageSize[0], "width") # if there was an error, ask user for value
+        res = pHandleNonexistentTile(imageSize[0], "width") # if there was an error, ask user for value
         midend.setTileWidth(res) # FIXME catch exception
         
     try:
-        midend.HandleHeight(args.inputHeightPixel, args.inputHeightCount) # pass both and let it handle them
+        midend.handleHeight(args.inputHeightPixel, args.inputHeightCount) # pass both and let it handle them
     except tools.Errors.VariableInvalidValueError:
         print("\nInput arguments for height are Invalid!")
-        res = _handleNonexistentTile(imageSize[1], "height") # if there was an error, ask user for value
+        res = pHandleNonexistentTile(imageSize[1], "height") # if there was an error, ask user for value
         midend.setTileHeight(res) # FIXME catch exception
     except tools.Errors.VariableNotInitialisedError:
-        res = _handleNonexistentTile(imageSize[1], "height") # if there was an error, ask user for value
+        res = pHandleNonexistentTile(imageSize[1], "height") # if there was an error, ask user for value
         midend.setTileHeight(res) # FIXME catch exception
 
     tilecountw = int(imageSize[0] / midend.getTileWidth())
@@ -245,39 +246,42 @@ def RunTool(shouldSave: bool = False): # TODO implement shouldSave, if false ret
     print(f"Total tile count \n\tPer axis (w x h): {tilecountw} x {tilecounth}\n\tTotal tiles: {tilecountw*tilecounth}\n")
 
 
-    midend.HandleOutput(args.inputFile, args.inputFilePathOut, args.inputFileTypeOut)
+    midend.handleOutput(args.inputFile, args.inputFilePathOut, args.inputFileTypeOut)
 
     try:
-        midend.Execute()
+        midend.execute()
     except tools.Errors.GenericError as e:
         print(e)
-        Exit(e)
+        exitWith(e)
         
 
 
 
 
 
-def _handleNonexistentTile(img: int, type: str) -> int:
-    divs = tools._getDivisors(img)
+def pHandleNonexistentTile(img: int, type: str) -> int:
+    divs = tools.pGetDivisors(img)
     print(f"\nInput the desired tile {type} size in pixels. Integer divisors of the image {type}:")
     print(divs)
     while True:
         try:
             userin = int(input())
-        except Exception as e:
-            Exit("User issued an exit command during input dialogue.")
+        except Exception:
+            exitWith("User issued an exit command during input dialogue.")
 
         if userin > img or userin < 1:
             print(f"Input a valid integer within the bounds: [1-{img}]!") # TODO add auto option and custom option
         else:
             return userin
         
-def Exit(error: str = None):
+def exitWith(error: Exception | str | None = None) -> NoReturn:
+    code = 0
     if error:
         print(f"\nDuring processing, program encountered an error with the message:\n\t{error}\n")
+        # Non zero exit code indicates something went wrong
+        code = 1
     print("\nTool is exiting...\n")
-    exit()
+    exit(code)
 
 
 

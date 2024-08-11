@@ -7,21 +7,24 @@
 #                                                                         #
 ###########################################################################
 
+from typing import Any
 from PIL import Image
 import numpy as np
 
-def Convert2Ascii(image: Image.Image,\
+def convert2Ascii(image: Image.Image,\
                   imgWidth: int, imgHeight: int,\
                   tileWidth: int, tileHeight: int,\
-                  charList: list = None, onlyColor: bool = False) -> list:
+                  charList: list[str] | str | None = None, onlyColor: bool = False) -> list:
 
     if (charList is None and not onlyColor):
-        pass # Return exception
+        # TODO: Return exception
+        assert False, "Charlist is none and not only color" 
     
     asciiImage = []                     # each row is a string
 
     rowIndex = int(imgHeight / tileHeight)
     colIndex = int(imgWidth / tileWidth)
+    # FIXME: Charsize may be unbound due to it only being bound inside this check 
     if charList:
         charSize = len(charList) -1
 
@@ -44,7 +47,7 @@ def Convert2Ascii(image: Image.Image,\
             
             tile = image.crop((xleft, ytop, xright, ybot))
 
-            val = int(_getAverage(tile))
+            val = int(pGetAverage(tile))
 
             if not onlyColor:               # if we want the ascii character instead of just color value
                 val = charList[int((val *  charSize) / 255)]
@@ -54,7 +57,8 @@ def Convert2Ascii(image: Image.Image,\
 
     return asciiImage
 
-def _getAverage(tile: Image.Image):
+# TODO: type hint return type
+def pGetAverage(tile: Image.Image) -> np.floating[Any]:
     npImg = np.array(tile)
     tw, th = npImg.shape
 
