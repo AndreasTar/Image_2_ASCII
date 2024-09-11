@@ -15,6 +15,9 @@ def convert2Ascii(image: Image.Image,\
                   imgWidth: int, imgHeight: int,\
                   tileWidth: int, tileHeight: int,\
                   charList: list[str] | str | None = None, onlyColor: bool = False) -> list:
+    """
+    The main loop of the tool. Converts an area of pixels to a specific character, based on the luminosity of the channel.
+    """
 
     if (charList is None and not onlyColor):
         # TODO: Return exception
@@ -59,6 +62,10 @@ def convert2Ascii(image: Image.Image,\
 
 # TODO: type hint return type
 def pGetAverage(tile: Image.Image) -> np.floating[Any]:
+    """
+    --- Private method! ---\n
+    Returns the average value of the given image.
+    """
     npImg = np.array(tile)
     tw, th = npImg.shape
 

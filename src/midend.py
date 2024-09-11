@@ -34,6 +34,9 @@ pOutputNameFlag: str
 # ================= Main Flags ================ 
 
 def setInputImageFile(inputImagePath: pl.Path) -> None:
+    """
+    Determines if the path given is valid.
+    """
 
     global inputImageFile, inputImageWidth, inputImageHeight
 
@@ -51,10 +54,17 @@ def setAutomatic(auto: bool) -> None:
 # ================= Mechanism Flags ================ 
 
 def setColored(color: bool) -> None:
+    """
+    Setter for the `-c` flag
+    """
     global inputColored
     inputColored = color
 
 def setGrayscale(gsc: int) -> None:
+    """
+    Setter for the grayscale count `-gsc` flag.\n
+    Raises VariableInvalidValueError if requested grayscale count isn't implemented.
+    """
     global grayscaleList
     if not tools.GRAYSCALES.__contains__(gsc): # NOTE this may look unnecessary cause parser does the checks, but i leave it for api
         raise tools.Errors.VariableInvalidValueError("gsc", gsc)
@@ -73,24 +83,40 @@ def getInputImageSize() -> tuple[int, int]:
     return (inputImageWidth, inputImageHeight)
 
 def getInputImageWidth() -> int:
+    """
+    Returns the width of the image in pixels.
+    """
     return getInputImageSize()[0]
 
 def getInputImageHeight() -> int:
+    """
+    Returns the height of the image in pixels.
+    """
     return getInputImageSize()[1]
 
 # ================= Width Flags ================ 
 
 def setTileWidth(twp: int) -> None: # NOTE should this raise an error?
-
+    """
+    Setter for the tile width of the tool in pixels.
+    """
     global tilePixelsWidth
 
     tilePixelsWidth = twp
 
 def getTileWidth() -> int:
+    """
+    Returns the tile width used in pixels.
+    """
     global tilePixelsWidth
     return tilePixelsWidth
 
 def HandleWidth(twp: int, twc: int) -> None:
+    """
+    Setter for the tile width of the tool in pixels, in either tile count or tile size format.\n
+    Raises VariableNotInitialisedError if either value wasn't set.\n
+    Raises VariableInvalidValueError if either value was smaller than 1 or above the image size.
+    """
     if not (twp or twc):
         raise tools.Errors.VariableNotInitialisedError("twp")
     
@@ -109,16 +135,26 @@ def HandleWidth(twp: int, twc: int) -> None:
 # ================= Height Flags ================
 
 def setTileHeight(thp: int) -> None: # NOTE should this raise an error?
-
+    """
+    Setter for the tile height of the tool in pixels.
+    """
     global tilePixelsHeight
 
     tilePixelsHeight = thp
 
 def getTileHeight() -> int:
+    """
+    Returns the tile width used in pixels.
+    """
     global tilePixelsHeight
     return tilePixelsHeight
 
-def handleHeight(thp: int, thc: int) -> None:
+def HandleHeight(thp: int, thc: int) -> None:
+    """
+    Setter for the tile height of the tool in pixels, in either tile count or tile size format.\n
+    Raises VariableNotInitialisedError if either value wasn't set.\n
+    Raises VariableInvalidValueError if either value was smaller than 1 or above the image size.
+    """
     if not (thp or thc):
         raise tools.Errors.VariableNotInitialisedError("thp")
     
@@ -137,10 +173,17 @@ def handleHeight(thp: int, thc: int) -> None:
 # ================= Output Flags ================
 
 def setName(nameFlag: str) -> None:
+    """
+    Setter for the name of the file the tool should save the output as.
+    """
     global pOutputNameFlag 
     pOutputNameFlag = nameFlag
 
 def handleOutput(name: pl.Path, path: pl.Path, format: str) -> None:
+    """
+    Setter for the name of the output file.\n
+    If it wasn't given, it uses a randomly generated legible name.
+    """
 
     global pOutputPath, pOutputType
 
@@ -175,6 +218,13 @@ def handleOutput(name: pl.Path, path: pl.Path, format: str) -> None:
 # ================= Process ================
 
 def execute() -> None:
+    """
+    Runs the processing of the image. Fetches the parameters set previously.\n
+    Should always be run last. If any parameter wasn't set properly, it will crash.\n
+    If you believe it crashed when it shouldn't, report it on the github repo by opening a new issue.\n
+    Can raise various Exceptions.
+    """
+    # TODO document the possible Exceptions
 
     img = inputImageFile.convert('L')
     resR: list[int] = []
@@ -292,7 +342,10 @@ def execute() -> None:
 
     save(res)
 
-def save(data: svg.SVG | Image.Image): 
+def save(data: svg.SVG | Image.Image) -> None:
+    """
+    Saves the data to the output file.
+    """
     # TODO  handle and raise errors etc
 
 

@@ -48,7 +48,7 @@ parser: ap.ArgumentParser
 def setupParser() -> None:
     """
     Entry point for the tool.
-    Sets up the parser and the argument flags needed for this tool to work.
+    Sets up the parser and the argument flags needed for this tool to work.\n
     Also initialises the mid-end and the back-end.
     """
     global parser
@@ -198,6 +198,11 @@ def pSetupArguments() -> None:
 
 
 def runTool(shouldSave: bool = False): # TODO implement shouldSave, if false return the list instead of saving it (maybe have it do both?)
+    '''
+    Begins the processing of the image with the given flags.\n
+    If some flags are not set, it will request them from the user.
+    If that cant be done, it will exit with an error message.
+    '''
     args = parser.parse_args()
 
     try:
@@ -260,6 +265,11 @@ def runTool(shouldSave: bool = False): # TODO implement shouldSave, if false ret
 
 
 def pHandleNonexistentTile(img: int, type: str) -> int:
+    """
+    --- Private method! ---\n
+    If the tile size flags were not set upon execution, this will prompt the user to specify them.
+    """
+
     divs = tools.pGetDivisors(img)
     print(f"\nInput the desired tile {type} size in pixels. Integer divisors of the image {type}:")
     print(divs)
