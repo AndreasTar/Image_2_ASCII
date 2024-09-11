@@ -39,7 +39,8 @@ def ConvertToSVG(text: list[str], red: list[int] | None, green: list[int] | None
                         green[r*width + c] if not (len(green) == 0 or not green) else 0,
                         blue[r*width + c] if not (len(blue) == 0 or not blue) else 0
                     ),
-                    text = tools.pFormatForSVG(text[r][c])
+                    text = tools.pFormatForSVG(text[r][c]),
+                    font_weight="900"
                 )
             )
             x += 12
@@ -79,7 +80,9 @@ def ConvertToIMG(text: list[str], red: list[int] | None, green: list[int] | None
                     red[r*width + c] if not (len(red) == 0 or not red) else 0,
                     green[r*width + c] if not (len(green) == 0 or not green) else 0,
                     blue[r*width + c] if not (len(blue) == 0 or not blue) else 0
-                )
+                ),
+                stroke_width = 1,
+                
             )
             x += 12
         x = 0
