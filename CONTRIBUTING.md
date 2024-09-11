@@ -82,16 +82,16 @@ The roadmap can be found in the top level readme file of the project, this inclu
 
 **There are several places to find the todo lists:**
 
-1. [top level readme](README.md) under Roadmap
-2. [readme inside src](src/README.md) under TODOs
+1. [Top level Readme](README.md) under Roadmap
+2. [Readme inside src/](src/README.md) under TODOs
 3. there are [TODOs](#todo) scattered in the codebase, these can be found with your favorite search tool
 
 ## Dependencies
 
 All dependencies has to be **added into [requirements.txt](requirements.txt)** on the top level.
 
-If you are **creating a virtual environment (venv)** 
-put it in any folders currently in **[.gitignore](.gitignore) under Environments comment**.
+If you are **creating a virtual environment (.venv)** 
+put it in any of the folders currently in [.gitignore](.gitignore) found **under the Environments comment**.
 
 > [!Important]
 > Ask before you add any dependecies
