@@ -235,7 +235,7 @@ def runTool(shouldSave: bool = False): # TODO implement shouldSave, if false ret
         midend.setTileWidth(res) # FIXME catch exception
         
     try:
-        midend.handleHeight(args.inputHeightPixel, args.inputHeightCount) # pass both and let it handle them
+        midend.HandleHeight(args.inputHeightPixel, args.inputHeightCount) # pass both and let it handle them
     except tools.Errors.VariableInvalidValueError:
         print("\nInput arguments for height are Invalid!")
         res = pHandleNonexistentTile(imageSize[1], "height") # if there was an error, ask user for value
