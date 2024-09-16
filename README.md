@@ -1,6 +1,6 @@
 # Image_2_ASCII
 
-**A command-line tool for converting images into ASCII representation** 
+**An Open-Source command-line tool for converting images into ASCII representation** 
  
 ## Disclaimer
 
