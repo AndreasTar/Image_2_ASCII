@@ -60,6 +60,14 @@ def convert2Ascii(image: Image.Image,\
 
     return asciiImage
 
+def convert2Pixel(image: Image.Image, imgSize: list[int],\
+                  widthCount: int, heightCount: int,) -> Image:
+    
+    imgSmall = image.resize((widthCount, heightCount), Image.Resampling.BILINEAR)
+    res = imgSmall.resize(imgSize, Image.Resampling.NEAREST)
+
+    return res
+
 # TODO: type hint return type
 def pGetAverage(tile: Image.Image) -> np.floating[Any]:
     """

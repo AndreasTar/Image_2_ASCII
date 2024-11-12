@@ -23,7 +23,7 @@ First, create the virtual enviroment
 ```sh
 $ python -m venv venv/<name>
 ```
-then, activate it using the appropriate command, depending on your OS.
+Then, activate it using the appropriate command, depending on your OS:
 
 ##### Windows
 ```sh
@@ -36,7 +36,7 @@ $ source venv/<name>/bin/activate
 ```
 
 \
-When thats completed, run the shell command
+When that's completed, run the shell command
 ```sh
 $ pip install -r requirements.txt
 ```
@@ -47,7 +47,7 @@ This tool has a few features executed via command-line flags. In its simplest fo
 You can always run the tool with the flag `-h` for info about each flag.
 
 ``` title="Usage command"
-converter.py inputFile [-h] [-a] [-c]
+converter.py inputFile [-h] [-a] [-c] [-pix]
                        [-wi INTEGER | -wc INTEGER]
                        [-hi INTEGER | -hc INTEGER]
                        [-gsc {10,70} (def: 70)]
@@ -60,12 +60,13 @@ converter.py inputFile [-h] [-a] [-c]
 | :----- | :----------------- | :-------------------------------------------------------------------------------------- | :------------------------ | :---------: |
 | `-h`   | `--help`           | Displays a help message with more info.                                                 | Bool                      |      ✔      |
 | `-a`   | `--auto`           | Figures out the usage parameters automatically from the input                           | Bool                      |      ✖      |
-| `-c`   | `--colored`        | Output text will be colored instead of grayscale. Used for XML or image output formats. | Bool                      |      ✖      |
+| `-c`   | `--colored`        | Output text will be colored instead of grayscale. Used for XML or image output formats. | Bool                      |      ✔      |
 | `-wi`  | `--width`          | Custom tile Width in pixels.                                                            | Integer                   |      ✔      |
 | `-wc`  | `--widthcount`     | Custom tile amount on the Vertical axis (width).                                        | Integer                   |      ✔      |
 | `-hi`  | `--height`         | Custom tile Height in pixels.                                                           | Integer                   |      ✔      |
 | `-hc`  | `--heightcount`    | Custom tile amount on the Horizontal axis (height).                                     | Integer                   |      ✔      |
 | `-gsc` | `--grayscalecount` | Amount of descrete grayscale values. Currently possible values are 10 and 70.           | [10, 70]                  |    **~**    |
+| `-pix` | `--pixelated`      | Convert the image into pixelart instead of ASCII.                                       | Bool                      |      ✔      |
 | `-op`  | `--outputfilepath` | The relative path of the output file                                                    | Path                      |      ✔      |
 | `-ot`  | `--outputfiletype` | The format of the output file                                                           | [txt, jpg, png, xml, svg] |      ✔      |
 | `-on`  | `--name`           | The name method to use for the output file                                              | [CUSTOM, INPUT, RANDOM]   |      ✔      |

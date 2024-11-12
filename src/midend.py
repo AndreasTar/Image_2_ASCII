@@ -21,6 +21,7 @@ inputImageHeight: int
 
 inputAuto: bool = False
 inputColored: bool = False
+inputPixelated: bool = False
 grayscaleList: str
 
 tilePixelsWidth: int = 0
@@ -29,6 +30,8 @@ tilePixelsHeight: int = 0
 pOutputPath: pl.Path
 pOutputType: tools.ValidTypes
 pOutputNameFlag: str
+
+
 
 
 # ================= Main Flags ================ 
@@ -70,6 +73,17 @@ def setGrayscale(gsc: int) -> None:
         raise tools.Errors.VariableInvalidValueError("gsc", gsc)
     grayscaleList = tools.GRAYSCALES[gsc]
 
+def setPixelated(pix: bool):
+    """
+    Setter for the pixelated `-pix` flag.\n
+    Raises GenericError if requested output file format isn't JPG or PNG.
+    """
+    global inputPixelated, pOutputType
+    pix = inputPixelated
+    if pix:
+        if tools.ValidTypes.isImageType(pOutputType):
+            raise tools.Errors.GenericError("This output file format isn't allowed with the pixelated flag!")
+    
 
 def getInputImageSize() -> tuple[int, int]:
     """
@@ -172,52 +186,10 @@ def HandleHeight(thp: int, thc: int) -> None:
 
 # ================= Output Flags ================
 
-def setName(nameFlag: str) -> None:
-    """
-    Setter for the name of the file the tool should save the output as.
-    """
-    global pOutputNameFlag 
-    pOutputNameFlag = nameFlag
-
-def handleOutput(name: pl.Path, path: pl.Path, format: str) -> None:
-    """
-    Setter for the name of the output file.\n
-    If it wasn't given, it uses a randomly generated legible name.
-    """
-
-    global pOutputPath, pOutputType
-
-    pOutputType = tools.ValidTypes[format.upper()]
-
-    format = "." + format.lower()
-
-    
-    # get input path
-    #   if it exists, create the file there with the name given, whatever that is, and append type at the end
-    #   if not, assume current folder and use unique recognisable name and append type at the end
-
-    outFile = ""
-
-    if (not path):
-        outFile = tools.pGetUniqueName()
-        if pOutputNameFlag == 'INPUT':
-            outFile = name.name[:-4] # remove format text
-        outFile += format
-    else:
-        # make example, cause it works as so:
-        #       if test             -> makes \test.txt
-        #       if test[/ or \]     -> makes \test.txt -> fixed this with the following code
-        #       if test[/ or \]name -> makes \test\name.txt (iterative, will do as many folders as needed)
-
-        pl.Path.mkdir(path.absolute().parent, parents = True, exist_ok=True)
-        outFile = pl.Path.cwd().joinpath(path).__str__() + format
-        
-    
-    pOutputPath = pl.Path("", outFile)
     
 # ================= Process ================
 
-def execute() -> None:
+def execute(args) -> None:
     """
     Runs the processing of the image. Fetches the parameters set previously.\n
     Should always be run last. If any parameter wasn't set properly, it will crash.\n
@@ -226,15 +198,25 @@ def execute() -> None:
     """
     # TODO document the possible Exceptions
 
-    img = inputImageFile.convert('L')
+    img: Image.Image = args.inputFileImage
+    img = img.convert('L')
     resR: list[int] = []
     resG: list[int] = []
     resB: list[int] = []
-    
-    res = backend.convert2Ascii(img,\
-                                getInputImageWidth(), getInputImageHeight(),\
-                                getTileWidth(), getTileHeight(),\
-                                grayscaleList)
+
+    if args.pixelated:
+        if args.colored:
+            img = args.inputFileImage.convert('RGB')
+            res = backend.convert2Pixel(img, img.size,\
+                                  args.widthCount, args.heightCount)
+        else:
+            res = backend.convert2Pixel(img, img.size,\
+                                  args.widthCount, args.heightCount)
+    else:
+        res = backend.convert2Ascii(img,\
+                                    img.size[0], img.size[1],\
+                                    getTileWidth(), getTileHeight(),\
+                                    grayscaleList)
     
     
     if inputColored:
@@ -257,97 +239,97 @@ def execute() -> None:
                                 getTileWidth(), getTileHeight(),
                                 onlyColor = True)
 
-    match pOutputType:
-        case tools.ValidTypes.TXT:
-            if inputColored:
-                print("\nInput flag { -c : Colored } was set, but output type is .txt! Choose one of the following:")
-                print("\tOutput only the ASCII characters -> t")
-                print("\tOutput colors and text in per-pixel format : [RRGGBBc RRGGBBc ...] -> c")
-                print("\tExit without proceeding -> e")
-                inp: str
-                while True:
-                    inp = input("Leave empty for default (e) : ").lower()
-                    if not inp:
-                        inp = 'e'
-                        break
-                    if inp in 'tce':
-                        break
-                
-                if inp == 't':
-                    print("Outputting only the ASCII characters.")
-                    pass # do nothing with the colors
+        match args.outputType:
+            case tools.ValidTypes.TXT:
+                if inputColored:
+                    print("\nInput flag { -c : Colored } was set, but output type is .txt! Choose one of the following:")
+                    print("\tOutput only the ASCII characters -> t")
+                    print("\tOutput colors and text in per-pixel format : [RRGGBBc RRGGBBc ...] -> c")
+                    print("\tExit without proceeding -> e")
+                    inp: str
+                    while True:
+                        inp = input("Leave empty for default (e) : ").lower()
+                        if not inp:
+                            inp = 'e'
+                            break
+                        if inp in 'tce':
+                            break
+                    
+                    if inp == 't':
+                        print("Outputting only the ASCII characters.")
+                        pass # do nothing with the colors
 
-                if inp == 'c':
-                    print("Converting output to per-pixel format : [RRGGBBc RRGGBBc RRGGBBc ...]")
-                    height = len(res)
-                    width = len(res[0])
+                    if inp == 'c':
+                        print("Converting output to per-pixel format : [RRGGBBc RRGGBBc RRGGBBc ...]")
+                        height = len(res)
+                        width = len(res[0])
 
-                    for r in range(height):
-                        temp = ""
-                        for c in range(width):
-                            temp += f"{tools.pColorsToHex(resR[r*height +c], resG[r*height +c], resB[r*height +c])[1:].upper()}{res[r][c]} "
-                        res[r] = temp
+                        for r in range(height):
+                            temp = ""
+                            for c in range(width):
+                                temp += f"{tools.pColorsToHex(resR[r*height +c], resG[r*height +c], resB[r*height +c])[1:].upper()}{res[r][c]} "
+                            res[r] = temp
 
-                if inp == 'e':
-                    raise tools.Errors.GenericError("Colored flag was set, but output type was .txt! User requested to exit.")     
-        case tools.ValidTypes.JPG:
-            res = converters.ConvertToIMG(res, resR, resG, resB, inputColored)
-        case tools.ValidTypes.PNG:
-            res = converters.ConvertToIMG(res, resR, resG, resB, inputColored)
-        case tools.ValidTypes.XML:
-            if inputColored:
-                print("\nInput flag { -c : Colored } was set, but output type is .xml! Choose one of the following:")
-                print("\tOutput only the ASCII characters in format : [<char>c</char> ...] -> t")
-                print("\tOutput colors and text in per-character format : [<col>RRGGBB</col><char>c</char> ...] -> c")
-                print("\tExit without proceeding -> e")
-                inp: str
-                while True:
-                    inp = input("Leave empty for default (e) : ").lower()
-                    if not inp:
-                        inp = 'e'
-                        break
-                    if inp in 'tce':
-                        break
-                
-                if inp == 't':
-                    print("Outputting only the ASCII characters in format : [<char>c</char> ...]")
-                    height = len(res)
-                    width = len(res[0])
+                    if inp == 'e':
+                        raise tools.Errors.GenericError("Colored flag was set, but output type was .txt! User requested to exit.")     
+            case tools.ValidTypes.JPG, tools.ValidTypes.PNG:
+                res = converters.ConvertToIMG(res, resR, resG, resB, inputColored)
+            case tools.ValidTypes.XML:
+                if inputColored:
+                    print("\nInput flag { -c : Colored } was set, but output type is .xml! Choose one of the following:")
+                    print("\tOutput only the ASCII characters in format : [<char>c</char> ...] -> t")
+                    print("\tOutput colors and text in per-character format : [<col>RRGGBB</col><char>c</char> ...] -> c")
+                    print("\tExit without proceeding -> e")
+                    inp: str
+                    while True:
+                        inp = input("Leave empty for default (e) : ").lower()
+                        if not inp:
+                            inp = 'e'
+                            break
+                        if inp in 'tce':
+                            break
+                    
+                    if inp == 't':
+                        print("Outputting only the ASCII characters in format : [<char>c</char> ...]")
+                        height = len(res)
+                        width = len(res[0])
 
-                    for r in range(height):
-                        temp = "<row>\n\t"
-                        for c in range(width):
-                            temp += f"<char>{res[r][c]}<char> "
-                        temp += "</row>\n"
-                        res[r] = temp
+                        for r in range(height):
+                            temp = "<row>\n\t"
+                            for c in range(width):
+                                temp += f"<char>{res[r][c]}<char> "
+                            temp += "</row>\n"
+                            res[r] = temp
 
-                if inp == 'c':
-                    print("Converting output to per-character format : [<col>RRGGBB</col><char>c</char> ...]")
-                    height = len(res)
-                    width = len(res[0])
+                    if inp == 'c':
+                        print("Converting output to per-character format : [<col>RRGGBB</col><char>c</char> ...]")
+                        height = len(res)
+                        width = len(res[0])
 
-                    for r in range(height):
-                        temp = "<row>\n\t"
-                        for c in range(width):
-                            temp += f"<col>{tools.pColorsToHex(resR[r*height +c], resG[r*height +c], resB[r*height +c])[1:].upper()}</col><char>{res[r][c]}<char> "
-                        temp += "</row>\n"
-                        res[r] = temp
+                        for r in range(height):
+                            temp = "<row>\n\t"
+                            for c in range(width):
+                                temp += f"<col>{tools.pColorsToHex(resR[r*height +c], resG[r*height +c], resB[r*height +c])[1:].upper()}</col><char>{res[r][c]}<char> "
+                            temp += "</row>\n"
+                            res[r] = temp
 
-                if inp == 'e':
-                    raise tools.Errors.GenericError("Colored flag was set, but output type was .txt! User requested to exit.")
-        case tools.ValidTypes.SVG:
-            res = converters.ConvertToSVG(res, resR, resG, resB, inputColored)
+                    if inp == 'e':
+                        raise tools.Errors.GenericError("Colored flag was set, but output type was .txt! User requested to exit.")
+            case tools.ValidTypes.SVG:
+                res = converters.ConvertToSVG(res, resR, resG, resB, inputColored)
         
 
 
-    save(res)
+    save(res, args)
 
-def save(data: svg.SVG | Image.Image) -> None:
+def save(data: svg.SVG | Image.Image, args) -> None:
     """
     Saves the data to the output file.
     """
     # TODO  handle and raise errors etc
 
+    pOutputPath = args.outputPath
+    pOutputType = args.outputType
 
     f = open(pOutputPath, mode = 'w', encoding = 'utf-8')
 

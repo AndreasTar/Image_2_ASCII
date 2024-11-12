@@ -54,16 +54,19 @@ class Errors:
 
 
 class ValidTypes(Enum):
-    TXT = 0,
-    JPG = 1,
-    PNG = 2,
-    XML = 3,
+    TXT = 0
+    JPG = 1
+    PNG = 2
+    XML = 3
     SVG = 4
 
     @classmethod
     def asList(cls):
         return [v.name.lower() for v in cls]
-
+    
+    @classmethod
+    def getImageTypes(cls):
+        return [v.name for v in cls if v.value in [1, 2]]
 
 
 # gray scale level values from: 

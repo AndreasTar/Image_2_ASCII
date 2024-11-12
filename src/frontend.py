@@ -15,12 +15,12 @@
 #             makes parser, handles return and error
 #             surface checks if flags are ok, and either asks or errors
 #             calls stuff from midend depending on flags
+#             it will handle the saving of the file to the location needed
 
 # midend -> will hold the ascii array
 #           communicates with backend to tell it what to process
 #           depending on the function called, it will provide backend with data to process
 #           will also call the converters to make the jpg png etc
-#           it will handle the saving of the file to the location needed
 
 # backend -> will hold all the math and processing that the tool needs
 #            where the 'actual' work happens, seperated in functions
@@ -36,7 +36,7 @@
 #idea
 
 import argparse as ap
-import pathlib
+import pathlib as pl
 from textwrap import dedent
 from typing import NoReturn
 from PIL import Image
@@ -44,6 +44,18 @@ from PIL import Image
 from src import tools, midend
 
 parser: ap.ArgumentParser
+
+class InputArguments():
+    inputFileImage: Image.Image
+    automatic: bool = False
+    colored: bool = False
+    pixelated: bool = False
+    grayscaleCount: int = 70
+    widthCount: int = 0
+    heightCount: int = 0
+    outputPath: pl.Path
+    outputType: list[str] = tools.ValidTypes.asList()
+    outputName: str = 'RANDOM'
 
 def setupParser() -> None:
     """
@@ -56,7 +68,7 @@ def setupParser() -> None:
 
         # TODO somehow make these dynamic
         usage = dedent(
-'converter.py inputFile [-h] [-a] [-c] \n\
+'converter.py inputFile [-h] [-a] [-c] [-pix] \n\
                     [-wi INTEGER | -wc INTEGER] \n\
                     [-hi INTEGER | -hc INTEGER] \n\
                     [-gsc {10,70} (def: 70)] \n\
@@ -66,8 +78,8 @@ def setupParser() -> None:
         description = 'Program that converts an input image into an ASCII representation. Usage message formatted for readability.'
   
     )
-# usage: converter.py [-h] [-a] [-c] [-wi INTEGER | -wc INTEGER] [-hi INTEGER | -hc INTEGER] [-gsc {10,70}]
-#                     [-op PATH | -on STRING] [-t {png,jpg,xml,txt}]
+# usage: converter.py [-h] [-a] [-c] [-pix] [-wi INTEGER | -wc INTEGER] [-hi INTEGER | -hc INTEGER] [-gsc {10,70}]
+#                     [-op PATH | -on STRING] [-t {png,jpg,xml,txt,svg}]
 #                     inputFile
 
     pSetupArguments()
@@ -85,7 +97,7 @@ def pSetupArguments() -> None:
 
     parser.add_argument(    #input file
             'inputFile',
-            type        =   pathlib.Path,
+            type        =   pl.Path,
             help        =   'The path to the file to be converted'
     )
     parser.add_argument(    # automatic NI
@@ -106,7 +118,9 @@ def pSetupArguments() -> None:
             help        =   'Should the output image be colored instead of greyscale?'
     )
 
-    parser.add_argument(    # how many grayscale TODO
+    tgroup = parser.add_mutually_exclusive_group()
+
+    tgroup.add_argument(    # how many grayscale TODO
             '-gsc', '--grayscalecount',
             dest        =   'inputGSCount',
             required    =   False,
@@ -114,6 +128,14 @@ def pSetupArguments() -> None:
             choices     =   [10,70],
             default     =   70,
             help        =   'How many characters to use for the ASCII representation.'
+    )
+
+    tgroup.add_argument(    # how many grayscale TODO
+            '-pix', '--pixelated',
+            dest        =   'inputPixelated',
+            required    =   False,
+            action      =   'store_true',
+            help        =   'Convert the image into pixelart instead of ASCII. Only image output types are allowed. (SVG and TXT will error)'
     )
 
 # ========= Width Flags ======== 
@@ -164,7 +186,7 @@ def pSetupArguments() -> None:
             '-op', '--outputfilepath',
             dest        =   'inputFilePathOut',
             required    =   False,
-            type        =   pathlib.Path,
+            type        =   pl.Path,
             #default     =   '\\out',
             help        =   'The full path of the output file.',
             metavar     =   'PATH'
@@ -205,63 +227,120 @@ def runTool(shouldSave: bool = False): # TODO implement shouldSave, if false ret
     '''
     args = parser.parse_args()
 
-    try:
-        midend.setInputImageFile(args.inputFile)
-        midend.setAutomatic(args.inputAuto)
-        midend.setColored(args.inputColored)
-        midend.setName(args.inputFileNameOut)
-    except Exception as e:
-        exitWith(e)
-
+    inputArguments: InputArguments = InputArguments
 
     try:
-        midend.setGrayscale(args.inputGSCount)
-    except tools.Errors.VariableInvalidValueError as e:
-        exitWith(f"Invalid Grayscale size used: {e.varValue}!")
-
-    imageSize = midend.getInputImageSize()
-    print(f"\nInput image dimensions (w x h): {imageSize[0]} x {imageSize[1]} pixels")
-
+        inputArguments.inputFileImage = Image.open(args.inputFile)
+    except FileNotFoundError:
+        raise tools.Errors.GenericError(f"File path was not found -> {args.inputFile}")
     
-    # TODO handle for auto
+    inputArguments.automatic = args.inputAuto
+    inputArguments.colored = args.inputColored
+    inputArguments.pixelated = args.inputPixelated
+
+    if not inputArguments.pixelated:
+        if not tools.GRAYSCALES.__contains__(args.inputGSCount):
+            exitWith(f"Invalid Grayscale size used: {e.varValue}!") # IDEA maybe fallback?
+        inputArguments.grayscaleCount = args.inputGSCount
+
+    inputArguments.widthCount = HandleWidth(args.inputWidthPixel, args.inputWidthCount, inputArguments.inputFileImage.size[0])
+    inputArguments.heightCount = HandleHeight(args.inputHeightPixel, args.inputHeightCount, inputArguments.inputFileImage.size[1])
+
+    inputArguments.outputName = args.inputFileNameOut
+    inputArguments.outputPath, inputArguments.outputType = HandleOutput(args.inputFile, args.inputFilePathOut, args.inputFileTypeOut, args.inputFileNameOut) 
+
+    #check pixelated
+    if inputArguments.pixelated:
+        if not (inputArguments.outputType.name in tools.ValidTypes.getImageTypes()):
+            exitWith("Can't do pixelart with non-image type output!")
+
+    print(f"\nInput image dimensions (w x h): {inputArguments.inputFileImage.size[0]} x {inputArguments.inputFileImage.size[1]} pixels")
+
+    tilesizew = int(inputArguments.inputFileImage.size[0] / inputArguments.widthCount)
+    tilesizeh = int(inputArguments.inputFileImage.size[1] / inputArguments.heightCount)
+
+    print(f"Using tile size in pixels (w x h): {tilesizew} x {tilesizeh}")
+    print(f"Total tile count \n\tPer axis (w x h): {inputArguments.widthCount} x {inputArguments.heightCount}\n\tTotal tiles: {inputArguments.widthCount * inputArguments.heightCount}\n")
+
+
     try:
-        midend.HandleWidth(args.inputWidthPixel, args.inputWidthCount) # pass both and let it handle them  
-    except tools.Errors.VariableInvalidValueError:
-        print("\nInput arguments for width are Invalid!")
-        res = pHandleNonexistentTile(imageSize[0], "width") # if there was an error, ask user for value
-        midend.setTileWidth(res) # FIXME catch exception
-    except tools.Errors.VariableNotInitialisedError:
-        res = pHandleNonexistentTile(imageSize[0], "width") # if there was an error, ask user for value
-        midend.setTileWidth(res) # FIXME catch exception
-        
-    try:
-        midend.HandleHeight(args.inputHeightPixel, args.inputHeightCount) # pass both and let it handle them
-    except tools.Errors.VariableInvalidValueError:
-        print("\nInput arguments for height are Invalid!")
-        res = pHandleNonexistentTile(imageSize[1], "height") # if there was an error, ask user for value
-        midend.setTileHeight(res) # FIXME catch exception
-    except tools.Errors.VariableNotInitialisedError:
-        res = pHandleNonexistentTile(imageSize[1], "height") # if there was an error, ask user for value
-        midend.setTileHeight(res) # FIXME catch exception
-
-    tilecountw = int(imageSize[0] / midend.getTileWidth())
-    tilecounth = int(imageSize[1] / midend.getTileHeight())
-
-    print(f"Using tile size in pixels (w x h): {midend.getTileWidth()} x {midend.getTileHeight()}")
-    print(f"Total tile count \n\tPer axis (w x h): {tilecountw} x {tilecounth}\n\tTotal tiles: {tilecountw*tilecounth}\n")
-
-
-    midend.handleOutput(args.inputFile, args.inputFilePathOut, args.inputFileTypeOut)
-
-    try:
-        midend.execute()
+        midend.execute(inputArguments)
     except tools.Errors.GenericError as e:
         print(e)
         exitWith(e)
         
 
+def HandleWidth(twp: int, twc: int, imgWidth: int):
+    if not (twp or twc):
+        twp = pHandleNonexistentTile(imgWidth, "width")
+        return twp
+    
+    if twp:
+        if (twp < 1 or twp > imgWidth):
+            print("\nInput arguments for width are Invalid!")
+            twp = pHandleNonexistentTile(imgWidth, "width")
 
+        from numpy import ceil
+        temp = int(ceil( imgWidth / twp ))
+        return temp
 
+    else:
+        if (twc < 1 or twc > imgWidth):
+            print("\nInput arguments for width are Invalid!")
+            twc = pHandleNonexistentTile(imgWidth, "width")
+        
+        return twc
+
+def HandleHeight(thp: int, thc: int, imgHeight: int) -> None:
+    if not (thp or thc):
+        print("\nInput arguments for height not found! Prompting user...")
+        thp = pHandleNonexistentTile(imgHeight, "height")
+    
+    if thp:
+        if (thp < 1 or thp > imgHeight):
+            print("\nInput arguments for height are Invalid!")
+            thp = pHandleNonexistentTile(imgHeight, "height")
+
+        from numpy import ceil
+        temp = int(ceil( imgHeight / thp ))
+        return temp
+
+    else:
+        if (thc < 1 or thc > imgHeight):
+            print("\nInput arguments for height are Invalid!")
+            thc = pHandleNonexistentTile(imgHeight, "height")
+        
+        return thc
+    
+def HandleOutput(name: pl.Path, path: pl.Path, format: str, nameOut: str):
+
+    
+
+    format = "." + format.lower()
+
+    
+    # get input path
+    #   if it exists, create the file there with the name given, whatever that is, and append type at the end
+    #   if not, assume current folder and use unique recognisable name and append type at the end
+
+    outFile = ""
+
+    if (not path):
+        outFile = tools.pGetUniqueName()
+        if nameOut == 'INPUT':
+            outFile = name.name[:-4] # remove format text
+        outFile += format
+    else:
+        # make example, cause it works as so:
+        #       if test             -> makes \test.txt
+        #       if test[/ or \]     -> makes \test.txt -> fixed this with the following code
+        #       if test[/ or \]name -> makes \test\name.txt (iterative, will do as many folders as needed)
+
+        pl.Path.mkdir(path.absolute().parent, parents = True, exist_ok=True)
+        outFile = pl.Path.cwd().joinpath(path).__str__() + format
+        
+    
+    return pl.Path("", outFile), tools.ValidTypes[format[-3:].upper()]
 
 
 def pHandleNonexistentTile(img: int, type: str) -> int:
@@ -284,6 +363,8 @@ def pHandleNonexistentTile(img: int, type: str) -> int:
         else:
             return userin
         
+
+
 def exitWith(error: Exception | str | None = None) -> NoReturn:
     code = 0
     if error:
