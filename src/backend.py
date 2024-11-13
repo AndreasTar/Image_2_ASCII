@@ -13,7 +13,7 @@ import numpy as np
 
 def convert2Ascii(image: Image.Image,\
                   imgWidth: int, imgHeight: int,\
-                  tileWidth: int, tileHeight: int,\
+                  tileWidthC: int, tileHeightC: int,\
                   charList: list[str] | str | None = None, onlyColor: bool = False) -> list:
     """
     The main loop of the tool. Converts an area of pixels to a specific character, based on the luminosity of the channel.
@@ -24,6 +24,9 @@ def convert2Ascii(image: Image.Image,\
         assert False, "Charlist is none and not only color" 
     
     asciiImage = []                     # each row is a string
+
+    tileHeight = imgHeight/tileHeightC
+    tileWidth = imgWidth/tileWidthC
 
     rowIndex = int(imgHeight / tileHeight)
     colIndex = int(imgWidth / tileWidth)
@@ -60,14 +63,6 @@ def convert2Ascii(image: Image.Image,\
 
     return asciiImage
 
-def convert2Pixel(image: Image.Image, imgSize: list[int],\
-                  widthCount: int, heightCount: int,) -> Image:
-    
-    imgSmall = image.resize((widthCount, heightCount), Image.Resampling.BILINEAR)
-    res = imgSmall.resize(imgSize, Image.Resampling.NEAREST)
-
-    return res
-
 # TODO: type hint return type
 def pGetAverage(tile: Image.Image) -> np.floating[Any]:
     """
@@ -78,4 +73,13 @@ def pGetAverage(tile: Image.Image) -> np.floating[Any]:
     tw, th = npImg.shape
 
     return np.average(npImg.reshape(tw*th))
+
+
+def convert2Pixel(image: Image.Image, imgSize: list[int],\
+                  widthCount: int, heightCount: int,) -> Image:
+    
+    imgSmall = image.resize((widthCount, heightCount), Image.Resampling.BILINEAR)
+    res = imgSmall.resize(imgSize, Image.Resampling.NEAREST)
+
+    return res
 

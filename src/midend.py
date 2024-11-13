@@ -15,20 +15,9 @@ import svg
 
 from src import converters, tools, backend
 
-inputImageFile: Image.Image
-inputImageWidth: int
-inputImageHeight: int
-
-inputAuto: bool = False
-inputColored: bool = False
-inputPixelated: bool = False
-grayscaleList: str
-
 tilePixelsWidth: int = 0
 tilePixelsHeight: int = 0
 
-pOutputPath: pl.Path
-pOutputType: tools.ValidTypes
 pOutputNameFlag: str
 
 
@@ -36,77 +25,9 @@ pOutputNameFlag: str
 
 # ================= Main Flags ================ 
 
-def setInputImageFile(inputImagePath: pl.Path) -> None:
-    """
-    Determines if the path given is valid.
-    """
-
-    global inputImageFile, inputImageWidth, inputImageHeight
-
-    try:
-        inputImageFile = Image.open(inputImagePath)
-    except FileNotFoundError:
-        raise tools.Errors.GenericError(f"File path was not found -> {inputImagePath}")
-    
-    inputImageWidth, inputImageHeight = inputImageFile.size
-
-def setAutomatic(auto: bool) -> None:
-    global inputAuto
-    inputAuto = auto
 
 # ================= Mechanism Flags ================ 
 
-def setColored(color: bool) -> None:
-    """
-    Setter for the `-c` flag
-    """
-    global inputColored
-    inputColored = color
-
-def setGrayscale(gsc: int) -> None:
-    """
-    Setter for the grayscale count `-gsc` flag.\n
-    Raises VariableInvalidValueError if requested grayscale count isn't implemented.
-    """
-    global grayscaleList
-    if not tools.GRAYSCALES.__contains__(gsc): # NOTE this may look unnecessary cause parser does the checks, but i leave it for api
-        raise tools.Errors.VariableInvalidValueError("gsc", gsc)
-    grayscaleList = tools.GRAYSCALES[gsc]
-
-def setPixelated(pix: bool):
-    """
-    Setter for the pixelated `-pix` flag.\n
-    Raises GenericError if requested output file format isn't JPG or PNG.
-    """
-    global inputPixelated, pOutputType
-    pix = inputPixelated
-    if pix:
-        if tools.ValidTypes.isImageType(pOutputType):
-            raise tools.Errors.GenericError("This output file format isn't allowed with the pixelated flag!")
-    
-
-def getInputImageSize() -> tuple[int, int]:
-    """
-    Returns the image dimensions in a tuple(width, height).\n
-    Raises VariableNotInitialisedError if called before image was passed.
-    """
-    global inputImageFile
-
-    if not inputImageFile:
-        raise tools.Errors.VariableNotInitialisedError("InputImageFile") # NOTE is this necessary? prolly for future API
-    return (inputImageWidth, inputImageHeight)
-
-def getInputImageWidth() -> int:
-    """
-    Returns the width of the image in pixels.
-    """
-    return getInputImageSize()[0]
-
-def getInputImageHeight() -> int:
-    """
-    Returns the height of the image in pixels.
-    """
-    return getInputImageSize()[1]
 
 # ================= Width Flags ================ 
 
@@ -125,27 +46,6 @@ def getTileWidth() -> int:
     global tilePixelsWidth
     return tilePixelsWidth
 
-def HandleWidth(twp: int, twc: int) -> None:
-    """
-    Setter for the tile width of the tool in pixels, in either tile count or tile size format.\n
-    Raises VariableNotInitialisedError if either value wasn't set.\n
-    Raises VariableInvalidValueError if either value was smaller than 1 or above the image size.
-    """
-    if not (twp or twc):
-        raise tools.Errors.VariableNotInitialisedError("twp")
-    
-    if twp:
-        if (twp < 1 or twp > getInputImageWidth()):
-            raise tools.Errors.VariableInvalidValueError("twp", twp, "Invalid input tile width!")
-        setTileWidth(twp)
-
-    else:
-        if (twc < 1 or twc > getInputImageWidth()):
-            raise tools.Errors.VariableInvalidValueError("twc", twc, "Invalid input tile width!")
-        
-        temp = int(np.ceil( getInputImageWidth() / twc ))
-        setTileWidth(temp)
-
 # ================= Height Flags ================
 
 def setTileHeight(thp: int) -> None: # NOTE should this raise an error?
@@ -162,27 +62,6 @@ def getTileHeight() -> int:
     """
     global tilePixelsHeight
     return tilePixelsHeight
-
-def HandleHeight(thp: int, thc: int) -> None:
-    """
-    Setter for the tile height of the tool in pixels, in either tile count or tile size format.\n
-    Raises VariableNotInitialisedError if either value wasn't set.\n
-    Raises VariableInvalidValueError if either value was smaller than 1 or above the image size.
-    """
-    if not (thp or thc):
-        raise tools.Errors.VariableNotInitialisedError("thp")
-    
-    if thp:
-        if (thp < 1 or thp > getInputImageHeight()):
-            raise tools.Errors.VariableInvalidValueError("thp", thp, "Invalid input tile height!")
-        setTileHeight(thp)
-
-    else:
-        if (thc < 1 or thc > getInputImageHeight()):
-            raise tools.Errors.VariableInvalidValueError("thc", thc, "Invalid input tile height!")
-        
-        temp = int(np.ceil( getInputImageHeight() / thc ))
-        setTileHeight(temp)
 
 # ================= Output Flags ================
 
@@ -213,35 +92,36 @@ def execute(args) -> None:
             res = backend.convert2Pixel(img, img.size,\
                                   args.widthCount, args.heightCount)
     else:
+        grayscaleList = tools.GRAYSCALES.get(args.grayscaleCount)
         res = backend.convert2Ascii(img,\
                                     img.size[0], img.size[1],\
-                                    getTileWidth(), getTileHeight(),\
+                                    args.widthCount, args.heightCount,\
                                     grayscaleList)
     
     
-    if inputColored:
-        imgR = inputImageFile.getchannel('R')
-        imgG = inputImageFile.getchannel('G')
-        imgB = inputImageFile.getchannel('B')
+    if args.colored:
+        imgR = args.inputFileImage.getchannel('R')
+        imgG = args.inputFileImage.getchannel('G')
+        imgB = args.inputFileImage.getchannel('B')
 
         resR = backend.convert2Ascii(imgR,
-                                getInputImageWidth(), getInputImageHeight(),
-                                getTileWidth(), getTileHeight(),
+                                img.size[0], img.size[1],\
+                                args.widthCount, args.heightCount,\
                                 onlyColor = True)
         
         resG = backend.convert2Ascii(imgG,
-                                getInputImageWidth(), getInputImageHeight(),
-                                getTileWidth(), getTileHeight(),
+                                img.size[0], img.size[1],\
+                                args.widthCount, args.heightCount,\
                                 onlyColor = True)
         
         resB = backend.convert2Ascii(imgB,
-                                getInputImageWidth(), getInputImageHeight(),
-                                getTileWidth(), getTileHeight(),
+                                img.size[0], img.size[1],\
+                                args.widthCount, args.heightCount,\
                                 onlyColor = True)
-
+    if not args.pixelated:
         match args.outputType:
             case tools.ValidTypes.TXT:
-                if inputColored:
+                if args.colored:
                     print("\nInput flag { -c : Colored } was set, but output type is .txt! Choose one of the following:")
                     print("\tOutput only the ASCII characters -> t")
                     print("\tOutput colors and text in per-pixel format : [RRGGBBc RRGGBBc ...] -> c")
@@ -272,10 +152,10 @@ def execute(args) -> None:
 
                     if inp == 'e':
                         raise tools.Errors.GenericError("Colored flag was set, but output type was .txt! User requested to exit.")     
-            case tools.ValidTypes.JPG, tools.ValidTypes.PNG:
-                res = converters.ConvertToIMG(res, resR, resG, resB, inputColored)
+            case tools.ValidTypes.JPG | tools.ValidTypes.PNG:
+                res = converters.ConvertToIMG(res, resR, resG, resB, args.colored)
             case tools.ValidTypes.XML:
-                if inputColored:
+                if args.colored:
                     print("\nInput flag { -c : Colored } was set, but output type is .xml! Choose one of the following:")
                     print("\tOutput only the ASCII characters in format : [<char>c</char> ...] -> t")
                     print("\tOutput colors and text in per-character format : [<col>RRGGBB</col><char>c</char> ...] -> c")
@@ -316,7 +196,7 @@ def execute(args) -> None:
                     if inp == 'e':
                         raise tools.Errors.GenericError("Colored flag was set, but output type was .txt! User requested to exit.")
             case tools.ValidTypes.SVG:
-                res = converters.ConvertToSVG(res, resR, resG, resB, inputColored)
+                res = converters.ConvertToSVG(res, resR, resG, resB, args.colored)
         
 
 
