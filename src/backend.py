@@ -13,7 +13,7 @@ import numpy as np
 
 def convert2Ascii(image: Image.Image,\
                   imgWidth: int, imgHeight: int,\
-                  tileWidthC: int, tileHeightC: int,\
+                  tileWidthCount: int, tileHeightCount: int,\
                   charList: list[str] | str | None = None, onlyColor: bool = False) -> list:
     """
     The main loop of the tool. Converts an area of pixels to a specific character, based on the luminosity of the channel.
@@ -25,8 +25,8 @@ def convert2Ascii(image: Image.Image,\
     
     asciiImage = []                     # each row is a string
 
-    tileHeight = imgHeight/tileHeightC
-    tileWidth = imgWidth/tileWidthC
+    tileHeight = imgHeight/tileHeightCount
+    tileWidth = imgWidth/tileWidthCount
 
     rowIndex = int(imgHeight / tileHeight)
     colIndex = int(imgWidth / tileWidth)

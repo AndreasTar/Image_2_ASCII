@@ -227,12 +227,13 @@ def runTool(shouldSave: bool = False): # TODO implement shouldSave, if false ret
     '''
     args = parser.parse_args()
 
-    inputArguments: InputArguments = InputArguments
+    inputArguments = InputArguments
 
     try:
         inputArguments.inputFileImage = Image.open(args.inputFile)
     except FileNotFoundError:
-        raise tools.Errors.GenericError(f"File path was not found -> {args.inputFile}")
+        exitWith(f"File path was not found -> {args.inputFile}")
+        #raise tools.Errors.GenericError(f"File path was not found -> {args.inputFile}")
     
     inputArguments.automatic = args.inputAuto
     inputArguments.colored = args.inputColored
@@ -314,15 +315,11 @@ def HandleHeight(thp: int, thc: int, imgHeight: int) -> None:
     
 def HandleOutput(name: pl.Path, path: pl.Path, format: str, nameOut: str):
 
-    
-
-    format = "." + format.lower()
-
-    
     # get input path
     #   if it exists, create the file there with the name given, whatever that is, and append type at the end
     #   if not, assume current folder and use unique recognisable name and append type at the end
 
+    format = "." + format.lower()
     outFile = ""
 
     if (not path):
@@ -368,7 +365,7 @@ def pHandleNonexistentTile(img: int, type: str) -> int:
 def exitWith(error: Exception | str | None = None) -> NoReturn:
     code = 0
     if error:
-        print(f"\nDuring processing, program encountered an error with the message:\n\t{error}\n")
+        print(f"\n{"-="*18} ERROR {"=-"*18}=\n\nDuring processing, program encountered an error with the message:\n\t{error}\n\n{"-="*40}\n")
         # Non zero exit code indicates something went wrong
         code = 1
     print("\nTool is exiting...\n")
