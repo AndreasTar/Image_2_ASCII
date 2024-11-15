@@ -15,56 +15,6 @@ import svg
 
 from src import converters, tools, backend
 
-tilePixelsWidth: int = 0
-tilePixelsHeight: int = 0
-
-pOutputNameFlag: str
-
-
-
-
-# ================= Main Flags ================ 
-
-
-# ================= Mechanism Flags ================ 
-
-
-# ================= Width Flags ================ 
-
-def setTileWidth(twp: int) -> None: # NOTE should this raise an error?
-    """
-    Setter for the tile width of the tool in pixels.
-    """
-    global tilePixelsWidth
-
-    tilePixelsWidth = twp
-
-def getTileWidth() -> int:
-    """
-    Returns the tile width used in pixels.
-    """
-    global tilePixelsWidth
-    return tilePixelsWidth
-
-# ================= Height Flags ================
-
-def setTileHeight(thp: int) -> None: # NOTE should this raise an error?
-    """
-    Setter for the tile height of the tool in pixels.
-    """
-    global tilePixelsHeight
-
-    tilePixelsHeight = thp
-
-def getTileHeight() -> int:
-    """
-    Returns the tile width used in pixels.
-    """
-    global tilePixelsHeight
-    return tilePixelsHeight
-
-# ================= Output Flags ================
-
     
 # ================= Process ================
 
