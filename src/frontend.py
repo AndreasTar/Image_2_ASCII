@@ -68,7 +68,7 @@ def setupParser() -> None:
 
         # TODO somehow make these dynamic
         usage = dedent(
-'converter.py inputFile [-h] [-a] [-c] [-pix] \n\
+'converter.py inputFile [-h] [-v | --version] [-a] [-c] [-pix] \n\
                     [-wi INTEGER | -wc INTEGER] \n\
                     [-hi INTEGER | -hc INTEGER] \n\
                     [-gsc {10,70} (def: 70)] \n\
@@ -106,6 +106,13 @@ def pSetupArguments() -> None:
             required    =   False,
             action      =   'store_true',
             help        =   'Should the program decide the values on its own? NOT IMPLEMENTED'
+    )
+    parser.add_argument(    # version of the app
+            '-v', '--version',
+            dest        =   'versionRequested',
+            required    =   False,
+            action      =   'store_true',
+            help        =   'The version of the app'
     )
 
 # ========= Mechanism Flags ======== 
@@ -225,9 +232,17 @@ def runTool(shouldSave: bool = False): # TODO implement shouldSave, if false ret
     If some flags are not set, it will request them from the user.
     If that cant be done, it will exit with an error message.
     '''
-    args = parser.parse_args()
+
+    try:
+        args = parser.parse_args()
+    except:
+        exitWith("Invalid input")
 
     inputArguments = InputArguments
+
+    if args.versionRequested:
+        print(f"\nVersion: {tools.APP_VERSION}")
+        exitWith()
 
     try:
         inputArguments.inputFileImage = Image.open(args.inputFile)
@@ -368,6 +383,7 @@ def exitWith(error: Exception | str | None = None) -> NoReturn:
         print(f"\n{"-="*18} ERROR {"=-"*18}=\n\nDuring processing, program encountered an error with the message:\n\t{error}\n\n{"-="*40}\n")
         # Non zero exit code indicates something went wrong
         code = 1
+    input("\nPress 'Enter' to exit...\n")
     print("\nTool is exiting...\n")
     exit(code)
 

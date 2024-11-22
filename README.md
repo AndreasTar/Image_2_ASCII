@@ -47,7 +47,7 @@ This tool has a few features executed via command-line flags. In its simplest fo
 You can always run the tool with the flag `-h` for info about each flag.
 
 ``` title="Usage command"
-converter.py inputFile [-h] [-a] [-c] [-pix]
+converter.py inputFile [-h] [-v | --version] [-a] [-c] [-pix]
                        [-wi INTEGER | -wc INTEGER]
                        [-hi INTEGER | -hc INTEGER]
                        [-gsc {10,70} (def: 70)]
@@ -59,6 +59,7 @@ converter.py inputFile [-h] [-a] [-c] [-pix]
 | Flag   | Long Flag          | Description                                                                             | Value type                | Implemented |
 | :----- | :----------------- | :-------------------------------------------------------------------------------------- | :------------------------ | :---------: |
 | `-h`   | `--help`           | Displays a help message with more info.                                                 | Bool                      |      ✔      |
+| `-v`   | `--version`        | Displays the current version of the app.                                                | Bool                      |      ✔      |
 | `-a`   | `--auto`           | Figures out the usage parameters automatically from the input                           | Bool                      |      ✖      |
 | `-c`   | `--colored`        | Output text will be colored instead of grayscale. Used for XML or image output formats. | Bool                      |      ✔      |
 | `-wi`  | `--width`          | Custom tile Width in pixels.                                                            | Integer                   |      ✔      |

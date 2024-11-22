@@ -155,3 +155,4 @@ cython_debug/
 *.code-workspace
 /.vscode
 /test
+/builds/build_temps

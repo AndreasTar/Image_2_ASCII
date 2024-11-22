@@ -13,8 +13,8 @@
 # https://en.wikipedia.org/wiki/ASCII_art#:~:text=of%20Unicode.-,Methods%20for%20generating%20ASCII%20art
 
 from src import frontend
+from src.tools import APP_VERSION
 
-APP_VERSION = "1.0.0"
 
 def main():
     print(f"\n{"=-=-"*18}")

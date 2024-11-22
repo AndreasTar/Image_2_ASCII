@@ -13,6 +13,8 @@ import numpy as np
 # NOTE consider having the params be a global struct or something using this:
 # https://stackoverflow.com/questions/35988/c-like-structures-in-python
 
+APP_VERSION = "1.0.0"
+
 class Errors:
     class GenericError(Exception):
 
