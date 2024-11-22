@@ -74,6 +74,7 @@ converter.py inputFile [-h] [-a] [-c] [-pix]
 ## Roadmap
 
 Most recently Done:
+- [x] Allow conversion to pixelart.
 - [x] Output file is being saved into path with custom name.
 - [x] Separate and Abstract the conversion logic and input/output controller. 
  
@@ -82,12 +83,13 @@ Currently doing:
 - [ ] Implement currently partial (**~**) or unimplemented (✖) features.
 
 ToDo List:
-- [ ] Allow conversion to pixelart.
 - [ ] Allow for custom Grayscale array.
 - [ ] Add examples to the readme and improve its visual aspect.
 - [ ] Implement edge detection for better results.
-- [ ] Add slope support for grayscale-value control.
 - [ ] Add other types of characters, like braille for more blocky looks.
+
+Backlog / Potentially will never implement natively:
+- [ ] Add slope support for grayscale-value control.
 
 
 ## Contribution
