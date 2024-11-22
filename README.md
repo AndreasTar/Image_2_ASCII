@@ -77,10 +77,10 @@ converter.py inputFile [-h] [-v | --version] [-a] [-c] [-pix]
 Most recently Done:
 - [x] Allow conversion to pixelart.
 - [x] Output file is being saved into path with custom name.
-- [x] Separate and Abstract the conversion logic and input/output controller. 
+- [x] Separate and Abstract the conversion logic and input/output controller.
+- [x] Publish a release and set up the semver and the tags.
  
 Currently doing:
-- [ ] Publish a release and set up the semver and the tags.
 - [ ] Implement currently partial (**~**) or unimplemented (✖) features.
 
 ToDo List:
