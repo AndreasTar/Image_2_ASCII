@@ -109,10 +109,9 @@ def pSetupArguments() -> None:
     )
     parser.add_argument(    # version of the app
             '-v', '--version',
-            dest        =   'versionRequested',
-            required    =   False,
-            action      =   'store_true',
-            help        =   'The version of the app'
+            action      =   'version',
+            help        =   'The version of the app',
+            version     =  f'Version: {tools.APP_VERSION}',
     )
 
 # ========= Mechanism Flags ======== 
@@ -235,14 +234,12 @@ def runTool(shouldSave: bool = False): # TODO implement shouldSave, if false ret
 
     try:
         args = parser.parse_args()
-    except:
+    except Exception:
         exitWith("Invalid input")
+    except:  # Catches any exit call from the parser
+        exitWith()
 
     inputArguments = InputArguments
-
-    if args.versionRequested:
-        print(f"\nVersion: {tools.APP_VERSION}")
-        exitWith()
 
     try:
         inputArguments.inputFileImage = Image.open(args.inputFile)
@@ -380,7 +377,7 @@ def pHandleNonexistentTile(img: int, type: str) -> int:
 def exitWith(error: Exception | str | None = None) -> NoReturn:
     code = 0
     if error:
-        print(f"\n{"-="*18} ERROR {"=-"*18}=\n\nDuring processing, program encountered an error with the message:\n\t{error}\n\n{"-="*40}\n")
+        print(f"\n{'-='*18} ERROR {'=-'*18}=\n\nDuring processing, program encountered an error with the message:\n\t{error}\n\n{'-='*40}\n")
         # Non zero exit code indicates something went wrong
         code = 1
     input("\nPress 'Enter' to exit...\n")
