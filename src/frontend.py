@@ -109,10 +109,9 @@ def pSetupArguments() -> None:
     )
     parser.add_argument(    # version of the app
             '-v', '--version',
-            dest        =   'versionRequested',
-            required    =   False,
-            action      =   'store_true',
-            help        =   'The version of the app'
+            action      =   'version',
+            help        =   'The version of the app',
+            version     =  f'Version: {tools.APP_VERSION}',
     )
 
 # ========= Mechanism Flags ======== 
@@ -235,14 +234,12 @@ def runTool(shouldSave: bool = False): # TODO implement shouldSave, if false ret
 
     try:
         args = parser.parse_args()
-    except:
+    except Exception:
         exitWith("Invalid input")
+    except:  # Catches any exit call from the parser
+        exitWith()
 
     inputArguments = InputArguments
-
-    if args.versionRequested:
-        print(f"\nVersion: {tools.APP_VERSION}")
-        exitWith()
 
     try:
         inputArguments.inputFileImage = Image.open(args.inputFile)
