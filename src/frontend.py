@@ -380,7 +380,7 @@ def pHandleNonexistentTile(img: int, type: str) -> int:
 def exitWith(error: Exception | str | None = None) -> NoReturn:
     code = 0
     if error:
-        print(f"\n{"-="*18} ERROR {"=-"*18}=\n\nDuring processing, program encountered an error with the message:\n\t{error}\n\n{"-="*40}\n")
+        print(f"\n{'-='*18} ERROR {'=-'*18}=\n\nDuring processing, program encountered an error with the message:\n\t{error}\n\n{'-='*40}\n")
         # Non zero exit code indicates something went wrong
         code = 1
     input("\nPress 'Enter' to exit...\n")
