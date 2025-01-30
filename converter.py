@@ -17,14 +17,14 @@ from src.tools import APP_VERSION
 
 
 def main():
-    print(f"\n{"=-=-"*18}")
+    print(f"\n{'=-=-'*18}")
     print(f"\
 \n`Image2Ascii` tool, version: {APP_VERSION}\n\n\
 Made by: Andreas Tarasidis\nGithub Link: https://github.com/AndreasTar \n\
 Repository Link: https://github.com/AndreasTar/Image_2_ASCII \n\
 Licensed under the BSD-style license found in the LICENSE file of the root directory.\n"
     )
-    print(f"{"=-=-"*18}\n")
+    print(f"{'=-=-'*18}\n")
     
     print("Starting tool...")
     frontend.setupParser()
