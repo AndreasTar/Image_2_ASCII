@@ -84,10 +84,13 @@ Currently doing:
 - [ ] Implement currently partial (**~**) or unimplemented (✖) features.
 
 ToDo List:
+- [ ] Invert brightness, aka make the bright spots have characters
+- [ ] Thresholding
 - [ ] Allow for custom Grayscale array.
 - [ ] Add examples to the readme and improve its visual aspect.
 - [ ] Implement edge detection for better results.
 - [ ] Add other types of characters, like braille for more blocky looks.
+- [ ] Move 'Done' to a CHANGELOG file instead.
 
 Backlog / Potentially will never implement natively:
 - [ ] Add slope support for grayscale-value control.

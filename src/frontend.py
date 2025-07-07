@@ -161,7 +161,7 @@ def pSetupArguments() -> None:
             dest        =   'inputWidthCount',
             required    =   False,
             type        =   int,
-            help        =   'Maximum amount of tiles to create on the X axis.',
+            help        =   'Exact amount of tiles to create on the X axis.',
             metavar     =   'INTEGER'
     )
 
@@ -182,7 +182,7 @@ def pSetupArguments() -> None:
             dest        =   'inputHeightCount',
             required    =   False,
             type        =   int,
-            help        =   'Maximum amount of tiles to create on the Y axis.',
+            help        =   'Exact amount of tiles to create on the Y axis.',
             metavar     =   'INTEGER'
     )
 

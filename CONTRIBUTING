@@ -3,12 +3,12 @@
 **Follow the [style guide](#style) and try to stick to a similar coding style as the project has**.
 
 **Prefer to stick to current issues, the road map and todo list**. 
-[Here](#where-is-the-todo-list-and-roadmap) you can find out how to find them.
+[Here](#where-is-the-todo-list-and-roadmap) you can find out where to find them.
 
-Each pull request should **stick to a single problem or feature to add**, do not mix them into the same.
+Each pull request should **stick to a single problem or feature to add**, do not mix them into the same PR.
 **Bug fixes may contain multiple** bug fixes in the same pull request as it is considered similar. 
 
-On **bug fixes** create a **patch note in the pull request message** so we know which bugs has been patched.
+On **bug fixes**, create a **patch note in the pull request message** so we know which bugs have been patched.
 
 > [!Note]
 > Use type hints
@@ -66,11 +66,11 @@ def next():
 
 **There are several ways to write todo's in this codebase, these are as follows:**
 
-| Syntax             | Description                                             |
-| :----------------- | :------------------------------------------------------ |
-| `FIXME: <message>` | Used when there is a issue in the typing or in the code |
-| `HACK: <message>`  | Used when you have created a hotfix for a bug           |
-| `TODO: <message>`  | Used for any todo that does not fit in any of the above |
+| Syntax             | Description                                                                         |
+| :----------------- | :---------------------------------------------------------------------------------- |
+| `FIXME: <message>` | Used when there is a issue in the typing or in the code                             |
+| `HACK: <message>`  | Used when you have created a hotfix for a bug, and needs to be implemented properly |
+| `TODO: <message>`  | Used for any todo that does not fit in any of the above                             |
 
 ## Where is the Todo list and Roadmap?
 
@@ -88,7 +88,7 @@ The roadmap can be found in the top level readme file of the project, this inclu
 
 ## Dependencies
 
-All dependencies has to be **added into [requirements.txt](requirements.txt)** on the top level.
+All dependencies have to be **added into [requirements.txt](requirements.txt)** on the top level.
 
 If you are **creating a virtual environment (.venv)** 
 put it in any of the folders currently in [.gitignore](.gitignore) found **under the Environments comment**.
