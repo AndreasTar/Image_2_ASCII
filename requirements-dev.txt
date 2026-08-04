@@ -1,0 +1,10 @@
+# Development only. The tool itself needs nothing beyond requirements.txt, which is what
+# keeps it runnable on a machine with only Python installed.
+-r requirements.txt
+
+pytest == 8.3.3
+pyinstaller == 6.11.1
+
+# Optional at runtime, required here so the video code path can actually be tested.
+# Users who never touch video never need this; animated GIF, WebP and APNG do not use it.
+av == 18.0.0
