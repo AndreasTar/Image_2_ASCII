@@ -10,7 +10,7 @@
 """
 Regenerates the examples gallery.
 
-    py -3.12 examples/generate.py
+    python examples/generate.py
 
 Every picture in examples/README.md comes from running the tool through this script, so
 the gallery cannot drift away from what the tool actually does. Point it at a different
@@ -220,7 +220,7 @@ def writeGallery(examples: list[Example], results: dict, sourceName: str, animat
         'command line tool. Rebuild them all with:',
         '',
         '```bash',
-        'py -3.12 examples/generate.py',
+        'python examples/generate.py',
         '```',
         '',
         'The source photograph is [source/cat.jpg](source/cat.jpg). Most runs use a crop of it,',

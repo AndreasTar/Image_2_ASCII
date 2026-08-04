@@ -11,6 +11,10 @@
 
 ## How to run
 
+**Python 3.10 or newer.** The full test suite passes on 3.14, 3.12 and 3.10. Dependencies
+are given as minimum versions rather than exact pins, so pip picks whichever release suits
+the interpreter you have.
+
 You will need the packages mentioned in [requirements.txt](requirements.txt) in order to run this app. **If you already have the required packages, you can skip this section.** Otherwise, you can install them by running the following shell command
 ```sh
 $ pip install -r requirements.txt
@@ -237,7 +241,7 @@ and output format, each with the exact command that produced it. Everything in i
 running the real tool, so it cannot drift out of date:
 
 ```sh
-py -3.12 examples/generate.py
+python examples/generate.py
 ```
 
 | | | |

@@ -4,7 +4,7 @@ Every image on this page is produced by [generate.py](generate.py), which runs t
 command line tool. Rebuild them all with:
 
 ```bash
-py -3.12 examples/generate.py
+python examples/generate.py
 ```
 
 The source photograph is [source/cat.jpg](source/cat.jpg). Most runs use a crop of it,
