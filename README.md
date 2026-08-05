@@ -298,7 +298,7 @@ the identical code.
 
 ## Examples
 
-The [examples gallery](examples/README.md) shows 22 runs covering every character set, effect
+The [examples gallery](examples/README.md) shows 24 runs covering every character set, effect
 and output format, each with the exact command that produced it. Everything in it comes from
 running the real tool, so it cannot drift out of date:
 

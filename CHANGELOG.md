@@ -24,6 +24,14 @@ The first release with downloadable builds of both versions.
   inside both downloads. The windowed one also carries the full LGPL-3.0 and GPL-3.0 texts
   beside the executable, which distributing Qt in a binary requires and which the PySide6
   wheels do not themselves provide.
+- **A Windows version resource on both executables**, so Explorer's Properties tab names
+  them, their author and their version instead of reporting 0.0.0.0 with no author at all.
+  Generated from `tools.APP_VERSION` at build time, so what Explorer shows and what
+  `--version` prints cannot disagree. It does not quieten SmartScreen — only a signing
+  certificate does that — but it does let a downloaded file say what it is.
+- **Two gallery examples for the band threshold**, one showing what it does to characters
+  next to the `-th` example it is easily confused with, and one showing the transparency it
+  punches through pixel art. The gallery is now 24 runs.
 - **A note in the README about the SmartScreen warning.** Both executables are unsigned, so
   Windows reports them as unrecognised and some antivirus products quarantine them outright.
   That is a known false positive affecting PyInstaller programs generally rather than

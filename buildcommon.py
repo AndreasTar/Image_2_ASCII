@@ -115,6 +115,66 @@ UNUSED_QT_LIBRARIES = [
 ]
 
 
+# What Explorer shows under Properties, and what an antivirus vendor or a curious user looks
+# at first to decide whether a downloaded executable is what it claims to be. Without one
+# both files report themselves as version 0.0.0.0 with no name and no author, which is not
+# in itself suspicious but does nothing to help.
+#
+# This does not make SmartScreen quiet. Only a signing certificate does that.
+PRODUCT_NAME = 'Image2Ascii'
+COMPANY_NAME = 'Andreas Tarasidis'
+COPYRIGHT = 'Copyright (c) 2024 Andreas Tarasidis. BSD 3-Clause licence.'
+
+
+def versionResource(description: str, filename: str):
+    """
+    The Windows version resource for one of the two executables.
+
+    Built from `tools.APP_VERSION` rather than written down again, so that the number
+    Explorer reports and the number `--version` prints cannot disagree. Imported inside the
+    function because the spec file only puts the repository on the path just before calling
+    this, and `tools` pulls in nothing heavier than the standard library.
+    """
+    from PyInstaller.utils.win32.versioninfo import (
+        FixedFileInfo, StringFileInfo, StringStruct, StringTable,
+        VarFileInfo, VarStruct, VSVersionInfo,
+    )
+
+    from src.tools import APP_VERSION
+
+    # The resource wants exactly four numbers; the project uses three.
+    numbers = tuple(int(part) for part in APP_VERSION.split('.'))
+    numbers = (numbers + (0, 0, 0, 0))[:4]
+
+    return VSVersionInfo(
+        ffi = FixedFileInfo(
+            filevers = numbers,
+            prodvers = numbers,
+            mask = 0x3F,
+            flags = 0x0,
+            OS = 0x40004,       # Windows NT, 32 bit Windows subsystem
+            fileType = 0x1,     # an application
+            subtype = 0x0,
+            date = (0, 0),
+        ),
+        kids = [
+            # 0409 is US English and 04B0 is Unicode. The two have to agree with the
+            # Translation entry below or Explorer shows nothing at all.
+            StringFileInfo([StringTable('040904B0', [
+                StringStruct('CompanyName', COMPANY_NAME),
+                StringStruct('FileDescription', description),
+                StringStruct('FileVersion', APP_VERSION),
+                StringStruct('InternalName', filename),
+                StringStruct('LegalCopyright', COPYRIGHT),
+                StringStruct('OriginalFilename', filename),
+                StringStruct('ProductName', PRODUCT_NAME),
+                StringStruct('ProductVersion', APP_VERSION),
+            ])]),
+            VarFileInfo([VarStruct('Translation', [0x0409, 1200])]),
+        ],
+    )
+
+
 def keepBinary(entry) -> bool:
     """
     Whether one collected binary belongs in the windowed build.

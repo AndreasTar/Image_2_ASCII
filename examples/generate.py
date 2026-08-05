@@ -116,6 +116,18 @@ def buildExamples() -> list[Example]:
         Example('threshold', 'Threshold (`-th 120`)',
                 'Two tones, split at the given brightness. Good for a stencil or sticker look.',
                 ['-a', '-wc', '110', '-th', '120'], section = 'Effects'),
+        Example('band', 'Band threshold (`-tb 90 170`)',
+                'Keeps only the middle brightnesses and erases the rest. Unlike `-th` above it does '
+                'not restyle what it keeps: every character that survives is the one the unbanded '
+                'run would have put there, which is why the cat keeps its shading while the dark fur '
+                'and the bright paving simply go.',
+                ['-a', '-wc', '110', '-tb', '90', '170'], section = 'Effects'),
+        Example('band-pixelated', 'Band threshold in pixel art (`-pix -tb 60 150`)',
+                'With no characters to blank, the erased cells become properly transparent instead. '
+                'Saved as PNG so the alpha survives; this page background is showing through the '
+                'holes. Saving the same run as JPEG composites them onto black, since JPEG has no '
+                'alpha channel.',
+                ['-a', '-wc', '90', '-pix', '-c', '-tb', '60', '150'], section = 'Effects'),
         Example('edges', 'Edge detection (`-e`)',
                 'Sobel edges drawn with directional characters, over the usual ramp. The strongest '
                 'tenth of the image becomes edges by default.',

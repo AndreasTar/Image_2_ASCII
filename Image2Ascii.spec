@@ -25,7 +25,7 @@ import sys
 
 sys.path.insert(0, SPECPATH)
 
-from buildcommon import CLI_EXCLUDES
+from buildcommon import CLI_EXCLUDES, versionResource
 
 
 analysis = Analysis(
@@ -59,6 +59,7 @@ exe = EXE(
     upx = True,
     upx_exclude = [],
     runtime_tmpdir = None,
+    version = versionResource('Image2Ascii, command line', 'Image2Ascii.exe'),
     console = True,
     disable_windowed_traceback = False,
     argv_emulation = False,

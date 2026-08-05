@@ -40,7 +40,7 @@ import sys
 
 sys.path.insert(0, SPECPATH)
 
-from buildcommon import GUI_EXCLUDES, keepBinary
+from buildcommon import GUI_EXCLUDES, keepBinary, versionResource
 
 
 # Qt is LGPL, which obliges a binary distribution to carry the licence text and to say what
@@ -98,6 +98,7 @@ exe = EXE(
     strip = False,
     upx = True,
     upx_exclude = [],
+    version = versionResource('Image2Ascii, windowed', 'Image2Ascii-GUI.exe'),
     # No terminal window. The interface is the interface.
     console = False,
     # Left on, so that a crash still surfaces a dialog. With no console to print to, the
