@@ -21,6 +21,7 @@ rather than two that have to be kept in step.
 import sys
 import time
 
+import numpy as np
 import svg
 from time import perf_counter
 from typing import Any
@@ -156,9 +157,24 @@ def pRunAscii(image: Image.Image, config) -> Conversion:
         chars, foreground, background = backend.toHalfBlockColors(
             image, config.widthCount, config.heightCount, config.backend
         )
+
+        if config.band is not None:
+            # Blanking the character is not enough here. Every cell also carries a
+            # background colour, which fills it whatever character sits on top, so an
+            # erased cell has to have both of its colours taken away as well.
+            values = backend.toValueGrid(image.convert('L'), config.widthCount,
+                                         config.heightCount, config.backend)
+            keep = backend.bandMask(values, *config.band)
+
+            chars = np.where(keep, chars, charSet.blank)
+            empty = np.array(converters.BACKGROUND_DARK, dtype = background.dtype)
+            foreground = np.where(keep[..., None], foreground, empty)
+            background = np.where(keep[..., None], background, empty)
+
         return Conversion(chars, foreground, background)
 
     grayscale = image.convert('L')
+    values = None
 
     if charSet is not None and charSet.isSubCell:
         chars = backend.toSubCellGrid(
@@ -176,6 +192,18 @@ def pRunAscii(image: Image.Image, config) -> Conversion:
             )
             chars = backend.applyEdges(chars, magnitude, angle, config.edgeSensitivity)
 
+    if config.band is not None:
+        # A sub-cell set works at several dots per cell and never builds a cell-sized value
+        # grid of its own, so one is measured here. The band is about whole cells either
+        # way: erasing individual dots would thin the picture out rather than cut holes in
+        # it, which is not what taking a range of brightnesses away means.
+        if values is None:
+            values = backend.toValueGrid(grayscale, config.widthCount, config.heightCount, config.backend)
+
+        low, high = config.band
+        blank = charSet.blank if charSet is not None else ' '
+        chars = backend.applyBand(chars, values, low, high, blank)
+
     colors = None
     if config.colored:
         colors = backend.toColorGrid(image, config.widthCount, config.heightCount, config.backend)
@@ -190,8 +218,21 @@ def pRunPixelated(image: Image.Image, config) -> Image.Image:
     they are going to be used.
     """
     source = image.convert('RGB' if config.colored else 'L')
+    blocks = backend.convert2Pixel(source, image.size, config.widthCount, config.heightCount)
 
-    return backend.convert2Pixel(source, image.size, config.widthCount, config.heightCount)
+    if config.band is None:
+        return blocks
+
+    values = backend.toValueGrid(image.convert('L'), config.widthCount,
+                                 config.heightCount, config.backend)
+    punched = backend.punchOutBand(blocks, values, *config.band)
+
+    # JPEG has no alpha channel and video frames have nowhere to put one either, so for
+    # those the holes are composited onto black rather than silently failing to save.
+    if config.outputType in (tools.ValidTypes.JPG, tools.ValidTypes.MP4):
+        return backend.flattenAlpha(punched)
+
+    return punched
 
 
 # ================= Delivery ================

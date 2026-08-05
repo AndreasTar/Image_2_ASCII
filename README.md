@@ -64,6 +64,9 @@ python converter_gui.py
 Every flag in the table below has a control. `--print` has no equivalent because the window does
 the same job better and replaced by the result pane.
 
+The log along the bottom prints the equivalent command line every time it converts, so the
+window is never a black box: whatever it just did can be read, copied and run as-is.
+
 PySide6 is used under the LGPL. It is a dependency of the windowed version only, and is not
 part of this project's own BSD licensed source.
 
@@ -105,6 +108,7 @@ including all the character sets side by side.
 | `-e`   | `--edges`          | Detect edges and draw them with directional characters ( \| / - \\ ).                    | Bool                      |
 | `-et`  | `--edgethreshold`  | How much of the image becomes edges, as a percentile. Lower finds more.                  | 0-100                     |
 | `-th`  | `--threshold`      | Collapse the image to two tones at this brightness cutoff.                               | 0-255                     |
+| `-tb`  | `--thresholdband`  | Keep only the brightnesses between two values, erasing everything outside them.          | 0-255 0-255               |
 | `-ca`  | `--charaspect`     | Character cell width divided by height, so output is not stretched.                      | Float                     |
 | `-g`   | `--gpu`            | Run the maths on the GPU. Optional, see [GPU support](#gpu-support).                     | [auto, cupy, torch]       |
 | `-wi`  | `--width`          | Custom tile Width in pixels.                                                             | Integer                   |

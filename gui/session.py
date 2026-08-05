@@ -125,6 +125,7 @@ def buildConfig(settings: dict, inputPath: pl.Path, outputPath: pl.Path, *,
         charList        =   charList,
         invert          =   settings['invert'],
         threshold       =   settings['threshold'],
+        band            =   settings['band'],
         dither          =   settings['dither'],
         edges           =   settings['edges'],
         edgeSensitivity =   settings['edgeSensitivity'],
@@ -157,6 +158,113 @@ def pResolveCharacters(settings: dict) -> tuple[tools.CharSet, str]:
         return configModule.resolveCharSet(customRamp = settings['customRamp'])
 
     return configModule.resolveCharSet(rampSize = settings['rampSize'])
+
+
+def pQuote(value) -> str:
+    """
+    --- Private method! ---\n
+    One argument, safe to paste into a shell.
+
+    Double quotes rather than the POSIX single quotes `shlex` would use, because the command
+    being shown is one to run on the machine the window is running on, and on Windows single
+    quotes are not quoting at all.
+    """
+    text = str(value)
+
+    if text and not any(character in text for character in ' \t"\'&|<>^()'):
+        return text
+
+    return '"' + text.replace('"', r'\"') + '"'
+
+
+def commandLine(settings: dict, inputPath: pl.Path, outputPath: pl.Path | None = None, *,
+                preview: bool = False) -> str:
+    """
+    The same conversion written out as a command line.
+
+    Shown in the log so that the window is never a black box: whatever it just did can be
+    read, copied, scripted or pasted into a bug report. Only settings that are actually
+    doing something appear, so the command stays the short one a person would have typed.
+
+    Neither `-a` nor `-ca` is ever emitted. Both exist on the command line to work out tile
+    counts that were not given, and the window always knows both counts, so it passes them
+    outright — the aspect ratio is already baked into the numbers.
+    """
+    parts = ['python', 'converter.py', pQuote(inputPath)]
+
+    widthFlag = '-wi' if settings['widthMode'] == 'pixels' else '-wc'
+    heightFlag = '-hi' if settings['heightMode'] == 'pixels' else '-hc'
+    parts += [widthFlag, str(settings['widthValue']), heightFlag, str(settings['heightValue'])]
+
+    mode = settings['charMode']
+    if mode == 'pixelart':
+        parts.append('-pix')
+    elif mode == 'charset':
+        parts += ['-cs', settings['charsetName']]
+    elif mode == 'customRamp':
+        parts += ['-gs', pQuote(settings['customRamp'])]
+    elif settings['rampSize'] != 70:
+        parts += ['-gsc', str(settings['rampSize'])]
+
+    for flag, wanted in (('-c', settings['colored']), ('-i', settings['invert']),
+                         ('-d', settings['dither']), ('--alpha', settings['alpha']),
+                         ('-e', settings['edges'])):
+        if wanted:
+            parts.append(flag)
+
+    if settings['edges'] and settings['edgeSensitivity'] != 90:
+        parts += ['-et', str(settings['edgeSensitivity'])]
+
+    if settings['threshold'] is not None:
+        parts += ['-th', str(settings['threshold'])]
+
+    if settings['band'] is not None:
+        low, high = settings['band']
+        parts += ['-tb', str(low), str(high)]
+
+    if settings['gpu']:
+        parts += ['-g', settings['gpu']]
+
+    # A preview is one frame of whatever it was given, so that is what the command says.
+    if preview:
+        parts += ['--maxframes', str(PREVIEW_FRAMES)]
+    elif settings['maxFrames'] is not None:
+        parts += ['--maxframes', str(settings['maxFrames'])]
+
+    if settings['frameStep'] != 1:
+        parts += ['--framestep', str(settings['frameStep'])]
+    if settings['fps'] is not None:
+        parts += ['--fps', str(settings['fps'])]
+    if settings['writeFrames'] and not preview:
+        parts.append('--frames')
+
+    parts += ['-ot', settings['outputType']]
+
+    if outputPath is not None and not preview:
+        parts += ['-op', pQuote(outputPath)]
+
+    return ' '.join(parts)
+
+
+def commandNotes(settings: dict, preview: bool = False) -> list[str]:
+    """
+    Anything about the command above that the flags cannot say on their own.
+
+    There is one: colour into a text format is a question the command line asks while it
+    runs, and the window has already answered it. Without this the command looks as though
+    it would reproduce the result silently, and then it stops and waits for input.
+    """
+    notes = []
+
+    if settings['colored'] and settings['outputType'] in ('txt', 'xml'):
+        answer = 'c' if settings['embedColor'] else 't'
+        notes.append(f"     ...and answers '{answer}' when it asks about colour in "
+                     f"{settings['outputType'].upper()}.")
+
+    if preview:
+        notes.append("     (preview: nothing is written until you use Convert & Save)")
+
+    return notes
 
 
 def renderForDisplay(result, config, asPicture: bool) -> tuple[str, object]:

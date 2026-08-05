@@ -295,12 +295,25 @@ class SettingsPanel(QScrollArea):
         self.pUseThreshold.setToolTip("Collapse the image to two tones at a brightness cutoff (-th).")
         self.pThreshold = SliderSpin(0, 255, 128)
 
+        self.pUseBand = QCheckBox("Keep only a brightness range")
+        self.pUseBand.setToolTip(
+            "Erase everything outside the range and leave what is inside exactly as it would "
+            "have been (-tb). Unlike the two-tone threshold, this does not restyle what it keeps."
+        )
+        self.pBandLow = SliderSpin(0, 255, 60)
+        self.pBandHigh = SliderSpin(0, 255, 200)
+
         section.addRow(None, self.pColored)
+        self.pColourHint = section.addHint("")
         section.addRow(None, self.pInvert)
         section.addRow(None, self.pDither)
         section.addRow(None, self.pAlpha)
         section.addRow(None, self.pUseThreshold)
         section.addRow(None, self.pThreshold)
+        section.addRow(None, self.pUseBand)
+        section.addRow("Keep from", self.pBandLow)
+        section.addRow("up to", self.pBandHigh)
+        self.pBandHint = section.addHint("")
 
         self.pLayout.addWidget(section)
 
@@ -400,9 +413,12 @@ class SettingsPanel(QScrollArea):
             widget.currentIndexChanged.connect(self.pTouched)
 
         for widget in (self.pColored, self.pInvert, self.pDither, self.pAlpha, self.pEdges,
-                       self.pUseThreshold, self.pLinkAspect, self.pUseMaxFrames, self.pUseFps,
-                       self.pWriteFrames, self.pEmbedColor):
+                       self.pUseThreshold, self.pUseBand, self.pLinkAspect, self.pUseMaxFrames,
+                       self.pUseFps, self.pWriteFrames, self.pEmbedColor):
             widget.toggled.connect(self.pTouched)
+
+        self.pBandLow.valueChanged.connect(self.pBandEdited)
+        self.pBandHigh.valueChanged.connect(self.pBandEdited)
 
         for widget in (self.pMaxFrames, self.pFrameStep):
             widget.valueChanged.connect(self.pTouched)
@@ -427,6 +443,27 @@ class SettingsPanel(QScrollArea):
 
         self.pSyncEnabled()
         self.changed.emit()
+
+    def pBandEdited(self, value: int) -> None:
+        """
+        Keeps the two ends of the band from crossing over.
+
+        Dragging the low end past the high one is a slip, not a request for an empty
+        picture, so the other end is pushed along rather than the pair being left inverted.
+        """
+        if self.pUpdating:
+            return
+
+        self.pUpdating = True
+        try:
+            if self.sender() is self.pBandLow and self.pBandHigh.value() < value:
+                self.pBandHigh.setValue(value)
+            elif self.sender() is self.pBandHigh and self.pBandLow.value() > value:
+                self.pBandLow.setValue(value)
+        finally:
+            self.pUpdating = False
+
+        self.pTouched()
 
     def pWidthEdited(self, value: int) -> None:
         if self.pUpdating:
@@ -491,10 +528,35 @@ class SettingsPanel(QScrollArea):
         self.pEdges.setEnabled(forCharacters)
         self.pEdgeSensitivity.setEnabled(forCharacters and self.pEdges.isChecked())
 
+        # The band works on whole cells, so unlike the rest of this section it applies to
+        # pixel art too, where it punches transparent holes instead of blanking characters.
+        banding = self.pUseBand.isChecked()
+        self.pBandLow.setEnabled(banding)
+        self.pBandHigh.setEnabled(banding)
+        self.pBandHint.setText(
+            ("Outside this range: transparent blocks." if not forCharacters
+             else "Outside this range: blank characters. Inside is untouched.")
+            if banding else ""
+        )
+
         selected = tools.CHARSETS.get(self.pCharSet.currentData()) if mode == 'charset' else None
         self.pDither.setEnabled(forCharacters and selected is not None and selected.isSubCell)
 
-        self.pEmbedColor.setEnabled(self.pColored.isChecked() and outputType in ('txt', 'xml'))
+        carriesColorInline = outputType in ('txt', 'xml')
+        self.pEmbedColor.setEnabled(self.pColored.isChecked() and carriesColorInline)
+
+        # Colour with a text format is the one setting that can look like it does nothing:
+        # TXT and XML only carry it if it is written into them, and otherwise the file is
+        # identical with the box ticked or not. Say so, rather than letting it be a mystery.
+        if self.pColored.isChecked() and carriesColorInline and not self.pEmbedColor.isChecked():
+            self.pColourHint.setText(
+                f"{outputType.upper()} keeps characters only until "
+                f"'Write colour into the text' is on."
+            )
+        elif self.pColored.isChecked() and outputType == 'svg':
+            self.pColourHint.setText("SVG always carries colour.")
+        else:
+            self.pColourHint.setText("")
 
         for widget in (self.pUseMaxFrames, self.pMaxFrames, self.pFrameStep,
                        self.pUseFps, self.pFps, self.pWriteFrames):
@@ -546,7 +608,19 @@ class SettingsPanel(QScrollArea):
         return 'rampSize'
 
     def settings(self) -> dict:
-        """Everything the panel is currently asking for, as plain values."""
+        """
+        Everything the panel is currently asking for, as plain values.
+
+        A greyed out control reads as off, whatever its box happens to remember. Otherwise
+        a setting the panel has already decided is meaningless — edge detection with pixel
+        art, say — still reaches the config, and shows up in the command line the log
+        prints as a flag that plainly is not doing anything.
+        """
+        def on(widget) -> bool:
+            return widget.isChecked() and widget.isEnabled()
+
+        animated = self.pIsAnimated
+
         return {
             'widthMode':        self.pWidthMode.currentData(),
             'widthValue':       self.pWidth.value(),
@@ -558,18 +632,20 @@ class SettingsPanel(QScrollArea):
             'charsetName':      self.pCharSet.currentData(),
             'customRamp':       self.pCustomRamp.text(),
             'colored':          self.pColored.isChecked(),
-            'invert':           self.pInvert.isChecked(),
-            'dither':           self.pDither.isChecked() and self.pDither.isEnabled(),
+            'invert':           on(self.pInvert),
+            'dither':           on(self.pDither),
             'alpha':            self.pAlpha.isChecked(),
-            'threshold':        self.pThreshold.value() if self.pUseThreshold.isChecked() else None,
-            'edges':            self.pEdges.isChecked(),
+            'threshold':        self.pThreshold.value() if on(self.pUseThreshold) else None,
+            'band':             ((self.pBandLow.value(), self.pBandHigh.value())
+                                 if on(self.pUseBand) else None),
+            'edges':            on(self.pEdges),
             'edgeSensitivity':  self.pEdgeSensitivity.value(),
-            'maxFrames':        self.pMaxFrames.value() if self.pUseMaxFrames.isChecked() else None,
-            'frameStep':        self.pFrameStep.value(),
-            'fps':              self.pFps.value() if self.pUseFps.isChecked() else None,
-            'writeFrames':      self.pWriteFrames.isChecked(),
+            'maxFrames':        self.pMaxFrames.value() if animated and on(self.pUseMaxFrames) else None,
+            'frameStep':        self.pFrameStep.value() if animated else 1,
+            'fps':              self.pFps.value() if animated and on(self.pUseFps) else None,
+            'writeFrames':      animated and on(self.pWriteFrames),
             'outputType':       self.pOutputType.currentData(),
-            'embedColor':       self.pEmbedColor.isChecked(),
+            'embedColor':       on(self.pEmbedColor),
             'gpu':              self.pGpu.currentData(),
         }
 

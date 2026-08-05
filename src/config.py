@@ -52,6 +52,11 @@ class Config:
     charList: str = tools.GRAYSCALES[70]
     invert: bool = False
     threshold: int | None = None
+    # A brightness band to keep, as (low, high). Everything outside it is erased: a blank
+    # character, or a transparent block in pixel art. Everything inside is left exactly as
+    # it would have been with no band at all, which is what separates this from `threshold`
+    # above — that one rewrites every value, this one only decides what survives.
+    band: tuple[int, int] | None = None
     dither: bool = False
     edges: bool = False
     edgeSensitivity: float = DEFAULT_EDGE_SENSITIVITY

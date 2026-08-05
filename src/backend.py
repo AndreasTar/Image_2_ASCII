@@ -257,6 +257,51 @@ def pInkMask(darkness: np.ndarray, threshold: float | None, dither: bool,
     return darkness >= cutoff
 
 
+def bandMask(values: np.ndarray, low: float, high: float) -> np.ndarray:
+    """
+    Which cells fall inside a brightness band, and so survive it.
+
+    True is 'keep'. Both ends are inclusive, and a band given the wrong way round is read
+    as the range between the two numbers rather than as an empty one, because a pair of
+    sliders that have been dragged past each other is a slip rather than a request for a
+    blank picture.
+    """
+    low, high = (low, high) if low <= high else (high, low)
+    levels = np.clip(values, 0, 255)
+
+    return (levels >= low) & (levels <= high)
+
+
+def applyBand(chars: np.ndarray, values: np.ndarray, low: float, high: float,
+              blank: str = ' ') -> np.ndarray:
+    """
+    Erases every cell whose brightness lies outside the band, leaving the rest untouched.
+
+    Deliberately applied *after* the characters have been chosen, so that what is kept looks
+    exactly as it would have with no band set at all. That is the whole point of it: unlike
+    the two-tone threshold, which rewrites every value it is given, this one only decides
+    what is there and what is not.
+    """
+    return np.where(bandMask(values, low, high), chars, blank)
+
+
+def punchOutBand(image: Image.Image, values: np.ndarray, low: float, high: float) -> Image.Image:
+    """
+    The same erasure for pixel art, where there are no characters to blank.
+
+    Cells outside the band become fully transparent. The mask is built at grid resolution
+    and blown up with nearest-neighbour sampling, exactly as `convert2Pixel` does with the
+    picture itself, so the holes line up with the blocks rather than straddling them.
+    """
+    keep = bandMask(values, low, high).astype(np.uint8) * 255
+    mask = Image.fromarray(keep, 'L').resize(image.size, Image.Resampling.NEAREST)
+
+    punched = image.convert('RGBA')
+    punched.putalpha(mask)
+
+    return punched
+
+
 def gridToRows(chars: np.ndarray) -> list[str]:
     """Joins a 2D character grid into one string per row, which is what the writers expect."""
     return [''.join(row) for row in chars]

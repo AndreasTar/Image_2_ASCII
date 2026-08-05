@@ -52,7 +52,7 @@ def setupParser() -> None:
                        [-wi INTEGER | -wc INTEGER] \n\
                        [-hi INTEGER | -hc INTEGER] \n\
                        [-gsc {10,70} (def: 70) | -gs STRING | -cs CHARSET] \n\
-                       [-th 0-255] [-et 0-100 (def: 90)] [-ca FLOAT (def: 0.5)] \n\
+                       [-th 0-255] [-tb 0-255 0-255] [-et 0-100 (def: 90)] [-ca FLOAT (def: 0.5)] \n\
                        [-g [auto|cupy|torch]] \n\
                        [--maxframes INTEGER] [--framestep INTEGER] [--fps FLOAT] \n\
                        [-op PATH] [-ot {txt, svg, png, jpg, xml, gif, mp4} (def: txt)] \n\
@@ -116,6 +116,18 @@ def pSetupArguments() -> None:
             required    =   False,
             type        =   pIntInRange(0, 255),
             help        =   'Collapse the image to two tones at this brightness cutoff (0-255).',
+            metavar     =   'INTEGER'
+    )
+    parser.add_argument(    # band threshold
+            '-tb', '--thresholdband',
+            dest        =   'inputBand',
+            required    =   False,
+            nargs       =   2,
+            type        =   pIntInRange(0, 255),
+            help        =   'Keep only the brightnesses between these two values (0-255), erasing '
+                            'everything outside them. What is kept looks exactly as it would '
+                            'without this flag, unlike -th which rewrites every value. Erased '
+                            'cells become blank characters, or transparent blocks with -pix.',
             metavar     =   'INTEGER'
     )
     parser.add_argument(    # edge detection
@@ -388,6 +400,7 @@ def buildConfig(args: ap.Namespace, shouldSave: bool = True) -> Config:
         charList        =   charList,
         invert          =   args.inputInvert,
         threshold       =   args.inputThreshold,
+        band            =   tuple(sorted(args.inputBand)) if args.inputBand else None,
         dither          =   args.inputDither,
         edges           =   args.inputEdges,
         edgeSensitivity =   args.inputEdgeSensitivity,

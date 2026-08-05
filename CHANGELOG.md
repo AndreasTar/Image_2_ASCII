@@ -3,6 +3,40 @@
 All notable changes to this project are documented here.
 This project follows [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- **`-tb` / `--thresholdband`, a two-ended threshold.** Give it a low and a high brightness
+  and everything outside that range is erased entirely — a blank character, or a transparent
+  block with `-pix` — while everything inside is left exactly as it would have been with no
+  threshold at all. That is what separates it from `-th`, which rewrites every value it is
+  given. Sub-cell sets are blanked with their own empty character rather than a space, since
+  a space in a braille run is a hole of the wrong width, and banded pixel art saved as JPEG
+  is composited onto black because JPEG has no alpha channel.
+- **The window logs the command line it just ran**, for previews as well as saves, so what
+  it did can be read, copied and run from a terminal as-is. Settings the panel has greyed out
+  never reach the command, and the one thing no flag can express — the answer to the colour
+  question `-c` asks of a text format — is spelled out underneath.
+
+### Fixed
+
+- **The two preview panes only stayed in step for pixel art.** They shared a view transform,
+  which needs both pictures to be the same size, and pixel art was the only output for which
+  that was true. They now share the visible *region* as a proportion of each picture, so a
+  60 character conversion tracks the 2000 pixel photograph it came from.
+- **Fit left the result undersized** whenever it was not the same shape as the source, for
+  the same reason. Each pane is now fitted to its own contents.
+- **The text preview overflowed its pane.** Its font is now sized so the whole grid fits,
+  found by measuring at each candidate size rather than by scaling from one reference, since
+  a font hints its glyphs onto whole pixels and at small sizes the rounding is enough to push
+  the text back over the edge.
+- **Zoom had no usable limits.** Both ends are now measured against the scale at which the
+  picture fits its pane, which is the only thing that means anything across two views showing
+  pictures of very different sizes.
+- **Colour appeared to do nothing** with a text format, because TXT and XML only carry it
+  when it is written into them. The panel now says so instead of leaving it a mystery.
+
 ## [2.0.0]
 
 The major version is for what the project *is* rather than for anything that broke: this is

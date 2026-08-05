@@ -148,6 +148,21 @@ class CharSet:
 
         return chr(self.baseCodePoint + packedBits)
 
+    @property
+    def blank(self) -> str:
+        """
+        The character for a cell that has been removed entirely, as the band threshold does.
+
+        A plain space would do for a ramp set, but not for a sub-cell one: braille cells are
+        drawn from U+2800 upwards, and mixing an ordinary space into that run leaves a gap of
+        a different width wherever a cell was dropped. Every sub-cell set has a character
+        with no dots lit, which is the right kind of nothing.
+        """
+        if self.isSubCell:
+            return self.characterFor(0)
+
+        return ' '
+
 
 # Braille dot numbering is not in reading order: dots 1-6 fill the top three rows in
 # columns, and dots 7-8 were added underneath later, which is why the last row's weights

@@ -38,6 +38,10 @@ class ConversionWorker(QThread):
 
     progressed = Signal(int, int)       # framesDone, framesTotal
     logged = Signal(str)
+    # The equivalent command line, emitted before the work starts. Kept separate from
+    # `logged` so the window can show it for every conversion including previews, without
+    # also taking the engine's running commentary on each one.
+    commanded = Signal(str)
     # Not called `finished`. QThread already has a signal by that name, which Qt emits when
     # the thread itself ends and which the window relies on to clean the worker up.
     succeeded = Signal(object, object)  # result, config
@@ -65,6 +69,12 @@ class ConversionWorker(QThread):
         self.pCancelled = True
 
     def run(self) -> None:
+        if not self.pCancelled:
+            lines = [session.commandLine(self.pSettings, self.pInputPath, self.pOutputPath,
+                                         preview = self.pPreview)]
+            lines += session.commandNotes(self.pSettings, self.pPreview)
+            self.commanded.emit('\n'.join(lines))
+
         try:
             config = session.buildConfig(
                 self.pSettings,

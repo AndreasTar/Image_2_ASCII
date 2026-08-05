@@ -215,3 +215,67 @@ def testGpuFlagProducesTheSameFileAsCpu(samplePath, tmp_path, monkeypatch):
 
     mismatched = int((onCpu.chars != onGpu.chars).sum())
     assert mismatched / onCpu.chars.size < 0.0005
+
+
+# ================= Band threshold ================
+
+def testBandOnlyRemovesAndNeverRestyles(samplePath, tmp_path, monkeypatch):
+    """
+    Run the same conversion with and without a band, and every character that survives the
+    band must be the one the unbanded run produced in that cell.
+    """
+    monkeypatch.chdir(tmp_path)
+
+    _, plain = run(samplePath, tmp_path, '-op', str(tmp_path / 'plain'))
+    _, banded = run(samplePath, tmp_path, '-tb', '90', '170', '-op', str(tmp_path / 'banded'))
+
+    kept = banded.chars != ' '
+
+    assert kept.any() and not kept.all()
+    assert (banded.chars[kept] == plain.chars[kept]).all()
+
+
+def testBandAcceptsItsValuesEitherWayRound(samplePath, tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+
+    _, forwards = run(samplePath, tmp_path, '-tb', '90', '170', '-op', str(tmp_path / 'a'))
+    _, backwards = run(samplePath, tmp_path, '-tb', '170', '90', '-op', str(tmp_path / 'b'))
+
+    assert (forwards.chars == backwards.chars).all()
+
+
+def testBandedPixelArtKeepsItsTransparencyForPng(samplePath, tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+
+    config, result = run(samplePath, tmp_path, '-pix', '-tb', '90', '170',
+                         '-ot', 'png', '-op', str(tmp_path / 'holes'))
+
+    assert result.mode == 'RGBA'
+
+    with Image.open(config.outputPath) as written:
+        written.load()
+        assert written.mode == 'RGBA'
+        assert (np.asarray(written)[..., 3] == 0).any()
+
+
+def testBandedPixelArtIsFlattenedForJpg(samplePath, tmp_path, monkeypatch):
+    """JPEG has no alpha channel, so the holes have to become black rather than fail."""
+    monkeypatch.chdir(tmp_path)
+
+    config, result = run(samplePath, tmp_path, '-pix', '-tb', '90', '170',
+                         '-ot', 'jpg', '-op', str(tmp_path / 'flat'))
+
+    assert result.mode == 'RGB'
+    assert config.outputPath.exists()
+
+
+def testBandWorksWithASubCellCharacterSet(samplePath, tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+
+    _, banded = run(samplePath, tmp_path, '-cs', 'braille', '-tb', '90', '170',
+                    '-op', str(tmp_path / 'braille'))
+
+    blank = tools.CHARSETS['braille'].blank
+
+    assert (banded.chars == blank).any(), "some cells should have been erased"
+    assert ' ' not in banded.chars, "a braille grid must not be holed with plain spaces"

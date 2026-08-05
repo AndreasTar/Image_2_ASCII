@@ -228,6 +228,7 @@ class MainWindow(QMainWindow):
             preview     =   True,
             parent      =   self,
         )
+        worker.commanded.connect(self.pShowCommand)
         worker.succeeded.connect(self.pPreviewReady)
         worker.failed.connect(self.pPreviewFailed)
         worker.finished.connect(lambda w = worker: self.pRetire(w))
@@ -290,6 +291,7 @@ class MainWindow(QMainWindow):
             preview     =   False,
             parent      =   self,
         )
+        worker.commanded.connect(self.pShowCommand)
         worker.progressed.connect(self.pProgressed)
         worker.logged.connect(self.pNote)
         worker.succeeded.connect(self.pSaveDone)
@@ -352,6 +354,19 @@ class MainWindow(QMainWindow):
 
     def pUpdateActions(self) -> None:
         self.pSaveButton.setEnabled(self.pInputPath is not None)
+
+    def pShowCommand(self, command: str) -> None:
+        """
+        Writes the command line for the conversion about to run.
+
+        Marked with a prompt so it reads as something to copy rather than as more of the
+        engine's chatter, and so the window is never a black box about what it is doing.
+        """
+        first, *rest = command.splitlines()
+
+        self.pLog.appendPlainText(f"$ {first}")
+        for line in rest:
+            self.pLog.appendPlainText(line)
 
     def pNote(self, message: str) -> None:
         for line in message.splitlines():

@@ -284,3 +284,76 @@ def testColorGridAcceptsPaletteAndGrayscaleInputs(sampleImage, cpu):
 
         assert grid.shape == (5, 8, 3)
         assert grid.dtype == np.uint8
+
+
+# ================= Band threshold ================
+
+def testBandKeepsBothEndsInclusive():
+    values = np.array([[0, 60, 128, 200, 255]], dtype = np.float32)
+
+    assert backend.bandMask(values, 60, 200).tolist() == [[False, True, True, True, False]]
+
+
+def testBandGivenBackwardsIsReadAsTheRangeBetween():
+    """Two sliders dragged past each other is a slip, not a request for a blank picture."""
+    values = np.array([[10, 100, 250]], dtype = np.float32)
+
+    assert backend.bandMask(values, 200, 50).tolist() == backend.bandMask(values, 50, 200).tolist()
+
+
+def testBandLeavesWhatItKeepsExactlyAsItWas(grayImage, cpu):
+    """
+    The whole promise of the feature: inside the band it is as if no band were set.
+
+    A two-tone threshold rewrites every value it is handed. This one only decides what
+    survives, so every surviving cell has to be character-for-character identical.
+    """
+    values = backend.toValueGrid(grayImage, 80, 40, cpu)
+    plain = backend.toCharGrid(values, RAMP)
+    banded = backend.applyBand(plain, values, 90, 170)
+
+    keep = backend.bandMask(values, 90, 170)
+
+    assert keep.any() and not keep.all(), "the band should have removed some cells but not all"
+    assert (banded[keep] == plain[keep]).all()
+    assert (banded[~keep] == ' ').all()
+
+
+def testBandBlanksWithTheCharacterSetsOwnEmptyGlyph():
+    """
+    A space in a braille run is a hole of the wrong width. Every sub-cell set has a
+    character with no dots lit, which is the right kind of nothing.
+    """
+    assert tools.CHARSETS['ascii70'].blank == ' '
+    assert tools.CHARSETS['braille'].blank == '\u2800'
+    assert tools.CHARSETS['quadrants'].blank == ' '
+    assert tools.CHARSETS['halfblocks'].blank == ' '
+
+
+def testPunchOutBandMakesPixelArtTransparentOutsideTheBand(sampleImage, cpu):
+    values = backend.toValueGrid(sampleImage.convert('L'), 40, 25, cpu)
+    blocks = backend.convert2Pixel(sampleImage.convert('RGB'), sampleImage.size, 40, 25)
+    punched = backend.punchOutBand(blocks, values, 90, 170)
+
+    alpha = np.asarray(punched)[..., 3]
+
+    assert punched.mode == 'RGBA'
+    assert punched.size == blocks.size
+    assert set(np.unique(alpha).tolist()) <= {0, 255}, "cells are wholly kept or wholly removed"
+    assert (alpha == 0).any() and (alpha == 255).any()
+
+
+def testPunchedHolesLineUpWithTheBlocks(sampleImage, cpu):
+    """
+    The mask is built at grid resolution and blown up the same way the picture is, so a
+    hole covers exactly one block rather than straddling two.
+    """
+    cols, rows = 40, 25
+    values = backend.toValueGrid(sampleImage.convert('L'), cols, rows, cpu)
+    blocks = backend.convert2Pixel(sampleImage.convert('RGB'), sampleImage.size, cols, rows)
+    alpha = np.asarray(backend.punchOutBand(blocks, values, 90, 170))[..., 3]
+
+    keep = backend.bandMask(values, 90, 170)
+    shrunk = np.asarray(Image.fromarray(alpha, 'L').resize((cols, rows), Image.Resampling.NEAREST))
+
+    assert ((shrunk > 127) == keep).all()

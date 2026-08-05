@@ -18,12 +18,14 @@ will accept, and that the ones it cannot honour are refused rather than half don
 
 import ast
 import builtins
+import pathlib as pl
+import shlex
 
 import pytest
 from PIL import Image
 
 from gui import session
-from src import midend, tools
+from src import frontend, midend, tools
 
 # What the panel hands over with nothing touched. Individual tests override single keys,
 # which keeps each one about the setting it is actually exercising.
@@ -42,6 +44,7 @@ DEFAULTS = {
     'dither':           False,
     'alpha':            False,
     'threshold':        None,
+    'band':             None,
     'edges':            False,
     'edgeSensitivity':  90,
     'maxFrames':        None,
@@ -56,6 +59,27 @@ DEFAULTS = {
 
 def settings(**overrides) -> dict:
     return {**DEFAULTS, **overrides}
+
+
+def testDefaultsCoverEverySettingTheSessionReads():
+    """
+    Catches a control being added to the panel and read here without this fixture learning
+    about it, which otherwise shows up as a KeyError in whichever test happened to run
+    first rather than as a statement about what is missing.
+    """
+    with open(session.__file__, encoding = 'utf-8') as handle:
+        tree = ast.parse(handle.read())
+
+    wanted = {
+        node.slice.value
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Subscript)
+        and isinstance(node.value, ast.Name) and node.value.id == 'settings'
+        and isinstance(node.slice, ast.Constant) and isinstance(node.slice.value, str)
+    }
+
+    assert wanted, "no settings lookups found, so this test is not checking anything"
+    assert wanted <= set(DEFAULTS), f"not in DEFAULTS: {sorted(wanted - set(DEFAULTS))}"
 
 
 @pytest.fixture
@@ -145,6 +169,9 @@ def testWidthIsResolvedTheSameWayTheCliDoesIt(mode, value, expected):
     {'charMode': 'pixelart', 'outputType': 'png'},
     {'colored': True, 'outputType': 'svg'},
     {'edges': True, 'threshold': 120, 'invert': True},
+    {'band': (90, 170)},
+    {'band': (90, 170), 'charMode': 'pixelart', 'outputType': 'png'},
+    {'band': (90, 170), 'charMode': 'charset', 'charsetName': 'braille'},
 ])
 def testEveryModePreviewsWithoutWriting(samplePath, tmp_path, overrides):
     target = tmp_path / 'never.txt'
@@ -263,3 +290,94 @@ def testEachBuildOpensItsOwnSource(samplePath, tmp_path):
 
     midend.execute(first)
     midend.execute(second)
+
+
+# ================= The command line it shows you ================
+
+def parseShown(command: str, samplePath):
+    """
+    Runs the command the window displayed back through the real CLI parser.
+
+    Split in non-POSIX mode because the quoting is Windows quoting: in POSIX mode a
+    backslash is an escape character, and every path on the platform this runs on would
+    come apart.
+    """
+    tokens = [token.strip('"') for token in shlex.split(command, posix = False)]
+
+    assert tokens[:2] == ['python', 'converter.py']
+
+    frontend.setupParser()
+
+    return frontend.parser.parse_args(tokens[2:])
+
+
+@pytest.mark.parametrize('overrides', [
+    {},
+    {'charMode': 'charset', 'charsetName': 'braille', 'dither': True},
+    {'charMode': 'customRamp', 'customRamp': '@#+. '},
+    {'charMode': 'pixelart', 'outputType': 'png'},
+    {'rampSize': 10, 'invert': True, 'alpha': True},
+    {'threshold': 120},
+    {'band': (90, 170)},
+    {'edges': True, 'edgeSensitivity': 55},
+    {'widthMode': 'pixels', 'widthValue': 8, 'heightMode': 'pixels', 'heightValue': 16},
+    {'colored': True, 'outputType': 'svg'},
+])
+def testTheShownCommandReallyIsTheConversion(samplePath, tmp_path, overrides):
+    """
+    The point of showing a command is that it can be trusted, so it is parsed back and the
+    conversion it describes is compared against the one the window actually ran.
+    """
+    chosen = settings(**overrides)
+    target = tmp_path / f"out.{chosen['outputType']}"
+
+    fromWindow = session.buildConfig(chosen, samplePath, target,
+                                     shouldSave = True, preview = False)
+
+    shown = session.commandLine(chosen, samplePath, target)
+    fromCli = frontend.buildConfig(parseShown(shown, samplePath))
+
+    for field in ('widthCount', 'heightCount', 'colored', 'pixelated', 'invert', 'threshold',
+                  'band', 'dither', 'edges', 'edgeSensitivity', 'alpha', 'charList',
+                  'outputType', 'writeFrames'):
+        assert getattr(fromCli, field) == getattr(fromWindow, field), f"{field} disagrees"
+
+    assert fromCli.charSet.name == fromWindow.charSet.name
+    assert fromCli.outputPath == fromWindow.outputPath
+
+
+def testThePreviewCommandSaysItOnlyDoesOneFrame(animatedPath, tmp_path):
+    shown = session.commandLine(settings(), animatedPath, tmp_path / 'x.txt', preview = True)
+
+    assert f'--maxframes {session.PREVIEW_FRAMES}' in shown
+    assert '-op' not in shown, "a preview writes nothing, so it must not show an output path"
+
+
+def testTheCommandLeavesOutWhatIsNotDoingAnything():
+    """A command worth copying is the short one a person would actually have typed."""
+    shown = session.commandLine(settings(), pl.Path('cat.png'), pl.Path('out.txt'))
+
+    for absent in ('-c', '-i', '-d', '--alpha', '-e', '-th', '-tb', '-g', '--frames', '-gsc'):
+        assert f' {absent} ' not in f' {shown} ', f"{absent} should not appear by default"
+
+    # Never emitted: both exist to infer counts the window always knows outright.
+    assert ' -a ' not in f' {shown} ' and '-ca' not in shown
+
+
+def testPathsWithSpacesAreQuoted(tmp_path):
+    spacey = tmp_path / 'my pictures' / 'the cat.png'
+    shown = session.commandLine(settings(), spacey, tmp_path / 'a result.txt')
+
+    assert f'"{spacey}"' in shown
+    assert shlex.split(shown, posix = False)[2].startswith('"')
+
+
+def testTheColourQuestionIsCalledOutBecauseNoFlagAnswersIt():
+    """
+    -c with a text format makes the CLI stop and ask. The window has already decided, so
+    the command on its own would not reproduce the result without a person at the keyboard.
+    """
+    notes = session.commandNotes(settings(colored = True, embedColor = True, outputType = 'txt'))
+
+    assert any("'c'" in note for note in notes)
+    assert not session.commandNotes(settings(colored = True, outputType = 'png'))
