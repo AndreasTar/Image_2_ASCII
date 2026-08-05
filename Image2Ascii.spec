@@ -32,7 +32,10 @@ analysis = Analysis(
     ['converter.py'],
     pathex = [],
     binaries = [],
-    datas = [],
+    # There is no Qt in this build, so none of the LGPL obligations apply to it. The
+    # third party notice still goes in, because numpy, Pillow and svg.py are in here and
+    # a single file executable has nowhere else to put it.
+    datas = [('THIRD-PARTY.md', '.')],
     hiddenimports = [],
     hookspath = [],
     hooksconfig = {},

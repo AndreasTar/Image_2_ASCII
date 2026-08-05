@@ -34,11 +34,28 @@
 # may print. Everything the engine would have printed is routed to the log pane instead,
 # through the `log` callback on the config.
 
+import os
+import shutil
 import sys
 
 sys.path.insert(0, SPECPATH)
 
 from buildcommon import GUI_EXCLUDES, keepBinary
+
+
+# Qt is LGPL, which obliges a binary distribution to carry the licence text and to say what
+# is used and how it can be replaced.
+#
+# Not listed as `datas`. PyInstaller puts those under the _internal folder, which is where
+# the program would look for them but not where a person who has just unzipped the download
+# would; a licence filed among five hundred DLLs is not the prominent notice the LGPL asks
+# for. They are copied to the top level after COLLECT instead, beside the executable.
+LICENCE_FILES = [
+    'licenses/LGPL-3.0.txt',
+    'licenses/GPL-3.0.txt',
+    'THIRD-PARTY.md',
+    'LICENSE',
+]
 
 
 analysis = Analysis(
@@ -101,3 +118,9 @@ collected = COLLECT(
     upx_exclude = [],
     name = 'Image2Ascii-GUI',
 )
+
+# A spec file is ordinary Python and COLLECT has finished assembling the folder by the time
+# this runs, so the licences can simply be dropped in next to the executable.
+bundle = os.path.join(DISTPATH, 'Image2Ascii-GUI')
+for licence in LICENCE_FILES:
+    shutil.copy2(os.path.join(SPECPATH, licence), bundle)

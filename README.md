@@ -231,6 +231,27 @@ CPU and GPU results are the same picture. They are computed by different routes 
 disagree in about one cell in a hundred thousand, where a tile's brightness sits within
 floating point noise of the boundary between two characters.
 
+## Windows will warn about the downloads, and so may your antivirus
+
+Both executables are unsigned, because a code signing certificate is something you buy. On a
+freshly downloaded unsigned program Windows shows:
+
+> **Windows protected your PC** — Microsoft Defender SmartScreen prevented an unrecognised
+> app from starting.
+
+**More info → Run anyway** starts it. The warning is about the *absence* of a paid
+certificate and a download history, not about anything found in the file.
+
+Some antivirus products go further and quarantine it outright. This is a known and
+long-standing false positive affecting PyInstaller programs generally, not this one in
+particular: a self-extracting executable that unpacks code and runs it resembles, in the
+crude shape of the thing, what packed malware does. Nothing can be done about it from this
+end short of paying for signing and building a reputation with each vendor.
+
+If you would rather not take any of that on faith, **run it from source instead** — it is
+the same code, and it needs only Python and `pip install -r requirements.txt`. You can also
+build the executables yourself with the steps in the next section and compare.
+
 ## Building a standalone executable
 
 There are two, built separately, so that nobody who wants the command line tool has to take

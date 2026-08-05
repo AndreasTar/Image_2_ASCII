@@ -12,7 +12,7 @@ from enum import Enum
 from math import isqrt
 from typing import Iterator
 
-APP_VERSION = "2.0.0"
+APP_VERSION = "2.1.0"
 
 
 class Errors:

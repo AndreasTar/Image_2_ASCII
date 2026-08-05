@@ -3,7 +3,9 @@
 All notable changes to this project are documented here.
 This project follows [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [2.1.0]
+
+The first release with downloadable builds of both versions.
 
 ### Added
 
@@ -18,6 +20,15 @@ This project follows [Semantic Versioning](https://semver.org/).
   it did can be read, copied and run from a terminal as-is. Settings the panel has greyed out
   never reach the command, and the one thing no flag can express — the answer to the colour
   question `-c` asks of a text format — is spelled out underneath.
+- **[THIRD-PARTY.md](THIRD-PARTY.md)**, naming every dependency and its licence, and shipped
+  inside both downloads. The windowed one also carries the full LGPL-3.0 and GPL-3.0 texts
+  beside the executable, which distributing Qt in a binary requires and which the PySide6
+  wheels do not themselves provide.
+- **A note in the README about the SmartScreen warning.** Both executables are unsigned, so
+  Windows reports them as unrecognised and some antivirus products quarantine them outright.
+  That is a known false positive affecting PyInstaller programs generally rather than
+  anything about this one, and users deserve to be told before they meet it rather than
+  after.
 
 ### Fixed
 
