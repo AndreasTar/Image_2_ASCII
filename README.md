@@ -299,7 +299,6 @@ Previous releases are listed in [CHANGELOG.md](CHANGELOG.md).
 ToDo List:
 
 - [ ] Allow conversion from a URL.
-- [ ] Live conversion from a webcam.
 
 Backlog / Potentially will never implement natively:
 
