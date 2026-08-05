@@ -49,6 +49,40 @@ DEFAULT_FRAME_DURATION_MS = 100.0
 PROGRESS_EVERY = 10
 
 
+# ================= Reporting ================
+
+def pReport(config, message: str) -> None:
+    """
+    --- Private method! ---\n
+    Says what the conversion is doing.
+
+    Goes to standard output unless the caller supplied somewhere else to put it. A GUI has
+    no terminal to print into and wants these lines in a log pane instead, so it passes a
+    `log` and never sees them on stdout.
+    """
+    if config.log is not None:
+        config.log(message)
+        return
+
+    print(message)
+
+
+def pReportProgress(config, done: int, total: int) -> None:
+    """
+    --- Private method! ---\n
+    Reports how far through a multi frame conversion we are.
+
+    The terminal version rewrites one line in place, which a log pane cannot do, so a
+    caller with a `progress` callback gets the two numbers and draws them however it likes.
+    """
+    if config.progress is not None:
+        config.progress(done, total)
+        return
+
+    if config.log is None:
+        print(f"\r\tFrame {done} of {total}...", end = '', flush = True)
+
+
 # ================= Process ================
 
 def execute(config) -> Conversion | Image.Image | list:
@@ -65,8 +99,8 @@ def execute(config) -> Conversion | Image.Image | list:
     config.backend.synchronize()
     elapsed = perf_counter() - started
     perFrame = f" ({elapsed / len(frames):.3f}s per frame)" if len(frames) > 1 else ""
-    print(f"Converted {len(frames)} frame{'s' if len(frames) != 1 else ''} "
-          f"in {elapsed:.3f} seconds.{perFrame}")
+    pReport(config, f"Converted {len(frames)} frame{'s' if len(frames) != 1 else ''} "
+                    f"in {elapsed:.3f} seconds.{perFrame}")
 
     if config.isAnimated or config.writeFrames:
         pDeliverAnimation(frames, config)
@@ -98,9 +132,9 @@ def pConvertFrames(config) -> list:
             results.append(result)
 
             if showProgress and (index % PROGRESS_EVERY == 0 or index == total - 1):
-                print(f"\r\tFrame {index + 1} of {total}...", end = '', flush = True)
+                pReportProgress(config, index + 1, total)
 
-    if showProgress:
+    if showProgress and config.progress is None and config.log is None:
         print()
 
     if not results:
@@ -212,9 +246,9 @@ def pSaveNumberedFrames(frames: list, config) -> None:
     suffix = f".{config.outputType.name.lower()}"
     folder = config.outputPath.with_suffix('').with_name(config.outputPath.stem + '_frames')
 
-    print(f"\nWriting {len(frames)} frames as separate files.")
-    print(f"\tInto folder: {folder}")
-    print(f"\tNamed: frame_0001{suffix} ... frame_{len(frames):04d}{suffix}")
+    pReport(config, f"\nWriting {len(frames)} frames as separate files.")
+    pReport(config, f"\tInto folder: {folder}")
+    pReport(config, f"\tNamed: frame_0001{suffix} ... frame_{len(frames):04d}{suffix}")
 
     try:
         folder.mkdir(parents = True, exist_ok = True)
@@ -226,7 +260,7 @@ def pSaveNumberedFrames(frames: list, config) -> None:
         target = folder / f"frame_{index:0{width}d}{suffix}"
         pWritePayload(pRenderOutput(frame, config), target, config.outputType)
 
-    print(f"\nSaved {len(frames)} files to {folder}")
+    pReport(config, f"\nSaved {len(frames)} files to {folder}")
 
 
 def pSaveAnimatedGIF(frames: list, config) -> None:
@@ -244,7 +278,7 @@ def pSaveAnimatedGIF(frames: list, config) -> None:
     except OSError as e:
         raise tools.Errors.GenericError(f"Could not write the output file -> {config.outputPath}\n\t{e}")
 
-    print(f"\nSaved {len(images)} frame animation to {config.outputPath}")
+    pReport(config, f"\nSaved {len(images)} frame animation to {config.outputPath}")
 
 
 def pSaveVideo(frames: list, config) -> None:
@@ -256,10 +290,10 @@ def pSaveVideo(frames: list, config) -> None:
               for frame in frames]
     fps = config.fps or pAverageFps(frames, config)
 
-    print(f"\nEncoding {len(images)} frames at {fps:.2f} fps...")
+    pReport(config, f"\nEncoding {len(images)} frames at {fps:.2f} fps...")
     encoder = sources.writeVideo(config.outputPath, images, fps)
 
-    print(f"Saved video to {config.outputPath} (encoded with {encoder})")
+    pReport(config, f"Saved video to {config.outputPath} (encoded with {encoder})")
 
 
 def pFrameDuration(frame, config) -> int:
@@ -367,18 +401,19 @@ def pRenderOutput(result: Conversion | Image.Image, config) -> Any:
 def pAskEmbedColor(config, formatName: str, options: tuple[str, ...]) -> bool:
     """
     --- Private method! ---\n
-    Asks whether colour should be written into a text format, and returns the answer.
+    Works out whether colour should be written into a text format, asking if need be.
     Raises if the user would rather stop than pick either way.
 
-    The answer is remembered on the config, so converting a thousand frame animation does
-    not ask a thousand times.
+    A caller that already knows the answer says so on the config and is never asked. That
+    is what lets the GUI drive this, since a prompt it cannot show is a prompt that hangs.
+    Otherwise the question goes to the terminal, and the answer is remembered on the same
+    field, so converting a thousand frame animation does not ask a thousand times.
     """
     if not config.colored:
         return False
 
-    remembered = getattr(config, 'pEmbedColorAnswer', None)
-    if remembered is not None:
-        return remembered
+    if config.embedColor is not None:
+        return config.embedColor
 
     print(f"\nInput flag {{ -c : Colored }} was set, but output type is .{formatName}! Choose one of the following:")
     for option in options:
@@ -408,9 +443,9 @@ def pAskEmbedColor(config, formatName: str, options: tuple[str, ...]) -> bool:
 
     print("Outputting only the ASCII characters." if answer == 't' else "Including colors in the output.")
 
-    config.pEmbedColorAnswer = answer == 'c'
+    config.embedColor = answer == 'c'
 
-    return config.pEmbedColorAnswer
+    return config.embedColor
 
 
 def pPrintToScreen(payload: Any, result, config) -> None:
@@ -434,7 +469,7 @@ def save(data: Any, config) -> None:
     """
     pWritePayload(data, config.outputPath, config.outputType)
 
-    print(f"\nSaved file to {config.outputPath}")
+    pReport(config, f"\nSaved file to {config.outputPath}")
 
 
 def pWritePayload(data: Any, path, outputType: tools.ValidTypes) -> None:

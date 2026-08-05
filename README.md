@@ -1,6 +1,6 @@
 # Image_2_ASCII
 
-**An Open-Source command-line tool for converting images into ASCII representation** 
+**An Open-Source tool for converting images into ASCII representation, on the command line or in a window** 
  
 ## Disclaimer
 
@@ -45,6 +45,28 @@ When that's completed, run the shell command
 $ pip install -r requirements.txt
 ```
 
+## The windowed version
+
+Everything below can also be done by clicking in a GUI, with the source and the result side by side.
+Nothing is written to disk until you pick a destination, so trying settings out costs nothing.
+
+The window needs PySide6, which the command line version does not. Installing it does not
+change how the command line version runs:
+
+```sh
+pip install -r requirements-gui.txt
+```
+
+```sh
+python converter_gui.py
+```
+
+Every flag in the table below has a control. `--print` has no equivalent because the window does
+the same job better and replaced by the result pane.
+
+PySide6 is used under the LGPL. It is a dependency of the windowed version only, and is not
+part of this project's own BSD licensed source.
+
 ## Usage
 
 This tool has a few features executed via command-line flags. In its simplest form, it analyses an image and splits it into a 2-Dimensional grid to then convert each slot into a grayscale format and assign an ASCII character to it from a given range.
@@ -68,7 +90,7 @@ The quickest way to see something is to let it size itself and print straight to
 python converter.py myphoto.png -a -p
 ```
 
-**📷 [See the examples gallery](examples/README.md)** for what every flag actually looks like,
+**[See the examples gallery](examples/README.md)** for what every flag actually looks like,
 including all the character sets side by side.
 
 ### Explanation of the flags
@@ -207,19 +229,34 @@ floating point noise of the boundary between two characters.
 
 ## Building a standalone executable
 
-To produce a single file that runs on a machine with no Python installed at all:
+There are two, built separately, so that nobody who wants the command line tool has to take
+a hundred megabytes of Qt with it. Both run on a machine with no Python installed at all.
 
 ```sh
 pip install -r requirements-dev.txt
 ```
 
+**Command line only** — one file, about 28 MB, no interface code and no Qt in it:
+
 ```sh
-pyinstaller Image2Ascii.spec
+pyinstaller Image2Ascii.spec --distpath builds/dist --workpath builds/work
 ```
 
-The executable is written to `dist/`, and comes out at around 26 MB. It is CPU only: a
-frozen build cannot see libraries installed on the host, so `--gpu` inside it will always
-report that no GPU library is present and use the CPU.
+**Windowed** — a folder of about 134 MB, zipped for release. Needs the GUI requirements as
+well, and produces `Image2Ascii-GUI.exe` inside `builds/dist/Image2Ascii-GUI/`:
+
+```sh
+pyinstaller Image2AsciiGUI.spec --distpath builds/dist --workpath builds/work
+```
+
+The windowed build is a folder rather than a single file on purpose. Qt is LGPL, and shipping
+it that way keeps the Qt libraries replaceable, which is what the licence asks for. It also
+starts faster, since a one-file build unpacks its whole payload on every launch.
+
+What each build leaves out, and why, is in [buildcommon.py](buildcommon.py).
+
+Both are CPU only: a frozen build cannot see libraries installed on the host, so `--gpu`
+inside either will always report that no GPU library is present and use the CPU.
 
 ## Development
 
@@ -256,12 +293,13 @@ python examples/generate.py
 Previous releases are listed in [CHANGELOG.md](CHANGELOG.md).
 
 ToDo List:
+
 - [ ] Allow conversion from a URL.
 - [ ] Live conversion from a webcam.
 
 Backlog / Potentially will never implement natively:
-- [ ] Add slope support for grayscale-value control.
 
+- [ ] Add slope support for grayscale-value control.
 
 ## Contribution
 
@@ -271,6 +309,7 @@ Found a bug? Or do you want to help improve this tool? Then please feel free to 
 > Before you contribute read [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## Donate ♡
+
 If you like this tool or the things I'm creating, please consider **Donating** using the **Kofi** link below or the link on the "Sponsor this project" section! This is NOT mandatory, but it helps out a lot and is greatly appreciated! **:)**\
 You will also be added into my **Donation List** for everyone to see! (still in the works)\
 (In case you choose to not have your username publicly displayed in the list mentioned above, please email me explicitly saying so in the email address linked in my profile, or saying so in the donation message.)

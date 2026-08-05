@@ -3,6 +3,51 @@
 All notable changes to this project are documented here.
 This project follows [Semantic Versioning](https://semver.org/).
 
+## [2.0.0]
+
+The major version is for what the project *is* rather than for anything that broke: this is
+no longer a command line tool, it is an engine with two frontends on it, shipped as two
+separate downloads. Every flag, output format and conversion behaves exactly as it did in
+1.2.0, and no command line that worked before needs changing.
+
+### Added
+
+- **A windowed version.** `python converter_gui.py` opens a graphical frontend with a control
+  for every flag, the source and result side by side on a shared zoom, and the conversion
+  re-running as settings change. Nothing is written until a destination is chosen, so trying
+  settings out costs nothing. Built with PySide6, which is a dependency of the window only:
+  the command line version still installs and runs from `requirements.txt` alone.
+  - The character sets, output formats, ramp sizes and compute backends in its dropdowns are
+    read out of the engine rather than listed again, so adding one to `tools` puts it in the
+    window with no GUI change at all.
+  - Text formats can be shown either as the characters that will be written or drawn as a
+    picture, so the result can be compared against the source it came from. The saved file is
+    the same either way.
+- **A second executable, built separately from the first.** `Image2AsciiGUI.spec` builds the
+  windowed version as a folder of about 134 MB; `Image2Ascii.spec` continues to build the
+  command line one as a single file of about 28 MB, with no interface code and no Qt in it.
+  Neither download carries the other's weight. Shared build settings live in
+  [buildcommon.py](buildcommon.py) so the two cannot drift apart.
+- `requirements-gui.txt`, for the windowed version's dependencies.
+
+### Changed
+
+- **`Config` moved from `frontend` into a new `src/config.py`**, along with the rules about
+  which setting combinations can produce a file and the choosing of a character set. Both
+  frontends now share one definition of each, rather than the GUI reimplementing what the
+  command line already knew. `frontend.Config` still resolves.
+- **The midend no longer insists on a terminal.** It reports through optional `progress` and
+  `log` callbacks on the config, falling back to printing when they are not set, and the
+  question it used to ask with `input()` when `-c` met a text output format can now be
+  answered up front with `embedColor`. The command line behaves exactly as before; a caller
+  with no terminal to prompt through no longer hangs.
+
+### Notes
+
+- PySide6 is used under the LGPL. The windowed version is built as a folder rather than a
+  single file so that the Qt libraries beside the executable stay replaceable, which is what
+  that licence asks of a binary distribution. This project's own source remains BSD licensed.
+
 ## [1.2.0]
 
 ### Added

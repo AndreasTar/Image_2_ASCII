@@ -18,14 +18,17 @@ touches argparse or prompts the user, so the rest of the tool can be driven from
 import argparse as ap
 import pathlib as pl
 import shutil
-from dataclasses import dataclass
 from math import ceil
 from textwrap import dedent
 from typing import NoReturn
 
 from PIL import Image, UnidentifiedImageError
 
-from src import backend, compute, midend, sources, tools
+from src import backend, compute, config, midend, sources, tools
+# Re-exported rather than defined here, so that the GUI can describe a conversion without
+# importing the command line. Kept at module level because `frontend.Config` is how the
+# rest of the tool has always referred to it.
+from src.config import DEFAULT_EDGE_SENSITIVITY, Config
 
 parser: ap.ArgumentParser
 
@@ -33,51 +36,6 @@ parser: ap.ArgumentParser
 MAX_LISTED_DIVISORS = 40
 
 NAME_CHOICES = ('CUSTOM', 'INPUT', 'RANDOM')
-
-# Percentile of gradient strength above which a cell is drawn as an edge. 90 keeps the
-# strongest tenth, which reads well on both line art and photographs.
-DEFAULT_EDGE_SENSITIVITY = 90
-
-
-@dataclass
-class Config:
-    """
-    Everything the conversion needs, resolved and validated.
-
-    Replaces the old class-as-singleton, where every field was written onto the class
-    itself and shared by every conversion in the process.
-    """
-
-    source: sources.FrameSource
-    sourcePath: pl.Path
-    outputPath: pl.Path
-    outputType: tools.ValidTypes
-    widthCount: int
-    heightCount: int
-    backend: compute.ComputeBackend
-
-    colored: bool = False
-    pixelated: bool = False
-    charSet: tools.CharSet = None
-    charList: str = tools.GRAYSCALES[70]
-    invert: bool = False
-    threshold: int | None = None
-    dither: bool = False
-    edges: bool = False
-    edgeSensitivity: float = DEFAULT_EDGE_SENSITIVITY
-    alpha: bool = False
-    printToScreen: bool = False
-    shouldSave: bool = True
-    writeFrames: bool = False
-    fps: float | None = None
-
-    @property
-    def isAnimated(self) -> bool:
-        return self.source.isAnimated
-
-    @property
-    def frameCount(self) -> int:
-        return self.source.selectedCount
 
 
 def setupParser() -> None:
@@ -442,36 +400,49 @@ def buildConfig(args: ap.Namespace, shouldSave: bool = True) -> Config:
     )
 
 
+# What to change, in flags, for each rule `config.validateCombination` can break. The rules
+# themselves are shared with the GUI; only this advice is particular to the command line.
+CLI_REMEDIES = {
+    'pixelartNeedsPicture':
+        lambda: f"\tPick one of: {', '.join(t.lower() for t in tools.ValidTypes.getImageTypes())}, gif, mp4",
+    'cannotPrintBinary':
+        lambda: "\tDrop -p, or pick a text output type.",
+    'animatedNeedsAnimatedOutput':
+        lambda: ("\tPick an animated output type -> -ot gif   (or -ot mp4)\n"
+                 "\tor write every frame separately -> --frames\n"
+                 "\tor play it in the terminal -> -p\n"
+                 "\tor convert a single frame -> --maxframes 1"),
+    'framesAreAlreadyHeld':
+        lambda: "\tDrop --frames, or pick a single-frame output type such as png or txt.",
+    'stillCannotBeVideo':
+        lambda: "\tPick an image output type, or use -ot gif for a one frame animation.",
+}
+
+
 def pValidateCombination(args: ap.Namespace, source: sources.FrameSource,
                          outputType: tools.ValidTypes, writeFrames: bool) -> None:
     """
     --- Private method! ---\n
     Rejects flag combinations that cannot produce a file, explaining what would work.
 
-    Every message here names the alternatives, because these are all cases where the user
-    clearly wants something reasonable and simply picked the wrong pair of flags for it.
+    The rules live in `config` so that both frontends enforce the same ones. What belongs
+    here is the advice, because these are all cases where the user clearly wants something
+    reasonable and simply picked the wrong pair of flags for it, and naming the flags to
+    change is only useful to someone who is using flags.
     """
-    if args.inputPixelated and not outputType.isImage() and not outputType.isAnimated():
-        exitWith(f"Can't do pixelart with {outputType.name} output! Pick one of: "
-                 f"{', '.join(t.lower() for t in tools.ValidTypes.getImageTypes())}, gif, mp4")
-
-    if args.inputPrint and (outputType.isImage() or outputType == tools.ValidTypes.MP4):
-        exitWith(f"Can't print {outputType.name} to the screen. Drop -p, or pick a text output type.")
-
-    if source.isAnimated and not (outputType.isAnimated() or writeFrames or args.inputPrint):
-        exitWith(f"{source.path.name} has {source.frameCount} frames, but {outputType.name} holds only one.\n"
-                 f"\tPick an animated output type -> -ot gif   (or -ot mp4)\n"
-                 f"\tor write every frame separately -> --frames\n"
-                 f"\tor play it in the terminal -> -p\n"
-                 f"\tor convert a single frame -> --maxframes 1")
-
-    if writeFrames and outputType.isAnimated():
-        exitWith(f"--frames writes one file per frame, but {outputType.name} already holds them all.\n"
-                 f"\tDrop --frames, or pick a single-frame output type such as png or txt.")
-
-    if not source.isAnimated and outputType == tools.ValidTypes.MP4:
-        exitWith(f"{source.path.name} is a single image, so there is nothing to make a video from.\n"
-                 f"\tPick an image output type, or use -ot gif for a one frame animation.")
+    try:
+        config.validateCombination(
+            outputType,
+            isAnimated      =   source.isAnimated,
+            frameCount      =   source.frameCount,
+            sourceName      =   source.path.name,
+            pixelated       =   args.inputPixelated,
+            printToScreen   =   args.inputPrint,
+            writeFrames     =   writeFrames,
+        )
+    except config.CombinationError as e:
+        remedy = CLI_REMEDIES.get(e.reason)
+        exitWith(f"{e.errorMsg}\n{remedy()}" if remedy else e.errorMsg)
 
 
 def pFirstFrameSize(source: sources.FrameSource) -> tuple[int, int]:
@@ -519,28 +490,21 @@ def pOpenImage(path: pl.Path) -> Image.Image:
 def pResolveCharSet(args: ap.Namespace) -> tuple[tools.CharSet, str]:
     """
     --- Private method! ---\n
-    Picks how characters get chosen: a named set, a custom ramp, or a built-in ramp size.
+    Turns whichever of the three character flags was given into a set and its ramp.
 
-    Returns the set and its ramp. The ramp is meaningless for the sub-cell sets, which
-    build their characters from bits rather than looking them up, so it stays at the
-    default there purely so the rest of the config has something sensible in it.
+    The choosing itself is shared with the GUI, so that adding a character set only has to
+    be taught to one of them. All that happens here is naming the flag in the error.
     """
-    if args.inputCharSet is not None:
-        charSet = tools.CHARSETS[args.inputCharSet]
-        return charSet, charSet.ramp or tools.GRAYSCALES[70]
-
-    if args.inputGrayscale is not None:
-        if not args.inputGrayscale:
+    try:
+        return config.resolveCharSet(
+            charsetName =   args.inputCharSet,
+            customRamp  =   args.inputGrayscale,
+            rampSize    =   args.inputGSCount,
+        )
+    except tools.Errors.GenericError as e:
+        if args.inputGrayscale is not None:
             exitWith("The custom grayscale ramp given with -gs is empty!")
-        return tools.CharSet('custom', ramp = args.inputGrayscale), args.inputGrayscale
-
-    if args.inputGSCount not in tools.GRAYSCALES:
-        exitWith(f"Invalid Grayscale size used: {args.inputGSCount}! "
-                 f"Valid sizes are: {sorted(tools.GRAYSCALES)}")
-
-    ramp = tools.GRAYSCALES[args.inputGSCount]
-
-    return tools.CharSet(f'ascii{args.inputGSCount}', ramp = ramp), ramp
+        exitWith(e.errorMsg)
 
 
 def pResolveGrid(args: ap.Namespace, imgSize: tuple[int, int]) -> tuple[int, int]:

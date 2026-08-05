@@ -31,8 +31,9 @@ MANIFEST
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
-# ...but this project's build spec is hand written and is meant to be committed.
-!Image2Ascii.spec
+# ...but this project's build specs are hand written and are meant to be committed.
+# There are two of them, one per executable, so this matches both rather than naming one.
+!Image2Ascii*.spec
 
 # Installer logs
 pip-log.txt

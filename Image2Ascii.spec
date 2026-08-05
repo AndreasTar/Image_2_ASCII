@@ -8,35 +8,24 @@
 #                                                                         #
 ###########################################################################
 
-# PyInstaller build: one self contained executable that runs on a machine with no Python
-# on it at all.
+# PyInstaller build: the command line tool, as one self contained executable that runs on a
+# machine with no Python on it at all.
 #
 #   pip install -r requirements-dev.txt
-#   pyinstaller Image2Ascii.spec
+#   pyinstaller Image2Ascii.spec --distpath builds/dist --workpath builds/work
 #
-# The result lands in dist/. Expect roughly 50-60 MB, most of which is numpy and Pillow.
+# The result lands in builds/dist/ and comes out at around 26 MB, most of which is numpy and
+# Pillow. This build contains no interface code and no Qt; see Image2AsciiGUI.spec for the
+# windowed one, which is a separate download on purpose so that nobody who wants the command
+# line tool has to take a hundred megabytes of Qt with it.
 #
-# The GPU and video libraries are excluded on purpose. They are optional at runtime, each
-# is far larger than everything else here put together, and a frozen build cannot see the
-# system's site-packages anyway. --gpu inside the executable therefore reports that no GPU
-# library is present and carries on using the CPU, which is exactly what it does on any
-# machine without one installed.
-#
-# Video still works in the frozen build if an `ffmpeg` binary is on the PATH, because that
-# path is a subprocess rather than an import. Animated GIF, WebP and APNG need nothing at
-# all, since Pillow is bundled.
+# What is deliberately left out, and why, is in buildcommon.py.
 
-EXCLUDED_PACKAGES = [
-    'torch', 'cupy', 'cupy_backends',           # optional GPU backends, see above
-    'av', 'imageio', 'imageio_ffmpeg',          # optional video decoders, see above
-    'tkinter', 'PIL.ImageTk', 'PIL.ImageQt',    # no GUI in a command line tool
-    'matplotlib', 'scipy', 'pandas',
-    'pytest', '_pytest', 'IPython',
-    # pkg_resources has to go with setuptools. Excluding setuptools on its own leaves
-    # PyInstaller's pkg_resources runtime hook in the build, which then fails at startup
-    # looking for the setuptools vendored packages that are no longer there.
-    'setuptools', 'pkg_resources', 'pip',
-]
+import sys
+
+sys.path.insert(0, SPECPATH)
+
+from buildcommon import CLI_EXCLUDES
 
 
 analysis = Analysis(
@@ -48,7 +37,7 @@ analysis = Analysis(
     hookspath = [],
     hooksconfig = {},
     runtime_hooks = [],
-    excludes = EXCLUDED_PACKAGES,
+    excludes = CLI_EXCLUDES,
     noarchive = False,
 )
 

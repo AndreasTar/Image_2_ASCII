@@ -10,22 +10,42 @@
 This readme will just explain the general layout of the source code, and the responsibilites of each file,
 and also will contain the TODO list for internal operations.
 
-The flow through the tool is one direction only:
+The flow through the tool is one direction only, and there are two ways in:
 
-    converter.py -> frontend -> midend -> backend -> compute
-                        |           \--> converters
-                        \--> sources
+    converter.py     -> frontend --\
+                                    >-- config -> midend -> backend -> compute
+    converter_gui.py -> ../gui  --/                 |           \--> converters
+                                                    \--> sources
+
+Both frontends do the same job in different words: work out what the user wants, put it in a
+`Config`, and hand that to the midend. Neither knows the other exists, and nothing in `src`
+imports `gui`, which is what lets the command line build into an executable with no Qt in it.
 
 ### converter.py
 Tells **frontend** to make the parser and then run\
 Also gets the result, error or ascii, and shows it on screen or returns it
+
+### converter_gui.py and ../gui
+The windowed frontend, needing PySide6 which the command line does not\
+Same job as **frontend**, reading widgets instead of flags, and previewing instead of prompting\
+`gui/session.py` is the part that builds the `Config`, and imports no Qt so it can be tested headlessly
 
 ### frontend
 Holds parser, and prolly not use it much after initialisation\
 Makes parser, handles return and error\
 Surface checks if flags are ok, and either asks user for input or errors\
 Builds a `Config` holding everything the conversion needs, and hands it to the midend\
-This is the only file that reads arguments or talks to the user, so everything below it can be driven from code
+This is the only file that reads arguments or talks to the user in a terminal
+
+### config
+What a conversion *is*, with no opinion about who asked for it\
+Holds the `Config` itself, the rules about which combinations can produce a file, and the
+choosing of a character set\
+Lives here rather than in **frontend** so that both frontends enforce the same rules, and so
+that adding a character set only has to be taught to one place\
+Also carries the `progress` and `log` callbacks, which are how the midend reports to a window
+instead of to a terminal, and `embedColor`, which is how a caller with nothing to prompt
+*through* answers the one question the midend would otherwise ask
 
 ### sources
 Turns whatever the input file is into a sequence of frames\
