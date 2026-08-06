@@ -1,5 +1,5 @@
 ###########################################################################
-# Copyright (c) 2024, Andy Pandy                                          #
+# Copyright (c) 2024-2026, Andy Pandy                                          #
 # All rights reserved.                                                    #
 #                                                                         #
 # This source code is licensed under the BSD-style license found in the   #
@@ -100,8 +100,8 @@ GUI_EXCLUDES = COMMON_EXCLUDES + UNUSED_QT_MODULES
 # Two large files are deliberately *not* here:
 #
 #   opengl32sw.dll (~20 MB) is Qt's software OpenGL fallback. Nothing here asks for OpenGL,
-#   but Qt reaches for this when a machine has no usable GPU driver — a virtual machine, or
-#   a remote desktop session — and without it the window fails to appear at all. Twenty
+#   but Qt reaches for this when a machine has no usable GPU driver, a virtual machine, or
+#   a remote desktop session, and without it the window fails to appear at all. Twenty
 #   megabytes is a great deal cheaper than not starting.
 #
 #   The OpenBLAS library under numpy.libs (~20 MB) is what numpy does its arithmetic with.
@@ -123,7 +123,7 @@ UNUSED_QT_LIBRARIES = [
 # This does not make SmartScreen quiet. Only a signing certificate does that.
 PRODUCT_NAME = 'Image2Ascii'
 COMPANY_NAME = 'Andreas Tarasidis'
-COPYRIGHT = 'Copyright (c) 2024 Andreas Tarasidis. BSD 3-Clause licence.'
+COPYRIGHT = 'Copyright (c) 2024-2026 Andreas Tarasidis. BSD 3-Clause licence.'
 
 
 def versionResource(description: str, filename: str):

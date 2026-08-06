@@ -1,5 +1,5 @@
 ###########################################################################
-# Copyright (c) 2024, Andy Pandy                                          #
+# Copyright (c) 2024-2026, Andy Pandy                                          #
 # All rights reserved.                                                    #
 #                                                                         #
 # This source code is licensed under the BSD-style license found in the   #
@@ -190,7 +190,7 @@ class MainWindow(QMainWindow):
             return
 
         self.pInputPath = path
-        self.pFileLabel.setText(f"{path.name}   —   {size[0]} x {size[1]}"
+        self.pFileLabel.setText(f"{path.name}   :   {size[0]} x {size[1]}"
                                 + (f", {frameCount} frames" if isAnimated else ""))
 
         self.pPreview.setSource(image, f"SOURCE  ·  {path.name}")
@@ -327,8 +327,8 @@ class MainWindow(QMainWindow):
 
         Dropping the reference has to happen together with deleting the object. Deleting it
         alone leaves a Python name pointing at a C++ object that no longer exists, and the
-        next thing to touch it — closing the window, which asks every worker whether it is
-        still running — fails with an internal object already deleted.
+        next thing to touch it (closing the window, which asks every worker whether it is
+        still running) fails with an internal object already deleted.
         """
         if self.pPreviewWorker is worker:
             self.pPreviewWorker = None

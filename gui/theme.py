@@ -1,5 +1,5 @@
 ###########################################################################
-# Copyright (c) 2024, Andy Pandy                                          #
+# Copyright (c) 2024-2026, Andy Pandy                                          #
 # All rights reserved.                                                    #
 #                                                                         #
 # This source code is licensed under the BSD-style license found in the   #
@@ -123,7 +123,7 @@ def apply(app, palette: dict | None = None) -> dict:
     Dresses the application: Fusion underneath, the sheet above, and a matching Qt palette.
 
     Fusion rather than the native Windows style because the sub-controls a stylesheet does
-    not cover — dropdown arrows, menu chevrons — are drawn by the style itself, and the
+    not cover, like dropdown arrows, menu chevrons, are drawn by the style itself, and the
     native one draws them in system colours that vanish against a dark sheet. Fusion takes
     its colours from the palette set here, so those loose ends come out right too.
     """

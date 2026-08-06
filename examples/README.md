@@ -8,7 +8,7 @@ python examples/generate.py
 ```
 
 The source photograph is [source/cat.jpg](source/cat.jpg). Most runs use a crop of it,
-because the cat only occupies the middle of a fairly busy frame — the
+because the cat only occupies the middle of a fairly busy frame. The
 [full frame example](#the-whole-photograph) shows the difference.
 
 ---
@@ -23,7 +23,7 @@ No flags beyond the grid size. The 70 character ramp, dark areas getting the hea
 python converter.py examples/source/cat.jpg -wc 110 -hc 75 -ot png -op examples/output/basic
 ```
 
-![Default ASCII](output/basic.png)
+<img src="output/basic.png" alt= "Default ASCII" width="400">
 
 ### Automatic sizing (`-a`)
 
@@ -33,7 +33,7 @@ Works the grid out from the image shape and the character aspect ratio, so the c
 python converter.py examples/source/cat.jpg -a -wc 110 -ot png -op examples/output/auto
 ```
 
-![Automatic sizing (`-a`)](output/auto.png)
+<img src="output/auto.png" alt= "Automatic sizing (`-a`)" width="400">
 
 ### The whole photograph
 
@@ -43,7 +43,7 @@ Every other example here is cropped to the cat. This is the full frame, to be ho
 python converter.py examples/source/cat.jpg -a -wc 110 -ot png -op examples/output/full-frame
 ```
 
-![The whole photograph](output/full-frame.png)
+<img src="output/full-frame.png" alt= "The whole photograph" width="400">
 
 ### Colour (`-c`)
 
@@ -53,7 +53,7 @@ Each cell keeps the average colour of the pixels underneath it.
 python converter.py examples/source/cat.jpg -a -wc 110 -c -ot jpg -op examples/output/colored
 ```
 
-![Colour (`-c`)](output/colored.jpg)
+<img src="output/colored.jpg" alt= "Colour (`-c`)" width="400">
 
 ## Character sets
 
@@ -65,7 +65,7 @@ A ten character ramp. Coarser and higher contrast than the default seventy.
 python converter.py examples/source/cat.jpg -a -wc 110 -cs ascii10 -ot png -op examples/output/charset-ascii10
 ```
 
-![ascii10 (`-cs ascii10`)](output/charset-ascii10.png)
+<img src="output/charset-ascii10.png" alt= "ascii10 (`-cs ascii10`)" width="400">
 
 ### blocks (`-cs blocks`)
 
@@ -75,7 +75,7 @@ Unicode shading blocks. Reads as a solid image rather than as text.
 python converter.py examples/source/cat.jpg -a -wc 110 -cs blocks -ot png -op examples/output/charset-blocks
 ```
 
-![blocks (`-cs blocks`)](output/charset-blocks.png)
+<img src="output/charset-blocks.png" alt= "blocks (`-cs blocks`)" width="400">
 
 ### shades (`-cs shades`)
 
@@ -85,7 +85,7 @@ Partial block characters, a longer ramp than `blocks` for smoother gradients.
 python converter.py examples/source/cat.jpg -a -wc 110 -cs shades -ot png -op examples/output/charset-shades
 ```
 
-![shades (`-cs shades`)](output/charset-shades.png)
+<img src="output/charset-shades.png" alt= "shades (`-cs shades`)" width="400">
 
 ### braille (`-cs braille`)
 
@@ -95,7 +95,7 @@ Each cell is a 2x4 grid of braille dots, so this is eight times the resolution o
 python converter.py examples/source/cat.jpg -a -wc 110 -cs braille -ot png -op examples/output/charset-braille
 ```
 
-![braille (`-cs braille`)](output/charset-braille.png)
+<img src="output/charset-braille.png" alt= "braille (`-cs braille`)" width="400">
 
 ### braille with dithering (`-cs braille -d`)
 
@@ -105,7 +105,7 @@ The same run with ordered dithering. Dithering trades the clean silhouette for t
 python converter.py examples/source/cat.jpg -a -wc 170 -cs braille -d -ot png -op examples/output/charset-braille-dither
 ```
 
-![braille with dithering (`-cs braille -d`)](output/charset-braille-dither.png)
+<img src="output/charset-braille-dither.png" alt= "braille with dithering (`-cs braille -d`)" width="400">
 
 ### quadrants (`-cs quadrants`)
 
@@ -115,7 +115,7 @@ Quadrant blocks, four times the resolution. Chunkier than braille and easier to 
 python converter.py examples/source/cat.jpg -a -wc 110 -cs quadrants -ot png -op examples/output/charset-quadrants
 ```
 
-![quadrants (`-cs quadrants`)](output/charset-quadrants.png)
+<img src="output/charset-quadrants.png" alt= "quadrants (`-cs quadrants`)" width="400">
 
 ### halfblocks in colour (`-cs halfblocks -c`)
 
@@ -125,7 +125,7 @@ The upper half block with a separate foreground and background colour, so one ch
 python converter.py examples/source/cat.jpg -a -wc 110 -cs halfblocks -c -ot jpg -op examples/output/charset-halfblocks
 ```
 
-![halfblocks in colour (`-cs halfblocks -c`)](output/charset-halfblocks.jpg)
+<img src="output/charset-halfblocks.jpg" alt= "halfblocks in colour (`-cs halfblocks -c`)" width="400">
 
 ## Effects
 
@@ -137,7 +137,7 @@ Puts the heavy characters on the bright areas instead. Suits a dark background.
 python converter.py examples/source/cat.jpg -a -wc 110 -i -ot png -op examples/output/invert
 ```
 
-![Invert (`-i`)](output/invert.png)
+<img src="output/invert.png" alt= "Invert (`-i`)" width="400">
 
 ### Threshold (`-th 120`)
 
@@ -147,7 +147,7 @@ Two tones, split at the given brightness. Good for a stencil or sticker look.
 python converter.py examples/source/cat.jpg -a -wc 110 -th 120 -ot png -op examples/output/threshold
 ```
 
-![Threshold (`-th 120`)](output/threshold.png)
+<img src="output/threshold.png" alt= "Threshold (`-th 120`)" width="400">
 
 ### Band threshold (`-tb 90 170`)
 
@@ -157,7 +157,7 @@ Keeps only the middle brightnesses and erases the rest. Unlike `-th` above it do
 python converter.py examples/source/cat.jpg -a -wc 110 -tb 90 170 -ot png -op examples/output/band
 ```
 
-![Band threshold (`-tb 90 170`)](output/band.png)
+<img src="output/band.png" alt= "Band threshold (`-tb 90 170`)" width="400">
 
 ### Band threshold in pixel art (`-pix -tb 60 150`)
 
@@ -167,7 +167,7 @@ With no characters to blank, the erased cells become properly transparent instea
 python converter.py examples/source/cat.jpg -a -wc 90 -pix -c -tb 60 150 -ot png -op examples/output/band-pixelated
 ```
 
-![Band threshold in pixel art (`-pix -tb 60 150`)](output/band-pixelated.png)
+<img src="output/band-pixelated.png" alt= "Band threshold in pixel art (`-pix -tb 60 150`)" width="400">
 
 ### Edge detection (`-e`)
 
@@ -177,7 +177,7 @@ Sobel edges drawn with directional characters, over the usual ramp. The stronges
 python converter.py examples/source/cat.jpg -a -wc 110 -e -ot png -op examples/output/edges
 ```
 
-![Edge detection (`-e`)](output/edges.png)
+<img src="output/edges.png" alt= "Edge detection (`-e`)" width="400">
 
 ### More edges (`-e -et 70`)
 
@@ -187,7 +187,7 @@ Lowering the threshold finds more edges. At 70, the strongest thirty percent.
 python converter.py examples/source/cat.jpg -a -wc 110 -e -et 70 -ot png -op examples/output/edges-strong
 ```
 
-![More edges (`-e -et 70`)](output/edges-strong.png)
+<img src="output/edges-strong.png" alt= "More edges (`-e -et 70`)" width="400">
 
 ### Edges in braille (`-cs braille -e`)
 
@@ -197,7 +197,7 @@ With a dot based set, edge detection inks gradient strength instead of darkness,
 python converter.py examples/source/cat.jpg -a -wc 160 -cs braille -e -ot png -op examples/output/edges-braille
 ```
 
-![Edges in braille (`-cs braille -e`)](output/edges-braille.png)
+<img src="output/edges-braille.png" alt= "Edges in braille (`-cs braille -e`)" width="400">
 
 ### A custom ramp (`-gs`)
 
@@ -207,7 +207,7 @@ Any string works as a ramp, densest character first.
 python converter.py examples/source/cat.jpg -a -wc 110 -gs "@%#*+=-:. " -ot png -op examples/output/custom-ramp
 ```
 
-![A custom ramp (`-gs`)](output/custom-ramp.png)
+<img src="output/custom-ramp.png" alt= "A custom ramp (`-gs`)" width="400">
 
 ### Pixel art (`-pix`)
 
@@ -217,7 +217,7 @@ Not ASCII at all: the image is shrunk to the grid and blown back up with hard ed
 python converter.py examples/source/cat.jpg -a -wc 90 -pix -c -ot jpg -op examples/output/pixelated
 ```
 
-![Pixel art (`-pix`)](output/pixelated.jpg)
+<img src="output/pixelated.jpg" alt= "Pixel art (`-pix`)" width="400">
 
 ## Output formats
 
@@ -268,7 +268,7 @@ Vector output, so it stays sharp at any size. Runs of one colour share an elemen
 python converter.py examples/source/cat.jpg -a -wc 80 -c -ot svg -op examples/output/format-svg
 ```
 
-![SVG (`-ot svg`)](output/format-svg.svg)
+<img src="output/format-svg.svg" alt= "SVG (`-ot svg`)" width="400">
 
 ### XML (`-ot xml`)
 
@@ -289,7 +289,7 @@ decoder installed; see the main README.
 python converter.py examples/source/cat.jpg -a -wc 64 -cs blocks -c -ot gif -op examples/output/animation
 ```
 
-![Animated example](output/animation.gif)
+<img src="output/animation.gif" alt= "Animated example" width="400">
 
 The same input can also be played straight in the terminal with `-p`, written as one
 file per frame with `--frames`, or re-encoded to a video with `-ot mp4`.

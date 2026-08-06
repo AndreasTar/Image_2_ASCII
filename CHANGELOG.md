@@ -10,16 +10,16 @@ The first release with downloadable builds of both versions.
 ### Added
 
 - **`-tb` / `--thresholdband`, a two-ended threshold.** Give it a low and a high brightness
-  and everything outside that range is erased entirely — a blank character, or a transparent
-  block with `-pix` — while everything inside is left exactly as it would have been with no
+  and everything outside that range is erased entirely (a blank character, or a transparent
+  block with `-pix`) while everything inside is left exactly as it would have been with no
   threshold at all. That is what separates it from `-th`, which rewrites every value it is
   given. Sub-cell sets are blanked with their own empty character rather than a space, since
   a space in a braille run is a hole of the wrong width, and banded pixel art saved as JPEG
   is composited onto black because JPEG has no alpha channel.
 - **The window logs the command line it just ran**, for previews as well as saves, so what
   it did can be read, copied and run from a terminal as-is. Settings the panel has greyed out
-  never reach the command, and the one thing no flag can express — the answer to the colour
-  question `-c` asks of a text format — is spelled out underneath.
+  never reach the command, and the one thing no flag can express (the answer to the colour
+  question `-c` asks of a text format) is spelled out underneath.
 - **[THIRD-PARTY.md](THIRD-PARTY.md)**, naming every dependency and its licence, and shipped
   inside both downloads. The windowed one also carries the full LGPL-3.0 and GPL-3.0 texts
   beside the executable, which distributing Qt in a binary requires and which the PySide6
@@ -27,8 +27,8 @@ The first release with downloadable builds of both versions.
 - **A Windows version resource on both executables**, so Explorer's Properties tab names
   them, their author and their version instead of reporting 0.0.0.0 with no author at all.
   Generated from `tools.APP_VERSION` at build time, so what Explorer shows and what
-  `--version` prints cannot disagree. It does not quieten SmartScreen — only a signing
-  certificate does that — but it does let a downloaded file say what it is.
+  `--version` prints cannot disagree. It does not quieten SmartScreen, only a signing
+  certificate does that, but it does let a downloaded file say what it is.
 - **Two gallery examples for the band threshold**, one showing what it does to characters
   next to the `-th` example it is easily confused with, and one showing the transparency it
   punches through pixel art. The gallery is now 24 runs.

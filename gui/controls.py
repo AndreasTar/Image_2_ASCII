@@ -1,5 +1,5 @@
 ###########################################################################
-# Copyright (c) 2024, Andy Pandy                                          #
+# Copyright (c) 2024-2026, Andy Pandy                                          #
 # All rights reserved.                                                    #
 #                                                                         #
 # This source code is licensed under the BSD-style license found in the   #
@@ -612,8 +612,8 @@ class SettingsPanel(QScrollArea):
         Everything the panel is currently asking for, as plain values.
 
         A greyed out control reads as off, whatever its box happens to remember. Otherwise
-        a setting the panel has already decided is meaningless — edge detection with pixel
-        art, say — still reaches the config, and shows up in the command line the log
+        a setting the panel has already decided is meaningless, edge detection with pixel
+        art for example, still reaches the config, and shows up in the command line the log
         prints as a flag that plainly is not doing anything.
         """
         def on(widget) -> bool:

@@ -156,7 +156,7 @@ which turns a photograph into line art.
 > Block and shading characters are drawn as exact rectangles rather than from a font, so they
 > tile seamlessly and need no special font installed. Braille does need a font that has it:
 > most fixed width fonts, including Consolas and Courier New, do not, so the tool looks for
-> one that does and warns if it cannot find one. This only affects image output — text output
+> one that does and warns if it cannot find one. This only affects image output. Text output
 > is just characters and always works.
 
 ## Animation
@@ -213,7 +213,7 @@ pip install cupy-cuda12x
 
 or a GPU build of PyTorch from [pytorch.org](https://pytorch.org/get-started/locally/).
 CuPy needs an NVIDIA card; PyTorch also covers AMD (ROCm) and Apple silicon (MPS). Either
-way the machine needs its vendor's driver — that part cannot be bundled by anyone.
+way the machine needs its vendor's driver, that part cannot be bundled by anyone.
 
 > [!Note]
 > **The GPU is not automatically faster.** Since version 1.1.0 the CPU converts a 3840x2160
@@ -224,7 +224,7 @@ way the machine needs its vendor's driver — that part cannot be bundled by any
 > pixel, which is by far the most expensive thing the tool does.
 >
 > These figures are CPU measurements. No GPU benchmark is published here because none has
-> been run — the tool prints how long each conversion took, so measure both on your own
+> been run. The tool prints how long each conversion took, so measure both on your own
 > machine and your own images rather than taking any of this on faith.
 
 CPU and GPU results are the same picture. They are computed by different routes and can
@@ -233,10 +233,10 @@ floating point noise of the boundary between two characters.
 
 ## Windows will warn about the downloads, and so may your antivirus
 
-Both executables are unsigned, because a code signing certificate is something you buy. On a
+Both executables are unsigned, because a code signing certificate is not free. If this program gains traction, I may buy it. On a
 freshly downloaded unsigned program Windows shows:
 
-> **Windows protected your PC** — Microsoft Defender SmartScreen prevented an unrecognised
+> **Windows protected your PC**. Microsoft Defender SmartScreen prevented an unrecognised
 > app from starting.
 
 **More info → Run anyway** starts it. The warning is about the *absence* of a paid
@@ -248,26 +248,26 @@ particular: a self-extracting executable that unpacks code and runs it resembles
 crude shape of the thing, what packed malware does. Nothing can be done about it from this
 end short of paying for signing and building a reputation with each vendor.
 
-If you would rather not take any of that on faith, **run it from source instead** — it is
+If you would rather not take any of that on faith, **run it from source instead**. It is
 the same code, and it needs only Python and `pip install -r requirements.txt`. You can also
 build the executables yourself with the steps in the next section and compare.
 
 ## Building a standalone executable
 
-There are two, built separately, so that nobody who wants the command line tool has to take
-a hundred megabytes of Qt with it. Both run on a machine with no Python installed at all.
+There are two, built separately, so that the command line tool does not have to also package
+a hundred megabytes of Qt, when it doesn't need it. Both run on a machine with no Python installed at all.
 
 ```sh
 pip install -r requirements-dev.txt
 ```
 
-**Command line only** — one file, about 28 MB, no interface code and no Qt in it:
+**Command line only**. One file, about 28 MB, no interface code and no Qt in it:
 
 ```sh
 pyinstaller Image2Ascii.spec --distpath builds/dist --workpath builds/work
 ```
 
-**Windowed** — a folder of about 134 MB, zipped for release. Needs the GUI requirements as
+**Windowed**. A folder of about 134 MB, zipped for release. Needs the GUI requirements as
 well, and produces `Image2Ascii-GUI.exe` inside `builds/dist/Image2Ascii-GUI/`:
 
 ```sh
@@ -308,9 +308,9 @@ python examples/generate.py
 
 | | | |
 | :---: | :---: | :---: |
-| ![default ASCII](examples/output/auto.png) | ![braille](examples/output/charset-braille.png) | ![quadrants](examples/output/charset-quadrants.png) |
+| <img src="examples/output/auto.png" alt= "default ASCII" width="400"> | <img src="examples/output/charset-braille.png" alt= "braille" width="400"> | <img src="examples/output/charset-quadrants.png" alt= "quadrants" width="400"> |
 | default ASCII | `-cs braille` | `-cs quadrants` |
-| ![colour](examples/output/colored.jpg) | ![half blocks](examples/output/charset-halfblocks.jpg) | ![edges](examples/output/edges.png) |
+| <img src="examples/output/colored.jpg" alt= "colour" width="400"> | <img src="examples/output/charset-halfblocks.jpg" alt= "half blocks" width="400"> | <img src="examples/output/edges.png" alt= "edges" width="400"> |
 | `-c` | `-cs halfblocks -c` | `-e` |
 
 ## Roadmap
@@ -338,7 +338,7 @@ If you like this tool or the things I'm creating, please consider **Donating** u
 You will also be added into my **Donation List** for everyone to see! (still in the works)\
 (In case you choose to not have your username publicly displayed in the list mentioned above, please email me explicitly saying so in the email address linked in my profile, or saying so in the donation message.)
 
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/R6R7ZBM56)
+[<img src="https://ko-fi.com/img/githubbutton_sm.svg" alt= "ko-fi" width="400">](https://ko-fi.com/R6R7ZBM56)
 
 
 

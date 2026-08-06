@@ -1,5 +1,5 @@
 ###########################################################################
-# Copyright (c) 2024, Andy Pandy                                          #
+# Copyright (c) 2024-2026, Andy Pandy                                          #
 # All rights reserved.                                                    #
 #                                                                         #
 # This source code is licensed under the BSD-style license found in the   #
@@ -188,7 +188,7 @@ def commandLine(settings: dict, inputPath: pl.Path, outputPath: pl.Path | None =
 
     Neither `-a` nor `-ca` is ever emitted. Both exist on the command line to work out tile
     counts that were not given, and the window always knows both counts, so it passes them
-    outright — the aspect ratio is already baked into the numbers.
+    outright. The aspect ratio is already baked into the numbers.
     """
     parts = ['python', 'converter.py', pQuote(inputPath)]
 

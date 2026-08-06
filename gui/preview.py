@@ -1,5 +1,5 @@
 ###########################################################################
-# Copyright (c) 2024, Andy Pandy                                          #
+# Copyright (c) 2024-2026, Andy Pandy                                          #
 # All rights reserved.                                                    #
 #                                                                         #
 # This source code is licensed under the BSD-style license found in the   #
@@ -180,7 +180,7 @@ class ImageView(QGraphicsView):
 
     def showFraction(self, fraction: tuple[float, float, float, float]) -> None:
         """
-        Frames the same proportion of this picture, without reporting it back — which
+        Frames the same proportion of this picture, without reporting it back, which
         would otherwise bounce between the two panes forever.
         """
         left, top, width, height = fraction

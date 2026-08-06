@@ -1,5 +1,5 @@
 ###########################################################################
-# Copyright (c) 2024, Andy Pandy                                          #
+# Copyright (c) 2024-2026, Andy Pandy                                     #
 # All rights reserved.                                                    #
 #                                                                         #
 # This source code is licensed under the BSD-style license found in the   #
@@ -16,7 +16,7 @@ Every picture in examples/README.md comes from running the tool through this scr
 the gallery cannot drift away from what the tool actually does. Point it at a different
 photograph with --source and the whole gallery rebuilds around it.
 
-The source photo is tall and the cat only fills the middle of it, so most runs use a crop.
+The original source photo is tall and the cat only fills the middle of it, so most runs use a crop.
 The crop is worked out here rather than committed as a second file.
 """
 
@@ -236,7 +236,7 @@ def writeGallery(examples: list[Example], results: dict, sourceName: str, animat
         '```',
         '',
         'The source photograph is [source/cat.jpg](source/cat.jpg). Most runs use a crop of it,',
-        'because the cat only occupies the middle of a fairly busy frame — the',
+        'because the cat only occupies the middle of a fairly busy frame. The',
         '[full frame example](#the-whole-photograph) shows the difference.',
         '',
         '---',
@@ -263,7 +263,7 @@ def writeGallery(examples: list[Example], results: dict, sourceName: str, animat
             lines.append('')
 
             if example.outputType in ('png', 'jpg', 'gif', 'svg'):
-                lines.append(f'![{example.title}](output/{example.outputName})')
+                lines.append(f'<img src="output/{example.outputName}" alt= "{example.title}" width="400">')
             else:
                 lines.append(f'[View the output file](output/{example.outputName})')
                 preview = (OUTPUT_DIR / example.outputName).read_text(encoding = 'utf-8').splitlines()
@@ -289,7 +289,7 @@ def writeGallery(examples: list[Example], results: dict, sourceName: str, animat
                  f'-cs blocks -c -ot gif -op examples/output/animation')
     lines.append('```')
     lines.append('')
-    lines.append('![Animated example](output/animation.gif)')
+    lines.append('<img src="output/animation.gif" alt= "Animated example" width="400">')
     lines.append('')
     lines.append('The same input can also be played straight in the terminal with `-p`, written as one')
     lines.append('file per frame with `--frames`, or re-encoded to a video with `-ot mp4`.')
