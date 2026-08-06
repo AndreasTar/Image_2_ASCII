@@ -1,5 +1,7 @@
 ###########################################################################
-# Copyright (c) 2024-2026, Andy Pandy                                          #
+# Copyright (c) 2024-2026, Andreas Tarasidis (Andy Pandy)                 #
+#                                                                         #
+# Original repo: https://github.com/AndreasTar/Image_2_ASCII              #
 # All rights reserved.                                                    #
 #                                                                         #
 # This source code is licensed under the BSD-style license found in the   #

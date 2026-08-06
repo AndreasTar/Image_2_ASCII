@@ -1,5 +1,7 @@
 ###########################################################################
-# Copyright (c) 2024-2026, Andy Pandy                                          #
+# Copyright (c) 2024-2026, Andreas Tarasidis (Andy Pandy)                 #
+#                                                                         #
+# Original repo: https://github.com/AndreasTar/Image_2_ASCII              #
 # All rights reserved.                                                    #
 #                                                                         #
 # This source code is licensed under the BSD-style license found in the   #
@@ -14,8 +16,8 @@ Settings on the left, source and result side by side on the right, progress and 
 the bottom. Changing any setting re-previews on its own after a short pause, so the effect
 of a threshold or a character set is something you watch rather than something you run.
 
-Saving is always a separate, deliberate act. Nothing here writes to disk until the user
-picks a destination, which is what makes it safe to preview continuously.
+Nothing here writes to disk until the user picks a destination, which is what makes 
+it safe to preview continuously.
 """
 
 import pathlib as pl
@@ -103,14 +105,14 @@ class MainWindow(QMainWindow):
         self.pFileLabel = QLabel("No file open")
         self.pFileLabel.setObjectName('Hint')
 
-        self.pAsPicture = QCheckBox("Text as picture")
+        self.pAsPicture = QCheckBox("Text as Image")
         self.pAsPicture.setChecked(True)
         self.pAsPicture.setToolTip(
             "Draw TXT, XML and SVG results as an image so they line up with the source. "
             "Off shows the characters themselves. Either way, the saved file is the same."
         )
 
-        self.pZoomOut = QPushButton("−")
+        self.pZoomOut = QPushButton("-")
         self.pZoomIn = QPushButton("+")
         self.pFit = QPushButton("Fit")
         for button in (self.pZoomOut, self.pZoomIn):
