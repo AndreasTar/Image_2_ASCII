@@ -15,7 +15,7 @@ Every flag the tool has, as something to click.
 The lists of character sets, ramp sizes, output formats and compute backends are read out
 of the engine rather than written down again here. Adding a character set to `tools` puts
 it in the dropdown with its own description as the tooltip, with nothing to remember to
-update in the GUI, which is the only way two frontends stay in step over time.
+update in the GUI, which is the only way two frontends stay synced over time.
 
 The panel produces a plain dictionary. Turning that into a `Config` happens in `session`,
 so that nothing which knows about widgets also knows about the conversion.
@@ -105,8 +105,8 @@ class SliderSpin(QWidget):
     A slider with the number next to it.
 
     A slider alone cannot be set exactly and a box alone gives no feel for the range, and
-    both of those matter for the two settings that use this: a brightness cutoff and an
-    edge percentile are things people want to sweep and then pin down.
+    both of those matter for the settings that use this: a brightness cutoff, the threshold, and an
+    edge percentile.
     """
 
     valueChanged = Signal(int)

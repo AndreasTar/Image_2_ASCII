@@ -5,8 +5,6 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 ## [2.1.0]
 
-The first release with downloadable builds of both versions.
-
 ### Added
 
 - **`-tb` / `--thresholdband`, a two-ended threshold.** Give it a low and a high brightness

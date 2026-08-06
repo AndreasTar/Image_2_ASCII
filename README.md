@@ -16,6 +16,7 @@ are given as minimum versions rather than exact pins, so pip picks whichever rel
 the interpreter you have.
 
 You will need the packages mentioned in [requirements.txt](requirements.txt) in order to run this app. **If you already have the required packages, you can skip this section.** Otherwise, you can install them by running the following shell command
+
 ```sh
 $ pip install -r requirements.txt
 ```
@@ -27,20 +28,24 @@ First, create the virtual enviroment
 ```sh
 $ python -m venv venv/<name>
 ```
+
 Then, activate it using the appropriate command, depending on your OS:
 
 ##### Windows
+
 ```sh
 $ ./venv/<name>/Scripts/Activate
 ```
 
 ##### Linux
+
 ```sh
 $ source venv/<name>/bin/activate
 ```
 
 \
 When that's completed, run the shell command
+
 ```sh
 $ pip install -r requirements.txt
 ```
@@ -167,12 +172,15 @@ handles them. There are four ways to write the result:
 ```sh
 python converter.py clip.gif -a -wc 100 -ot gif -op out      # animated GIF
 ```
+
 ```sh
 python converter.py clip.gif -a -wc 100 -p                   # play it in the terminal
 ```
+
 ```sh
 python converter.py clip.gif -a -wc 100 --frames -op out     # one file per frame
 ```
+
 ```sh
 python converter.py clip.gif -a -wc 100 -ot mp4 -op out      # re-encode as video
 ```
@@ -339,6 +347,3 @@ You will also be added into my **Donation List** for everyone to see! (still in 
 (In case you choose to not have your username publicly displayed in the list mentioned above, please email me explicitly saying so in the email address linked in my profile, or saying so in the donation message.)
 
 [<img src="https://ko-fi.com/img/githubbutton_sm.svg" alt= "ko-fi" width="400">](https://ko-fi.com/R6R7ZBM56)
-
-
-
