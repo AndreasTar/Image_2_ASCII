@@ -1,0 +1,11 @@
+# Only the windowed version needs these. The command line tool runs on requirements.txt
+# alone, which is what keeps it installable on a machine with nothing but Python.
+#
+# PySide6 is the official Qt for Python binding and is licensed under the LGPL, which suits
+# a BSD project. PyQt is the same toolkit under the GPL, which would not.
+#
+# Verified on Python 3.14.6 with PySide6 6.11.1.
+
+-r requirements.txt
+
+PySide6 >= 6.10        # 6.10 is the first release with a stable-ABI wheel for Python 3.14

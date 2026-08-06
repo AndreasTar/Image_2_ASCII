@@ -1,3 +1,13 @@
-numpy == 2.0.1
-pillow == 10.4.0
-svg.py == 1.4.3
+# Everything the tool needs to run. All three are plain pip wheels with no system
+# dependencies, which is what lets the tool run on a fresh machine with only Python.
+#
+# These are minimum versions rather than exact pins on purpose. The newest numpy needs
+# Python 3.12 or later, so pinning one exact version would stop the tool installing at all
+# on an older Python. With a floor, pip picks whatever suits the interpreter it finds.
+#
+# Verified on Python 3.14.6 with numpy 2.5.1, pillow 12.3.0 and svg.py 1.10.0.
+# Python 3.10 and 3.11 also work, with the older versions pip selects for them.
+
+numpy >= 1.24
+pillow >= 10.1.0        # 10.1 added the size argument to ImageFont.load_default
+svg.py >= 1.4.3
