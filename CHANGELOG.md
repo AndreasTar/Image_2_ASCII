@@ -3,6 +3,12 @@
 All notable changes to this project are documented here.
 This project follows [Semantic Versioning](https://semver.org/).
 
+## [2.1.1]
+
+### Fixed
+
+- **Improved text readability throught the codebase** Changed the Copyright segment, removed unnecessary text from docs and comments.
+
 ## [2.1.0]
 
 ### Added
